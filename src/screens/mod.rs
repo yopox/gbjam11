@@ -8,6 +8,7 @@ use crate::screens::loading::LoadingPlugin;
 use crate::screens::space::SpacePlugin;
 use crate::screens::title::TitlePlugin;
 pub use loading::Textures;
+pub use loading::Fonts;
 
 pub struct ScreensPlugin;
 

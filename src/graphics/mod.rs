@@ -2,14 +2,16 @@ mod palette;
 pub mod sizes;
 mod pixel;
 mod shader;
+mod text;
 
 use bevy::app::App;
 use bevy::prelude::*;
-pub use pixel::FakeTransform;
-pub use shader::GBShaderSettings;
 pub use palette::Palette;
-use crate::graphics::palette::CurrentPalette;
-use crate::graphics::shader::GBShaderPlugin;
+pub use palette::CurrentPalette;
+pub use pixel::FakeTransform;
+use shader::GBShaderPlugin;
+pub use shader::GBShaderSettings;
+pub use text::TextStyles;
 
 pub struct GraphicsPlugin;
 

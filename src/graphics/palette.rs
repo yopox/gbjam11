@@ -42,10 +42,10 @@ impl Palette {
     pub fn colors(&self) -> [Color; 4] {
         match self {
             Palette::Greyscale => [
-                Color::hex("ffffff").unwrap(),
-                Color::hex("aaaaaa").unwrap(),
-                Color::hex("666666").unwrap(),
                 Color::hex("000000").unwrap(),
+                Color::hex("666666").unwrap(),
+                Color::hex("aaaaaa").unwrap(),
+                Color::hex("ffffff").unwrap(),
             ],
             Palette::YellowPurple => [
                 Color::hex("201e33").unwrap(),
