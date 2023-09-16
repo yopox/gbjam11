@@ -7,7 +7,8 @@ mod screens;
 
 use bevy::prelude::*;
 use crate::entities::EntitiesPlugin;
-use crate::graphics::GraphicsPlugin;
+use crate::graphics::{GraphicsPlugin, GBShaderSettings};
+use crate::graphics::Palette;
 use crate::screens::ScreensPlugin;
 use crate::util::{HEIGHT, SCALE, WIDTH};
 
@@ -44,12 +45,15 @@ fn main() {
 }
 
 fn init(mut commands: Commands) {
-    commands.spawn(Camera2dBundle {
-        transform: Transform {
-            scale: Vec3::new(1. / SCALE, 1. / SCALE, 1.),
-            translation: Vec3::new(WIDTH as f32 / 2., HEIGHT as f32 / 2., 100.),
+    commands
+        .spawn(Camera2dBundle {
+            transform: Transform {
+                scale: Vec3::new(1. / SCALE, 1. / SCALE, 1.),
+                translation: Vec3::new(WIDTH as f32 / 2., HEIGHT as f32 / 2., 100.),
+                ..default()
+            },
             ..default()
-        },
-        ..default()
-    });
+        })
+        .insert(GBShaderSettings::from_palette(Palette::YellowPurple))
+    ;
 }

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy::sprite::Anchor;
 use crate::entities::Ship;
 use crate::GameState;
-use crate::graphics::FakeTransform;
+use crate::graphics::{FakeTransform, Palette};
 use crate::graphics::sizes::ShipSize;
 use crate::screens::Textures;
 use crate::util::{BORDER, WIDTH};
