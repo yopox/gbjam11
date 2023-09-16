@@ -1,4 +1,5 @@
 pub mod palette;
+pub mod sizes;
 mod pixel;
 
 use bevy::app::App;

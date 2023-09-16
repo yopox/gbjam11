@@ -1,5 +1,7 @@
 use bevy::prelude::{Component, Query, Transform, Vec3};
 
+/// Manipulate this component instead of [Transform] to ensure that
+/// sprites are never drawn on subpixels.
 #[derive(Component)]
 pub struct FakeTransform {
     pub translation: Vec3,

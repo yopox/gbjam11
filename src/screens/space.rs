@@ -4,7 +4,9 @@ use bevy::sprite::Anchor;
 use crate::entities::Ship;
 use crate::GameState;
 use crate::graphics::FakeTransform;
+use crate::graphics::sizes::ShipSize;
 use crate::screens::Textures;
+use crate::util::{BORDER, WIDTH};
 
 pub struct SpacePlugin;
 
@@ -28,8 +30,13 @@ fn update(
     for (s, mut pos) in ship.iter_mut() {
         if !s.friendly { continue }
 
-        if keys.pressed(KeyCode::Left) { pos.translation.x -= 0.25; }
-        if keys.pressed(KeyCode::Right) { pos.translation.x += 0.25; }
+        let dx = s.speed + s.size.hitbox().x / 2. + BORDER;
+        if keys.pressed(KeyCode::Left) {
+            if pos.translation.x - dx >= 0. { pos.translation.x -= s.speed; }
+        }
+        if keys.pressed(KeyCode::Right) {
+            if pos.translation.x + dx <= WIDTH as f32 { pos.translation.x += s.speed; }
+        }
     }
 }
 
@@ -39,15 +46,11 @@ fn enter(
 ) {
     commands
         .spawn(SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                anchor: Anchor::BottomLeft,
-                ..default()
-            },
             texture_atlas: textures.ship.clone(),
             ..default()
         })
-        .insert(FakeTransform::from_xyz(0., 0., 1.))
-        .insert(Ship::new(true))
+        .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., 24., 1.))
+        .insert(Ship::new(true, ShipSize::Hero, 0.5))
     ;
 }
 
