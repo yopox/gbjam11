@@ -23,6 +23,9 @@ pub struct Textures {
     #[asset(texture_atlas(tile_size_x = 16., tile_size_y = 16., columns = 1, rows = 1, padding_x = 0., padding_y = 0.))]
     #[asset(path = "ship.png")]
     pub ship: Handle<TextureAtlas>,
+
+    #[asset(path = "bar.png")]
+    pub bar: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource)]
