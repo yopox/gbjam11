@@ -1,12 +1,14 @@
 mod util;
-mod loading;
-mod title;
-mod palette;
+
+mod entities;
+mod graphics;
+mod logic;
+mod screens;
 
 use bevy::prelude::*;
-use crate::loading::LoadingPlugin;
-use crate::palette::Palette;
-use crate::title::TitlePlugin;
+use crate::entities::EntitiesPlugin;
+use crate::graphics::GraphicsPlugin;
+use crate::screens::ScreensPlugin;
 use crate::util::{HEIGHT, SCALE, WIDTH};
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
@@ -14,12 +16,11 @@ pub enum GameState {
     #[default]
     Loading,
     Title,
-    Main,
+    Space,
 }
 
 fn main() {
     App::new()
-        .insert_resource(ClearColor(Color::from(Palette::BACKGROUND)))
         .insert_resource(Msaa::Off)
         .add_plugins(DefaultPlugins
             .set(ImagePlugin::default_nearest())
@@ -36,9 +37,9 @@ fn main() {
                 ..default()
             })
         )
+        .add_plugins((EntitiesPlugin, GraphicsPlugin, ScreensPlugin))
         .add_state::<GameState>()
         .add_systems(Startup, init)
-        .add_plugins((LoadingPlugin, TitlePlugin))
         .run();
 }
 
@@ -47,8 +48,8 @@ fn init(mut commands: Commands) {
         transform: Transform {
             scale: Vec3::new(1. / SCALE, 1. / SCALE, 1.),
             translation: Vec3::new(WIDTH as f32 / 2., HEIGHT as f32 / 2., 100.),
-            ..Default::default()
+            ..default()
         },
-        ..Default::default()
+        ..default()
     });
 }

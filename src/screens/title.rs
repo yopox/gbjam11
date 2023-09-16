@@ -1,8 +1,7 @@
 use bevy::app::App;
 use bevy::prelude::*;
-use bevy::sprite::Anchor;
 use crate::GameState;
-use crate::loading::Textures;
+use crate::screens::Textures;
 
 pub struct TitlePlugin;
 
@@ -29,18 +28,7 @@ fn enter(
     mut commands: Commands,
     textures: Res<Textures>
 ) {
-    commands
-        .spawn(SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                anchor: Anchor::BottomLeft,
-                ..default()
-            },
-            texture_atlas: textures.ship.clone(),
-            transform: Transform::from_xyz(0., 0., 1.),
-            ..default()
-        })
-    ;
-    bevy::log::info!("spawning ship");
+
 }
 
 fn exit(
