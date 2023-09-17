@@ -1,18 +1,25 @@
-mod ship;
-mod weapon;
-
 use bevy::app::App;
 use bevy::prelude::*;
-use crate::entities::ship::ShipPlugin;
-pub use ship::Ships;
+
 pub use ship::Ship;
+pub use ship::Ships;
+pub use weapon::Angle;
+pub use weapon::ShipWeapons;
+pub use weapon::Weapons;
+
+use crate::entities::ship::ShipPlugin;
+use crate::entities::shot::ShotsPlugin;
+
+mod ship;
+mod weapon;
+mod shot;
 
 pub struct EntitiesPlugin;
 
 impl Plugin for EntitiesPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_plugins(ShipPlugin)
+            .add_plugins((ShipPlugin, ShotsPlugin))
         ;
     }
 }

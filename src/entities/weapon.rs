@@ -1,31 +1,82 @@
-use bevy::math::vec2;
-use bevy::prelude::Vec2;
-use crate::entities::Ship;
+use std::f32::consts::PI;
 
-pub struct Shot {
-    /// Attack value (base value * ship multiplier)
-    attack: f32,
-    /// Speed (ship shot speed)
-    speed: Vec2,
+use bevy::math::vec2;
+use bevy::prelude::*;
+use bevy::sprite::Anchor;
+
+use crate::entities::Ship;
+use crate::entities::shot::Shots;
+use crate::graphics::Palette;
+
+pub enum Weapons {
+    Standard,
 }
 
-impl Shot {
-    pub fn new(ship: &Ship, model: Shots, direction: Vec2) -> Self {
-        Shot {
-            attack: model.attack() * ship.damage_factor,
-            speed: vec2(direction.x * ship.shot_speed, direction.y * ship.shot_speed),
+impl Weapons {
+    pub fn shot_type(&self) -> Shots {
+        match self {
+            Weapons::Standard => Shots::Bullet,
         }
     }
 }
 
-pub enum Shots {
-    Square,
+#[derive(Copy, Clone)]
+pub struct Weapon {
+    shot: Shots,
+    pub attack: f32,
+    pub speed: Vec2,
+    pub offset: Vec2,
+    delay: usize,
 }
 
-impl Shots {
-    fn attack(&self) -> f32 {
-        match self {
-            Shots::Square => 1.0,
+impl Weapon {
+    pub fn fires(&self, timer: usize) -> bool { timer % self.delay == 0 }
+
+    pub fn sprite(&self, friendly: bool) -> TextureAtlasSprite {
+        TextureAtlasSprite {
+            index: self.shot.sprite_atlas_index(),
+            anchor: Anchor::Center,
+            color: if friendly { Palette::Greyscale.colors()[2] } else { Palette::Greyscale.colors()[1] },
+            ..default()
+        }
+    }
+}
+
+/// Angle in degrees
+#[derive(Copy, Clone)]
+pub struct Angle(pub f32);
+
+impl Weapon {
+    fn new(model: Shots, ship: &Ship, offset: Vec2, angle: Angle) -> Self {
+        Weapon {
+            shot: model,
+            attack: model.attack() * ship.damage_factor,
+            speed: vec2(
+                (angle.0 * PI / 180.).cos() * ship.shot_speed,
+                (angle.0 * PI / 180.).sin() * ship.shot_speed
+            ),
+            offset,
+            delay: (model.delay() as f32 / ship.shot_frequency).ceil() as usize
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct ShipWeapons {
+    pub weapons: Vec<Weapon>,
+    pub timer: usize,
+}
+
+impl ShipWeapons {
+    pub fn new(ship: &Ship, weapons: Vec<(Weapons, Vec2, Angle)>) -> Self {
+        ShipWeapons {
+            weapons: weapons.iter().map(|(w, offset, angle)| Weapon::new(
+                w.shot_type(),
+                &ship,
+                offset.clone(),
+                *angle,
+            )).collect(),
+            timer: 0,
         }
     }
 }

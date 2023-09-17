@@ -1,9 +1,10 @@
 use bevy::app::App;
-use bevy::math::vec3;
+use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
-use crate::entities::{Ship, Ships};
+
 use crate::GameState;
+use crate::entities::{Angle, Ship, Ships, ShipWeapons, Weapons};
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::screens::{Fonts, Textures};
@@ -56,13 +57,19 @@ fn enter(
     textures: Res<Textures>,
     fonts: Res<Fonts>,
 ) {
+    let ship = Ship::from(Ships::Player);
     commands
         .spawn(SpriteSheetBundle {
             texture_atlas: textures.ship.clone(),
             ..default()
         })
-        .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., 24., 1.))
-        .insert(Ship::from(Ships::Player))
+        .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., 24., z_pos::SHIPS))
+        .insert(ShipWeapons::new(&ship, vec![
+            (Weapons::Standard, vec2(0., 8.), Angle(90.)),
+            (Weapons::Standard, vec2(-8., 8.), Angle(135.)),
+            (Weapons::Standard, vec2(8., 8.), Angle(45.)),
+        ]))
+        .insert(ship)
         .insert(Hitbox::Hero)
         .insert(SpaceUI)
     ;

@@ -1,5 +1,6 @@
 use bevy::app::App;
 use bevy::prelude::*;
+
 use crate::GameState;
 
 pub struct ShipPlugin;
@@ -14,12 +15,13 @@ pub struct Ship {
     pub speed: f32,
     pub damage_factor: f32,
     pub shot_speed: f32,
+    pub shot_frequency: f32,
 }
 
 impl Ship {
     pub fn from(model: Ships) -> Self {
         match model {
-            Ships::Player => Ship { friendly: true, speed: 0.25, damage_factor: 1.0, shot_speed: 1.0 }
+            Ships::Player => Ship { friendly: true, speed: 0.25, damage_factor: 1.0, shot_speed: 1.0, shot_frequency: 0.5 }
         }
     }
 }
