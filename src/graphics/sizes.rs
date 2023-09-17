@@ -1,14 +1,16 @@
 use bevy::math::{Vec2, vec2};
+use bevy::prelude::Component;
 
-pub enum ShipSize {
+#[derive(Component)]
+pub enum Hitbox {
     Hero,
 }
 
-impl ShipSize {
+impl Hitbox {
     /// Real sprite size without transparent pixels on the border. Must be even!
-    pub fn hitbox(&self) -> Vec2 {
+    pub fn size(&self) -> Vec2 {
         match self {
-            ShipSize::Hero => vec2(16., 10.),
+            Hitbox::Hero => vec2(16., 10.),
         }
     }
 }

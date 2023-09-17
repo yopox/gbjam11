@@ -1,19 +1,27 @@
 use bevy::app::App;
 use bevy::prelude::*;
 use crate::GameState;
-use crate::graphics::sizes::ShipSize;
 
 pub struct ShipPlugin;
+
+pub enum Ships {
+    Player,
+}
 
 #[derive(Component)]
 pub struct Ship {
     pub friendly: bool,
-    pub size: ShipSize,
     pub speed: f32,
+    pub damage_factor: f32,
+    pub shot_speed: f32,
 }
 
 impl Ship {
-    pub fn new(friendly: bool, size: ShipSize, speed: f32) -> Self { Ship { friendly, size, speed } }
+    pub fn from(model: Ships) -> Self {
+        match model {
+            Ships::Player => Ship { friendly: true, speed: 0.25, damage_factor: 1.0, shot_speed: 1.0 }
+        }
+    }
 }
 
 impl Plugin for ShipPlugin {

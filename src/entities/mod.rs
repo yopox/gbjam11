@@ -1,8 +1,10 @@
 mod ship;
+mod weapon;
 
 use bevy::app::App;
 use bevy::prelude::*;
 use crate::entities::ship::ShipPlugin;
+pub use ship::Ships;
 pub use ship::Ship;
 
 pub struct EntitiesPlugin;

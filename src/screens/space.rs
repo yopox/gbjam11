@@ -2,10 +2,10 @@ use bevy::app::App;
 use bevy::math::vec3;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
-use crate::entities::Ship;
+use crate::entities::{Ship, Ships};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
-use crate::graphics::sizes::ShipSize;
+use crate::graphics::sizes::Hitbox;
 use crate::screens::{Fonts, Textures};
 use crate::util::{BORDER, WIDTH};
 
@@ -35,12 +35,13 @@ impl Plugin for SpacePlugin {
 
 fn update(
     keys: Res<Input<KeyCode>>,
-    mut ship: Query<(&Ship, &mut FakeTransform)>,
+    mut ship: Query<(&Ship, &Hitbox, &mut FakeTransform)>,
 ) {
-    for (s, mut pos) in ship.iter_mut() {
+    for (s, hitbox, mut pos) in ship.iter_mut() {
         if !s.friendly { continue }
 
-        let dx = s.speed + s.size.hitbox().x / 2. + BORDER;
+        let hitbox_w = hitbox.size().x;
+        let dx = s.speed + hitbox_w / 2. + BORDER;
         if keys.pressed(KeyCode::Left) {
             if pos.translation.x - dx >= 0. { pos.translation.x -= s.speed; }
         }
@@ -61,7 +62,8 @@ fn enter(
             ..default()
         })
         .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., 24., 1.))
-        .insert(Ship::new(true, ShipSize::Hero, 0.5))
+        .insert(Ship::from(Ships::Player))
+        .insert(Hitbox::Hero)
         .insert(SpaceUI)
     ;
 
