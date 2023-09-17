@@ -7,7 +7,7 @@ use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::screens::{Fonts, Textures};
-use crate::util::{BORDER, WIDTH};
+use crate::util::{BORDER, WIDTH, z_pos};
 
 pub struct SpacePlugin;
 
@@ -72,7 +72,7 @@ fn enter(
         .spawn(Text2dBundle {
             text: Text::from_section("Life", TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::BottomLeft,
-            transform: Transform::from_xyz(8., 4., 1.),
+            transform: Transform::from_xyz(8., 4., z_pos::GUI),
             ..default()
         })
         .insert(SpaceUI)
@@ -86,7 +86,7 @@ fn enter(
             },
             texture: textures.bar.clone(),
             transform: Transform {
-                translation: vec3(8., 4., 1.),
+                translation: vec3(8., 4., z_pos::GUI),
                 scale: vec3(32., 1., 1.),
                 ..default()
             },
@@ -99,7 +99,7 @@ fn enter(
         .spawn(Text2dBundle {
             text: Text::from_section("Credits: 999", TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::BottomRight,
-            transform: Transform::from_xyz(WIDTH as f32 - 7., 4., 1.),
+            transform: Transform::from_xyz(WIDTH as f32 - 7., 4., z_pos::GUI),
             ..default()
         })
         .insert(CreditsText)
@@ -114,7 +114,7 @@ fn enter(
             },
             texture: textures.bar.clone(),
             transform: Transform {
-                translation: vec3(WIDTH as f32 - 8., 4., 1.),
+                translation: vec3(WIDTH as f32 - 8., 4., z_pos::GUI),
                 scale: vec3(55., 1., 1.),
                 ..default()
             },
