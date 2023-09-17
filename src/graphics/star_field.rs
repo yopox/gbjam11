@@ -1,8 +1,8 @@
 use bevy::app::App;
 use bevy::prelude::*;
-use rand::{Rng};
+use rand::{random, Rng};
 use crate::GameState;
-use crate::graphics::FakeTransform;
+use crate::graphics::{FakeTransform, Palette};
 use crate::util::{HEIGHT, WIDTH};
 
 pub struct StarFieldPlugin;
@@ -38,7 +38,7 @@ fn enter(
 
     for _i in 0..50 {
         let sprite = Sprite {
-            color: Color::RED,
+            color: Palette::Greyscale.colors()[3],
             custom_size: Some(Vec2::new(1., 1.)),
             ..default()
         };
@@ -66,8 +66,16 @@ fn update(
     mut stars: Query<(&Star, &mut FakeTransform)>,
 ) {
     for (star, mut transform) in stars.iter_mut() {
-        transform.translation.x = (transform.translation.x + speed.0.x * star.speed_modifier).rem_euclid(WIDTH as f32);
-        transform.translation.y = (transform.translation.y + speed.0.y * star.speed_modifier).rem_euclid(HEIGHT as f32);
+        transform.translation.y = transform.translation.y + speed.0.y * star.speed_modifier;
+
+        // Note: one handle a single direction
+        if transform.translation.y < 0.0 {
+            transform.translation.y += HEIGHT as f32;
+            transform.translation.x = random::<f32>() * WIDTH as f32;
+        } else {
+            transform.translation.x = (transform.translation.x + speed.0.x * star.speed_modifier).rem_euclid(WIDTH as f32);
+        }
+
     }
 }
 
