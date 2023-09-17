@@ -3,6 +3,7 @@ pub mod sizes;
 mod pixel;
 mod shader;
 mod text;
+mod star_field;
 
 use bevy::app::App;
 use bevy::prelude::*;
@@ -12,6 +13,7 @@ pub use pixel::FakeTransform;
 use shader::GBShaderPlugin;
 pub use shader::GBShaderSettings;
 pub use text::TextStyles;
+use crate::graphics::star_field::StarFieldPlugin;
 
 pub struct GraphicsPlugin;
 
@@ -19,7 +21,7 @@ impl Plugin for GraphicsPlugin {
     fn build(&self, app: &mut App) {
         let palette = Palette::YellowPurple;
         app
-            .add_plugins(GBShaderPlugin)
+            .add_plugins((GBShaderPlugin, StarFieldPlugin))
             .insert_resource(CurrentPalette(palette))
             .insert_resource(ClearColor(palette.colors()[0]))
             .add_systems(Update, palette::update_palette)
