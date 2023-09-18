@@ -74,7 +74,7 @@ impl ShipWeapons {
         ShipWeapons {
             weapons: weapons.iter().map(|(w, offset, angle)| Weapon::new(
                 w.shot_type(),
-                &ship,
+                ship,
                 offset.clone(),
                 *angle,
             )).collect(),

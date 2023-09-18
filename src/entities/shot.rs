@@ -7,6 +7,7 @@ use crate::entities::weapon::{ShipWeapons, Weapon};
 use crate::GameState;
 use crate::graphics::FakeTransform;
 use crate::graphics::sizes::Hitbox;
+use crate::logic::hit::HitEvent;
 use crate::logic::upgrades::ShotUpgrades;
 use crate::screens::Textures;
 use crate::util::{HEIGHT, WIDTH, z_pos};
@@ -112,11 +113,12 @@ fn update_shots(
 }
 
 fn collide_shots(
-    shots: Query<(&Shot, &Hitbox, &ShotUpgrades, &FakeTransform)>,
-    ships: Query<(&Ship, &Hitbox, &FakeTransform,)>,
+    shots: Query<(&Shot, &Hitbox, &ShotUpgrades, &FakeTransform, Entity)>,
+    ships: Query<(&Ship, &Hitbox, &FakeTransform, Entity)>,
+    mut event_writer: EventWriter<HitEvent>,
 ) {
-    for (shot, shot_hitbox, _, shot_pos) in &shots {
-        for (ship, ship_hitbox, ship_pos) in &ships {
+    for (shot, shot_hitbox, _, shot_pos, shot_entity) in &shots {
+        for (ship, ship_hitbox, ship_pos, ship_entity) in &ships {
             if shot.friendly == ship.friendly { continue; }
             let collision = collide(
                 shot_pos.translation,
@@ -124,7 +126,9 @@ fn collide_shots(
                 ship_pos.translation,
                 ship_hitbox.0,
             );
-            if collision.is_some() { info!("Collision !"); }
+            if collision.is_some() {
+                event_writer.send(HitEvent { shot: shot_entity, ship: ship_entity });
+            }
         }
     }
 }
