@@ -10,19 +10,21 @@ use crate::graphics::Palette;
 
 pub enum Weapons {
     Standard,
+    Wave,
 }
 
 impl Weapons {
     pub fn shot_type(&self) -> Shots {
         match self {
             Weapons::Standard => Shots::Bullet,
+            Weapons::Wave => Shots::Wave,
         }
     }
 }
 
 #[derive(Copy, Clone)]
 pub struct Weapon {
-    shot: Shots,
+    pub shot: Shots,
     pub attack: f32,
     pub speed: Vec2,
     pub offset: Vec2,
