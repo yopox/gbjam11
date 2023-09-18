@@ -7,6 +7,7 @@ use crate::entities::{Angle, Ship, Ships, ShipWeapons, Weapons};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
+use crate::logic::upgrades::{BOUNCING, ShotUpgrades};
 use crate::screens::{Fonts, Textures};
 use crate::util::{BORDER, WIDTH, z_pos};
 
@@ -69,10 +70,11 @@ fn enter(
         })
         .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., 24., z_pos::SHIPS))
         .insert(ShipWeapons::new(&ship, vec![
-            (Weapons::Wave, vec2(-4., 8.), Angle(90.)),
-            (Weapons::Wave, vec2(4., 8.), Angle(90.)),
+            (Weapons::Wave, vec2(8., 8.), Angle(45.)),
+            (Weapons::Wave, vec2(-8., 8.), Angle(135.)),
         ]))
         .insert(Ships::Player.hitbox())
+        .insert(ShotUpgrades(BOUNCING))
         .insert(ship)
         .insert(SpaceUI)
     ;

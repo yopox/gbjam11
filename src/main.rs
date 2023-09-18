@@ -1,16 +1,18 @@
+use bevy::prelude::*;
+
+use crate::entities::EntitiesPlugin;
+use crate::graphics::{GBShaderSettings, GraphicsPlugin};
+use crate::graphics::Palette;
+use crate::logic::LogicPlugin;
+use crate::screens::ScreensPlugin;
+use crate::util::{HEIGHT, SCALE, WIDTH};
+
 mod util;
 
 mod entities;
 mod graphics;
 mod logic;
 mod screens;
-
-use bevy::prelude::*;
-use crate::entities::EntitiesPlugin;
-use crate::graphics::{GraphicsPlugin, GBShaderSettings};
-use crate::graphics::Palette;
-use crate::screens::ScreensPlugin;
-use crate::util::{HEIGHT, SCALE, WIDTH};
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum GameState {
@@ -38,7 +40,7 @@ fn main() {
                 ..default()
             })
         )
-        .add_plugins((EntitiesPlugin, GraphicsPlugin, ScreensPlugin))
+        .add_plugins((EntitiesPlugin, GraphicsPlugin, LogicPlugin, ScreensPlugin))
         .add_state::<GameState>()
         .add_systems(Startup, init)
         .run();
