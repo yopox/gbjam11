@@ -1,6 +1,7 @@
-use bevy::app::{App, Plugin, Update};
+use bevy::app::{App, Plugin};
 use bevy::prelude::{Commands, Entity, Event, EventReader};
 use bevy::prelude::*;
+
 use crate::GameState;
 
 pub struct HitProcessingPlugin;
@@ -9,7 +10,7 @@ impl Plugin for HitProcessingPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<HitEvent>()
-            .add_systems(Update, clear_shots.run_if(in_state(GameState::Space)))
+            .add_systems(PostUpdate, clear_shots.run_if(in_state(GameState::Space)))
         ;
     }
 }
@@ -26,10 +27,8 @@ fn clear_shots(
 ) {
     for event in events.iter() {
         let entity = commands.get_entity(event.shot);
-        // TODO here is_some is not guaranteed depending on the ordering of systems, perhaps explicit
-        //  processing after Update could be specified
         if entity.is_some() {
-            entity.unwrap().despawn()
+            entity.unwrap().despawn_recursive();
         }
     }
 }
