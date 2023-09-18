@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
@@ -73,6 +74,7 @@ fn shoot(
                     .spawn(SpriteSheetBundle {
                         sprite: weapon.sprite(ship.friendly),
                         texture_atlas: textures.shots.clone(),
+                        transform: Transform::from_rotation(Quat::from_rotation_z((weapon.angle.0 - 90.) * PI / 180.)),
                         ..default()
                     })
                     .insert(Shot { weapon: weapon.clone(), friendly: ship.friendly })
