@@ -28,7 +28,6 @@ pub struct Weapon {
     pub attack: f32,
     pub speed: Vec2,
     pub offset: Vec2,
-    pub angle: Angle,
     delay: usize,
 }
 
@@ -58,7 +57,6 @@ impl Weapon {
                 (angle.0 * PI / 180.).cos() * ship.shot_speed,
                 (angle.0 * PI / 180.).sin() * ship.shot_speed
             ),
-            angle,
             offset,
             delay: (model.delay() as f32 / ship.shot_frequency).ceil() as usize
         }
