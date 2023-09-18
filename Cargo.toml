@@ -16,10 +16,9 @@ lto = true
 codegen-units = 1
 
 [dependencies]
-bevy = { version = "0.11.2", default-features = false, features = ["bevy_asset", "bevy_winit", "png", "x11"] }
+bevy = { version = "0.11.2", default-features = false, features = ["bevy_asset", "bevy_pbr", "bevy_winit", "png", "x11"] }
 bevy_asset_loader = { version = "0.17.0", default-features = false, features = ["2d"] }
 bevy_common_assets = { version = "0.7.0", features = ["ron"] }
-bevy_text_mode = "0.2.0"
 bevy_tweening = "0.8.0"
 
 lazy_static = "1.4"
