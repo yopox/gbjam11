@@ -8,6 +8,11 @@ pub const SCALE: f32 = 4.;
 /// Min distance between the player and the screen border
 pub const BORDER: f32 = 2.;
 
+pub mod space {
+    pub const BLINK_INTERVAL: usize = 20;
+    pub const BLINK_DURATION: usize = BLINK_INTERVAL * 6;
+}
+
 pub mod star_field {
     pub const INITIAL_SPEED: f32 = -0.5;
     pub const STARS_COUNT: usize = 50;

@@ -2,9 +2,10 @@ use bevy::app::App;
 use bevy::math::vec2;
 use bevy::prelude::*;
 
-use crate::GameState;
 use crate::graphics::sizes::Hitbox;
+use crate::logic::hit::HitEvent;
 use crate::util::base_stats;
+use crate::util::space::{BLINK_DURATION, BLINK_INTERVAL};
 
 pub struct ShipPlugin;
 
@@ -69,13 +70,34 @@ impl Ship {
 impl Plugin for ShipPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(Update, update.run_if(in_state(GameState::Space)))
+            .add_systems(Update, (add_blinking, blink))
         ;
     }
 }
 
-fn update(
+#[derive(Component)]
+pub struct Blink(pub usize);
 
+fn add_blinking(
+    mut commands: Commands,
+    mut hits: EventReader<HitEvent>,
 ) {
+    for HitEvent { shot: _, ship } in hits.iter() {
+        commands
+            .entity(*ship)
+            .insert(Blink(BLINK_DURATION));
+    }
+}
 
+fn blink(
+    mut commands: Commands,
+    mut sprites: Query<(Entity, &mut Blink, &mut Visibility)>,
+) {
+    for (e, mut blink, mut vis) in sprites.iter_mut() {
+        blink.0 -= 1;
+        let new_vis = if (blink.0 / BLINK_INTERVAL) % 2 == 0 { Visibility::Inherited } else { Visibility::Hidden };
+        vis.set_if_neq(new_vis);
+
+        if blink.0 == 0 { commands.entity(e).remove::<Blink>(); }
+    }
 }
