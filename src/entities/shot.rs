@@ -39,22 +39,6 @@ pub enum Shots {
 }
 
 impl Shots {
-    pub(crate) fn attack(&self) -> f32 {
-        match self {
-            Shots::Bullet => 1.0,
-            Shots::Wave => 0.5,
-            Shots::Ball => 1.5,
-            Shots::Energy => 1.25,
-            Shots::DualBeam => 1.75,
-        }
-    }
-
-    pub(crate) fn delay(&self) -> usize {
-        match self {
-            _ => 120
-        }
-    }
-
     pub(crate) fn sprite_atlas_index(&self) -> usize {
         match self {
             Shots::Bullet => 0,

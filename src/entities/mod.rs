@@ -3,6 +3,7 @@ use bevy::prelude::*;
 
 pub use ship::Ship;
 pub use ship::Ships;
+pub use shot::Shots;
 pub use weapon::Angle;
 pub use weapon::ShipWeapons;
 pub use weapon::Weapons;

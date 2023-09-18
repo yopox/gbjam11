@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 use crate::GameState;
 use crate::graphics::sizes::Hitbox;
+use crate::util::base_stats;
 
 pub struct ShipPlugin;
 
@@ -36,7 +37,10 @@ impl Ship {
         Self {
             model, friendly,
             // Base stats
-            speed: 0.5, damage_factor: 1.0, shot_speed: 1.0, shot_frequency: 1.0,
+            speed: base_stats::SPEED,
+            damage_factor: base_stats::DAMAGE_FACTOR,
+            shot_speed: base_stats::SHOT_SPEED,
+            shot_frequency: base_stats::SHOT_FREQUENCY,
         }
     }
 
@@ -48,8 +52,8 @@ impl Ship {
     pub fn from(model: Ships) -> Self {
         match model {
             Ships::Player => Ship::new(model, true)
-                .with_speed(0.25)
-                .with_shot_frequency(2.0),
+                .with_speed(base_stats::SPEED / 2.)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 2.),
             Ships::Enemy => Ship::new(model, false),
         }
     }
