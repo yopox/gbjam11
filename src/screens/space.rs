@@ -7,9 +7,11 @@ use crate::entities::{Angle, MainShip, Ship, Ships, ShipWeapons, Weapons};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
+use crate::logic::damage::DamageEvent;
 use crate::logic::upgrades::{BOUNCING, ShotUpgrades};
 use crate::screens::{Fonts, Textures};
 use crate::util::{BORDER, WIDTH, z_pos};
+use crate::util::hud::HEALTH_BAR_SIZE;
 
 pub struct SpacePlugin;
 
@@ -20,14 +22,17 @@ struct SpaceUI;
 pub struct Credits(pub u16);
 
 #[derive(Component)]
+struct LifeBar;
+
+#[derive(Component)]
 struct CreditsText;
 
 impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(Credits(0))
-            .add_systems(Update, (update, update_gui)
-                .run_if(in_state(GameState::Space))
+            .add_systems(Update, (update, update_gui, update_life)
+                .run_if(in_state(GameState::Space)),
             )
             .add_systems(OnEnter(GameState::Space), enter)
             .add_systems(OnExit(GameState::Space), exit)
@@ -117,13 +122,13 @@ fn enter(
                 ..default()
             },
             texture: textures.bar.clone(),
-            transform: Transform {
-                translation: vec3(8., 4., z_pos::GUI),
-                scale: vec3(32., 1., 1.),
-                ..default()
-            },
             ..default()
         })
+        .insert(LifeBar)
+        .insert(FakeTransform::from_xyz_and_scale(
+            8., 4., z_pos::GUI,
+            HEALTH_BAR_SIZE as f32, 1.,
+        ))
         .insert(SpaceUI)
     ;
 
@@ -162,6 +167,22 @@ fn update_gui(
 ) {
     if credits.is_changed() {
         text.single_mut().sections[0].value = format!("Credits: {:03}", credits.0);
+    }
+}
+
+fn update_life(
+    ships: Query<&Ship, With<MainShip>>,
+    mut bar_transform: Query<&mut FakeTransform, With<LifeBar>>,
+    mut damaged: EventReader<DamageEvent>,
+) {
+    for DamageEvent { ship } in damaged.iter() {
+        if ships.contains(*ship) {
+            let ship = ships.get(*ship).unwrap();
+            bar_transform.single_mut().scale = Some(Vec2::new(
+                ship.health / ship.max_health * HEALTH_BAR_SIZE as f32,
+                1.,
+            ))
+        }
     }
 }
 

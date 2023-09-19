@@ -18,6 +18,10 @@ pub mod star_field {
     pub const STARS_COUNT: usize = 50;
 }
 
+pub mod hud {
+    pub const HEALTH_BAR_SIZE: usize = 32;
+}
+
 pub mod z_pos {
     pub const STAR_FIELD: f32 = 10.;
     pub const GUI: f32 = 20.;
