@@ -28,8 +28,8 @@ pub fn update_positions(
         if fake_pos.scale.is_some() {
             // Assume initial size is round and short (scale = 0.5 ignored even if size = 2)
             let scale = fake_pos.scale.unwrap();
-            pos.scale.x = scale.x.round();
-            pos.scale.y = scale.y.round();
+            pos.scale.x = scale.x.ceil();
+            pos.scale.y = scale.y.ceil();
         }
     }
 }
