@@ -3,7 +3,7 @@ use bevy::math::vec2;
 use bevy::prelude::*;
 
 use crate::graphics::sizes::Hitbox;
-use crate::logic::hit::HitEvent;
+use crate::logic::damage::DamageEvent;
 use crate::util::base_stats;
 use crate::util::space::{BLINK_DURATION, BLINK_INTERVAL};
 
@@ -31,6 +31,8 @@ pub struct Ship {
     pub damage_factor: f32,
     pub shot_speed: f32,
     pub shot_frequency: f32,
+    pub health: f32,
+    pub max_health: f32
 }
 
 impl Ship {
@@ -38,6 +40,8 @@ impl Ship {
         Self {
             model, friendly,
             // Base stats
+            health: base_stats::HEALTH,
+            max_health: base_stats::HEALTH,
             speed: base_stats::SPEED,
             damage_factor: base_stats::DAMAGE_FACTOR,
             shot_speed: base_stats::SHOT_SPEED,
@@ -80,12 +84,13 @@ pub struct Blink(pub usize);
 
 fn add_blinking(
     mut commands: Commands,
-    mut hits: EventReader<HitEvent>,
+    mut hits: EventReader<DamageEvent>,
 ) {
-    for HitEvent { shot: _, ship } in hits.iter() {
-        commands
-            .entity(*ship)
-            .insert(Blink(BLINK_DURATION));
+    for DamageEvent { ship } in hits.iter() {
+        let ship = commands.get_entity(*ship);
+        if ship.is_some() {
+            ship.unwrap().insert(Blink(BLINK_DURATION));
+        }
     }
 }
 

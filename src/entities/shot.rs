@@ -3,10 +3,12 @@ use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 
 use crate::entities::Ship;
+use crate::entities::ship::Blink;
 use crate::entities::weapon::{ShipWeapons, Weapon};
 use crate::GameState;
 use crate::graphics::FakeTransform;
 use crate::graphics::sizes::Hitbox;
+use crate::logic::damage::DamageEvent;
 use crate::logic::hit::HitEvent;
 use crate::logic::upgrades::ShotUpgrades;
 use crate::screens::Textures;
@@ -18,6 +20,9 @@ impl Plugin for ShotsPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Update, (shoot, update_shots, collide_shots)
+                .run_if(in_state(GameState::Space))
+            )
+            .add_systems(PostUpdate, damage_ship
                 .run_if(in_state(GameState::Space))
             )
         ;
@@ -128,6 +133,28 @@ fn collide_shots(
             );
             if collision.is_some() {
                 event_writer.send(HitEvent { shot: shot_entity, ship: ship_entity });
+            }
+        }
+    }
+}
+
+fn damage_ship(
+    mut hit_events: EventReader<HitEvent>,
+    mut ships: Query<&mut Ship>,
+    mut blinking: Query<&Blink>,
+    mut shots: Query<&Shot>,
+    mut damage_event: EventWriter<DamageEvent>,
+) {
+    for HitEvent { ship, shot } in hit_events.iter() {
+        if ships.contains(*ship) && shots.contains(*shot) {
+            let mut ship_data = ships.get_mut(*ship).unwrap();
+
+            // Friendly ship invulnerable if blinking
+            // TODO some other ship may be friendly, right?
+            //  should we apply the same behavior?
+            if !ship_data.friendly || !blinking.contains(*ship) {
+                ship_data.health -= shots.get(*shot).unwrap().weapon.attack;
+                damage_event.send(DamageEvent { ship: *ship })
             }
         }
     }

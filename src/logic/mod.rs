@@ -1,9 +1,11 @@
 use bevy::app::App;
 use bevy::prelude::*;
+use crate::logic::damage::DeathNote;
 use crate::logic::hit::HitProcessingPlugin;
 
 pub mod upgrades;
 pub mod hit;
+pub mod damage;
 
 pub struct LogicPlugin;
 
@@ -12,6 +14,7 @@ impl Plugin for LogicPlugin {
         app
             .add_systems(Update, upgrades::bounce_shots)
             .add_plugins(HitProcessingPlugin)
+            .add_plugins(DeathNote)
         ;
     }
 }
