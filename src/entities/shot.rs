@@ -20,10 +20,10 @@ impl Plugin for ShotsPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Update, (shoot, update_shots, collide_shots)
-                .run_if(in_state(GameState::Space))
+                .run_if(in_state(GameState::Space)),
             )
             .add_systems(PostUpdate, damage_ship
-                .run_if(in_state(GameState::Space))
+                .run_if(in_state(GameState::Space)),
             )
         ;
     }
@@ -140,18 +140,17 @@ fn collide_shots(
 
 fn damage_ship(
     mut hit_events: EventReader<HitEvent>,
-    mut ships: Query<(&mut Ship, Option<&MainShip>)>,
-    mut blinking: Query<&Blink>,
+    mut ships: Query<(&mut Ship, Option<&MainShip>, Option<&Blink>)>,
     mut shots: Query<&Shot>,
     mut damage_event: EventWriter<DamageEvent>,
 ) {
     for HitEvent { ship, shot } in hit_events.iter() {
         if ships.contains(*ship) && shots.contains(*shot) {
-            let (mut data, is_main_ship): (Mut<Ship>, Option<&MainShip>) = ships.get_mut(*ship).unwrap();
+            let (mut data, is_main_ship, is_blinking) = ships.get_mut(*ship).unwrap();
 
             // Main ship invulnerable if blinking
             // TODO all friendly ships?
-            if !is_main_ship.is_some() || !blinking.contains(*ship) {
+            if is_main_ship.and(is_blinking).is_none() {
                 data.health -= shots.get(*shot).unwrap().weapon.attack;
                 damage_event.send(DamageEvent { ship: *ship })
             }
