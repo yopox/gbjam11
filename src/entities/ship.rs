@@ -80,6 +80,9 @@ impl Plugin for ShipPlugin {
 }
 
 #[derive(Component)]
+pub struct MainShip;
+
+#[derive(Component)]
 pub struct Blink(pub usize);
 
 fn add_blinking(

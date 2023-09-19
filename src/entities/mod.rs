@@ -2,6 +2,7 @@ use bevy::app::App;
 use bevy::prelude::*;
 
 pub use ship::Ship;
+pub use ship::MainShip;
 pub use ship::Ships;
 pub use shot::Shot;
 pub use shot::Shots;

@@ -2,7 +2,7 @@ use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 
-use crate::entities::Ship;
+use crate::entities::{MainShip, Ship};
 use crate::entities::ship::Blink;
 use crate::entities::weapon::{ShipWeapons, Weapon};
 use crate::GameState;
@@ -140,20 +140,19 @@ fn collide_shots(
 
 fn damage_ship(
     mut hit_events: EventReader<HitEvent>,
-    mut ships: Query<&mut Ship>,
+    mut ships: Query<(&mut Ship, Option<&MainShip>)>,
     mut blinking: Query<&Blink>,
     mut shots: Query<&Shot>,
     mut damage_event: EventWriter<DamageEvent>,
 ) {
     for HitEvent { ship, shot } in hit_events.iter() {
         if ships.contains(*ship) && shots.contains(*shot) {
-            let mut ship_data = ships.get_mut(*ship).unwrap();
+            let (mut data, is_main_ship): (Mut<Ship>, Option<&MainShip>) = ships.get_mut(*ship).unwrap();
 
-            // Friendly ship invulnerable if blinking
-            // TODO some other ship may be friendly, right?
-            //  should we apply the same behavior?
-            if !ship_data.friendly || !blinking.contains(*ship) {
-                ship_data.health -= shots.get(*shot).unwrap().weapon.attack;
+            // Main ship invulnerable if blinking
+            // TODO all friendly ships?
+            if !is_main_ship.is_some() || !blinking.contains(*ship) {
+                data.health -= shots.get(*shot).unwrap().weapon.attack;
                 damage_event.send(DamageEvent { ship: *ship })
             }
         }

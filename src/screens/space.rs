@@ -3,7 +3,7 @@ use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
-use crate::entities::{Angle, Ship, Ships, ShipWeapons, Weapons};
+use crate::entities::{Angle, MainShip, Ship, Ships, ShipWeapons, Weapons};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
@@ -40,7 +40,7 @@ fn update(
     mut ship: Query<(&Ship, &Hitbox, &mut FakeTransform)>,
 ) {
     for (s, hitbox, mut pos) in ship.iter_mut() {
-        if !s.friendly { continue }
+        if !s.friendly { continue; }
 
         let hitbox_w = hitbox.0.x;
         let dx = s.speed + hitbox_w / 2. + BORDER;
@@ -73,6 +73,7 @@ fn enter(
             (Weapons::Wave, vec2(8., 8.), Angle(45.)),
             (Weapons::Wave, vec2(-8., 8.), Angle(135.)),
         ]))
+        .insert(MainShip)
         .insert(Ships::Player.hitbox())
         .insert(ShotUpgrades(BOUNCING))
         .insert(ship)
