@@ -3,11 +3,12 @@ use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
-use crate::entities::{Angle, MainShip, Ship, Ships, ShipWeapons, Weapons};
+use crate::entities::{MainShip, Ship, Ships};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
+use crate::logic::ShipBundle;
 use crate::screens::{Fonts, Textures};
 use crate::util::{BORDER, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
@@ -62,43 +63,22 @@ fn enter(
     textures: Res<Textures>,
     fonts: Res<Fonts>,
 ) {
-    let ship = Ship::from(Ships::Player);
     commands
-        .spawn(SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                index: ship.sprite_index(),
-                ..default()
-            },
-            texture_atlas: textures.ship.clone(),
-            ..default()
-        })
-        .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., 24., z_pos::SHIPS))
-        .insert(ShipWeapons::new(&ship, vec![
-            (Weapons::Standard, vec2(-4., 6.), Angle(90.)),
-            (Weapons::Standard, vec2(4., 6.), Angle(90.)),
-        ]))
+        .spawn(ShipBundle::from(
+            textures.ship.clone(),
+            Ships::Player,
+            vec2(WIDTH as f32 / 2., 24.),
+        ))
         .insert(MainShip)
-        .insert(Ships::Player.hitbox())
-        .insert(ship)
         .insert(SpaceUI)
     ;
 
-    let enemy = Ship::from(Ships::Enemy);
     commands
-        .spawn(SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                index: enemy.sprite_index(),
-                ..default()
-            },
-            texture_atlas: textures.ship.clone(),
-            ..default()
-        })
-        .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., 96., z_pos::SHIPS))
-        .insert(ShipWeapons::new(&enemy, vec![
-            (Weapons::Standard, vec2(0., -4.), Angle(270.)),
-        ]))
-        .insert(Ships::Enemy.hitbox())
-        .insert(enemy)
+        .spawn(ShipBundle::from(
+            textures.ship.clone(),
+            Ships::Enemy,
+            vec2(WIDTH as f32 / 2., 96.),
+        ))
         .insert(SpaceUI)
     ;
 

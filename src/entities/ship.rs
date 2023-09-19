@@ -2,6 +2,7 @@ use bevy::app::App;
 use bevy::math::vec2;
 use bevy::prelude::*;
 
+use crate::entities::{Angle, Weapons};
 use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
 use crate::util::base_stats;
@@ -9,6 +10,7 @@ use crate::util::space::{BLINK_DURATION, BLINK_INTERVAL};
 
 pub struct ShipPlugin;
 
+#[derive(Copy, Clone)]
 pub enum Ships {
     Player,
     Enemy,
@@ -19,6 +21,18 @@ impl Ships {
         match self {
             Ships::Player => Hitbox(vec2(6., 4.)),
             Ships::Enemy => Hitbox(vec2(12., 8.)),
+        }
+    }
+
+    pub fn weapons(&self) -> Vec<(Weapons, Vec2, Angle)> {
+        match self {
+            Ships::Player => vec![
+                (Weapons::Standard, vec2(-4., 6.), Angle(90.)),
+                (Weapons::Standard, vec2(4., 6.), Angle(90.)),
+            ],
+            Ships::Enemy => vec![
+                (Weapons::Standard, vec2(0., -4.), Angle(270.)),
+            ]
         }
     }
 }

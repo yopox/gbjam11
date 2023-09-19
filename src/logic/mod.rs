@@ -1,11 +1,15 @@
 use bevy::app::App;
 use bevy::prelude::*;
+
+pub use wave::ShipBundle;
+
 use crate::logic::damage::DeathNote;
 use crate::logic::hit::HitProcessingPlugin;
 
 pub mod upgrades;
 pub mod hit;
 pub mod damage;
+mod wave;
 
 pub struct LogicPlugin;
 
