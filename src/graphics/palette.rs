@@ -1,4 +1,5 @@
 use bevy::prelude::{ClearColor, Color, Commands, DetectChanges, Input, KeyCode, Query, Res, ResMut, Resource};
+
 use crate::graphics::GBShaderSettings;
 
 #[derive(Copy, Clone, PartialEq)]
@@ -49,7 +50,7 @@ impl Palette {
             ],
             Palette::YellowPurple => [
                 Color::hex("201e33").unwrap(),
-                Color::hex("802570").unwrap(),
+                Color::hex("d5348e").unwrap(),
                 Color::hex("ffbc43").unwrap(),
                 Color::hex("808a94").unwrap(),
             ],

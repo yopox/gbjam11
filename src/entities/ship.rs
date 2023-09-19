@@ -17,7 +17,7 @@ pub enum Ships {
 impl Ships {
     pub fn hitbox(&self) -> Hitbox {
         match self {
-            Ships::Player => Hitbox(vec2(16., 10.)),
+            Ships::Player => Hitbox(vec2(6., 4.)),
             Ships::Enemy => Hitbox(vec2(12., 8.)),
         }
     }

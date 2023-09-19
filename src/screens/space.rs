@@ -8,7 +8,6 @@ use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
-use crate::logic::upgrades::{BOUNCING, ShotUpgrades};
 use crate::screens::{Fonts, Textures};
 use crate::util::{BORDER, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
@@ -75,12 +74,11 @@ fn enter(
         })
         .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., 24., z_pos::SHIPS))
         .insert(ShipWeapons::new(&ship, vec![
-            (Weapons::Wave, vec2(8., 8.), Angle(45.)),
-            (Weapons::Wave, vec2(-8., 8.), Angle(135.)),
+            (Weapons::Standard, vec2(-4., 6.), Angle(90.)),
+            (Weapons::Standard, vec2(4., 6.), Angle(90.)),
         ]))
         .insert(MainShip)
         .insert(Ships::Player.hitbox())
-        .insert(ShotUpgrades(BOUNCING))
         .insert(ship)
         .insert(SpaceUI)
     ;
@@ -99,7 +97,7 @@ fn enter(
         .insert(ShipWeapons::new(&enemy, vec![
             (Weapons::Standard, vec2(0., -4.), Angle(270.)),
         ]))
-        .insert(Ships::Player.hitbox())
+        .insert(Ships::Enemy.hitbox())
         .insert(enemy)
         .insert(SpaceUI)
     ;
