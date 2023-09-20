@@ -6,7 +6,6 @@ pub use ship::MainShip;
 pub use ship::Ships;
 pub use shot::Shot;
 pub use shot::Shots;
-pub use weapon::Angle;
 pub use weapon::ShipWeapons;
 pub use weapon::Weapons;
 

@@ -1,4 +1,5 @@
 use std::f32::consts::PI;
+use bevy::math::{Vec2, vec2};
 
 use crate::entities::Shots;
 
@@ -57,4 +58,19 @@ impl Shots {
     }
 }
 
-pub fn to_rad(degrees: f32) -> f32 { degrees * PI / 180. }
+/// Angle in degrees
+#[derive(Copy, Clone)]
+pub struct Angle(pub f32);
+impl Angle {
+    pub fn to_rad(&self) -> f32 { self.0 * PI / 180. }
+    pub fn rotate_vec(&self, vector: Vec2) -> Vec2 {
+        let rad = self.to_rad();
+        vector.rotate(vec2(rad.cos(), rad.sin()))
+    }
+
+    /// Returns rotation of vec2(value, 0) by the angle
+    pub fn rotate(&self, value: f32) -> Vec2 {
+        let rad = self.to_rad();
+        vec2(value * rad.cos(), value * rad.sin())
+    }
+}

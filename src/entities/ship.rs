@@ -2,10 +2,10 @@ use bevy::app::App;
 use bevy::math::vec2;
 use bevy::prelude::*;
 
-use crate::entities::{Angle, Weapons};
+use crate::entities::Weapons;
 use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
-use crate::util::base_stats;
+use crate::util::{Angle, base_stats};
 use crate::util::space::{BLINK_DURATION, BLINK_INTERVAL};
 
 pub struct ShipPlugin;

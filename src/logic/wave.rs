@@ -2,13 +2,13 @@ use bevy::app::App;
 use bevy::math::vec2;
 use bevy::prelude::*;
 
-use crate::entities::{Angle, MainShip, Ship, Ships, ShipWeapons};
+use crate::entities::{MainShip, Ship, Ships, ShipWeapons};
 use crate::GameState;
 use crate::graphics::FakeTransform;
 use crate::graphics::sizes::Hitbox;
 use crate::logic::movement::{Movement, Moves};
 use crate::screens::Textures;
-use crate::util::{WIDTH, z_pos};
+use crate::util::{Angle, WIDTH, z_pos};
 
 pub struct WavePlugin;
 

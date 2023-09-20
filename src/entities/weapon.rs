@@ -1,11 +1,10 @@
-use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
 use crate::entities::Ship;
 use crate::entities::shot::Shots;
 use crate::graphics::Palette;
-use crate::util::to_rad;
+use crate::util::Angle;
 
 pub enum Weapons {
     Standard,
@@ -43,21 +42,14 @@ impl Weapon {
     }
 }
 
-/// Angle in degrees
-#[derive(Copy, Clone)]
-pub struct Angle(pub f32);
-
 impl Weapon {
     fn new(model: Shots, ship: &Ship, offset: Vec2, angle: Angle) -> Self {
         Weapon {
             shot: model,
             attack: model.attack() * ship.damage_factor,
-            speed: vec2(
-                to_rad(angle.0).cos() * ship.shot_speed,
-                to_rad(angle.0).sin() * ship.shot_speed
-            ),
+            speed: angle.rotate(ship.shot_speed),
             offset,
-            delay: (model.delay() as f32 / ship.shot_frequency).ceil() as usize
+            delay: (model.delay() as f32 / ship.shot_frequency).ceil() as usize,
         }
     }
 }
