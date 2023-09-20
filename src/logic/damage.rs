@@ -1,13 +1,13 @@
 use bevy::app::{App, Plugin};
 use bevy::prelude::{Commands, Entity, Event, EventReader};
 use bevy::prelude::*;
-use crate::entities::Ship;
 
+use crate::entities::Ship;
 use crate::GameState;
 
-pub struct DeathNote;
+pub struct DamagePlugin;
 
-impl Plugin for DeathNote {
+impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<DamageEvent>()
@@ -19,6 +19,7 @@ impl Plugin for DeathNote {
 #[derive(Event)]
 pub struct DamageEvent {
     pub ship: Entity,
+    pub fatal: bool,
 }
 
 fn die_gracefully(
@@ -26,9 +27,10 @@ fn die_gracefully(
     mut events: EventReader<DamageEvent>,
     mut ships: Query<&Ship>
 ) {
-    for event in events.iter() {
-        let entity = commands.get_entity(event.ship);
-        if entity.is_some() && ships.get(event.ship).unwrap().health <= 0. {
+    for &DamageEvent { ship, fatal } in events.iter() {
+        if !fatal { continue; }
+        let entity = commands.get_entity(ship);
+        if entity.is_some() && ships.get(ship).unwrap().health <= 0 {
             entity.unwrap().despawn_recursive();
         }
     }

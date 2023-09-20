@@ -30,7 +30,7 @@ pub mod z_pos {
 }
 
 pub mod base_stats {
-    pub const HEALTH: f32 = 10.0;
+    pub const HEALTH: usize = 9;
     pub const SPEED: f32 = 0.5;
     pub const DAMAGE_FACTOR: f32 = 1.0;
     pub const SHOT_SPEED: f32 = 1.0;

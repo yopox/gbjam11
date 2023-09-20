@@ -153,11 +153,10 @@ fn update_life(
     mut bar_transform: Query<&mut FakeTransform, With<LifeBar>>,
     mut damaged: EventReader<DamageEvent>,
 ) {
-    for DamageEvent { ship } in damaged.iter() {
-        if ships.contains(*ship) {
-            let ship = ships.get(*ship).unwrap();
+    for &DamageEvent { ship, fatal } in damaged.iter() {
+        if let Ok(ship) = ships.get(ship) {
             bar_transform.single_mut().scale = Some(Vec2::new(
-                ship.health / ship.max_health * HEALTH_BAR_SIZE as f32,
+                ship.health as f32 / ship.max_health as f32 * HEALTH_BAR_SIZE as f32,
                 1.,
             ))
         }

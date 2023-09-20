@@ -2,6 +2,8 @@ use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 
+use log::info;
+
 use crate::entities::{MainShip, Ship};
 use crate::entities::ship::Blink;
 use crate::entities::weapon::{ShipWeapons, Weapon};
@@ -151,8 +153,11 @@ fn damage_ship(
             // Main ship invulnerable if blinking
             // TODO all friendly ships?
             if is_main_ship.and(is_blinking).is_none() {
-                data.health -= shots.get(*shot).unwrap().weapon.attack;
-                damage_event.send(DamageEvent { ship: *ship })
+                let damage = shots.get(*shot).unwrap().weapon.attack.ceil() as usize;
+                if data.health > 0 {
+                    data.health = (data.health - damage).max(0);
+                    damage_event.send(DamageEvent { ship: *ship, fatal: data.health == 0 })
+                }
             }
         }
     }

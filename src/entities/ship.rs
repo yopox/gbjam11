@@ -45,8 +45,8 @@ pub struct Ship {
     pub damage_factor: f32,
     pub shot_speed: f32,
     pub shot_frequency: f32,
-    pub health: f32,
-    pub max_health: f32
+    pub health: usize,
+    pub max_health: usize,
 }
 
 impl Ship {
@@ -103,10 +103,9 @@ fn add_blinking(
     mut commands: Commands,
     mut hits: EventReader<DamageEvent>,
 ) {
-    for DamageEvent { ship } in hits.iter() {
-        let ship = commands.get_entity(*ship);
-        if ship.is_some() {
-            ship.unwrap().insert(Blink(BLINK_DURATION));
+    for &DamageEvent { ship, fatal } in hits.iter() {
+        if let Some(mut ship) = commands.get_entity(ship) {
+            ship.insert(Blink(BLINK_DURATION));
         }
     }
 }

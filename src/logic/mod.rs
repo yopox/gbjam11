@@ -3,7 +3,7 @@ use bevy::prelude::*;
 
 pub use wave::ShipBundle;
 
-use crate::logic::damage::DeathNote;
+use crate::logic::damage::DamagePlugin;
 use crate::logic::hit::HitProcessingPlugin;
 
 pub mod upgrades;
@@ -17,8 +17,7 @@ impl Plugin for LogicPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Update, upgrades::bounce_shots)
-            .add_plugins(HitProcessingPlugin)
-            .add_plugins(DeathNote)
+            .add_plugins((HitProcessingPlugin, DamagePlugin))
         ;
     }
 }
