@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
@@ -7,6 +5,7 @@ use bevy::sprite::Anchor;
 use crate::entities::Ship;
 use crate::entities::shot::Shots;
 use crate::graphics::Palette;
+use crate::util::to_rad;
 
 pub enum Weapons {
     Standard,
@@ -54,8 +53,8 @@ impl Weapon {
             shot: model,
             attack: model.attack() * ship.damage_factor,
             speed: vec2(
-                (angle.0 * PI / 180.).cos() * ship.shot_speed,
-                (angle.0 * PI / 180.).sin() * ship.shot_speed
+                to_rad(angle.0).cos() * ship.shot_speed,
+                to_rad(angle.0).sin() * ship.shot_speed
             ),
             offset,
             delay: (model.delay() as f32 / ship.shot_frequency).ceil() as usize

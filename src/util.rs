@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use crate::entities::Shots;
 
 pub const WIDTH: usize = 160;
@@ -14,7 +16,7 @@ pub mod space {
 }
 
 pub mod star_field {
-    pub const INITIAL_SPEED: f32 = -0.5;
+    pub const INITIAL_SPEED: f32 = -30.;
     pub const STARS_COUNT: usize = 50;
 }
 
@@ -31,9 +33,9 @@ pub mod z_pos {
 
 pub mod base_stats {
     pub const HEALTH: usize = 9;
-    pub const SPEED: f32 = 0.5;
+    pub const SPEED: f32 = 25.;
     pub const DAMAGE_FACTOR: f32 = 1.0;
-    pub const SHOT_SPEED: f32 = 1.0;
+    pub const SHOT_SPEED: f32 = 100.;
     pub const SHOT_FREQUENCY: f32 = 1.0;
 }
 
@@ -54,3 +56,5 @@ impl Shots {
         }
     }
 }
+
+pub fn to_rad(degrees: f32) -> f32 { degrees * PI / 180. }

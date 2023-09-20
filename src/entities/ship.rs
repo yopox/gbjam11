@@ -71,9 +71,9 @@ impl Ship {
     pub fn from(model: Ships) -> Self {
         match model {
             Ships::Player => Ship::new(model, true)
-                .with_speed(base_stats::SPEED / 2.)
                 .with_shot_frequency(base_stats::SHOT_FREQUENCY * 2.),
-            Ships::Enemy => Ship::new(model, false),
+            Ships::Enemy => Ship::new(model, false)
+                .with_speed(base_stats::SPEED / 2.),
         }
     }
 

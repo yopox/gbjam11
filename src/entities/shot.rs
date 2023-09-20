@@ -100,12 +100,13 @@ fn shoot(
 
 fn update_shots(
     mut commands: Commands,
+    time: Res<Time>,
     mut shots: Query<(Entity, &Shot, &mut FakeTransform)>,
 ) {
     for (e, shot, mut pos) in shots.iter_mut() {
         // Move shot
-        pos.translation.x += shot.weapon.speed.x;
-        pos.translation.y += shot.weapon.speed.y;
+        pos.translation.x += shot.weapon.speed.x * time.delta_seconds();
+        pos.translation.y += shot.weapon.speed.y * time.delta_seconds();
 
         // Destroy shot
         if pos.translation.x > 2. * WIDTH as f32

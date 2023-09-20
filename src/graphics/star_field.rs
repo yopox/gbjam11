@@ -64,17 +64,19 @@ fn enter(
 
 fn update(
     speed: Res<StarsSpeed>,
+    time: Res<Time>,
     mut stars: Query<(&Star, &mut FakeTransform)>,
 ) {
     for (star, mut transform) in stars.iter_mut() {
-        transform.translation.y = transform.translation.y + speed.0.y * star.speed_modifier;
+        let speed_modifier = star.speed_modifier * time.delta_seconds();
+        transform.translation.y = transform.translation.y + speed.0.y * speed_modifier;
 
         // Note: one handle a single direction
         if transform.translation.y < 0.0 {
             transform.translation.y += HEIGHT as f32;
             transform.translation.x = random::<f32>() * WIDTH as f32;
         } else {
-            transform.translation.x = (transform.translation.x + speed.0.x * star.speed_modifier).rem_euclid(WIDTH as f32);
+            transform.translation.x = (transform.translation.x + speed.0.x * speed_modifier).rem_euclid(WIDTH as f32);
         }
 
     }

@@ -42,18 +42,20 @@ impl Plugin for SpacePlugin {
 
 fn update(
     keys: Res<Input<KeyCode>>,
+    time: Res<Time>,
     mut ship: Query<(&Ship, &Hitbox, &mut FakeTransform)>,
 ) {
     for (s, hitbox, mut pos) in ship.iter_mut() {
         if !s.friendly { continue; }
 
         let hitbox_w = hitbox.0.x;
-        let dx = s.speed + hitbox_w / 2. + BORDER;
+        let movement_x = s.speed * time.delta_seconds();
+        let dx = movement_x + hitbox_w / 2. + BORDER;
         if keys.pressed(KeyCode::Left) {
-            if pos.translation.x - dx >= 0. { pos.translation.x -= s.speed; }
+            if pos.translation.x - dx >= 0. { pos.translation.x -= movement_x; }
         }
         if keys.pressed(KeyCode::Right) {
-            if pos.translation.x + dx <= WIDTH as f32 { pos.translation.x += s.speed; }
+            if pos.translation.x + dx <= WIDTH as f32 { pos.translation.x += movement_x; }
         }
     }
 }
