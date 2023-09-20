@@ -9,6 +9,7 @@ use crate::screens::space::SpacePlugin;
 use crate::screens::title::TitlePlugin;
 pub use loading::Textures;
 pub use loading::Fonts;
+pub use space::Credits;
 
 pub struct ScreensPlugin;
 

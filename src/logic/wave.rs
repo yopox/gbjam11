@@ -6,6 +6,7 @@ use crate::entities::{MainShip, Ship, Ships, ShipWeapons};
 use crate::GameState;
 use crate::graphics::FakeTransform;
 use crate::graphics::sizes::Hitbox;
+use crate::logic::Loot;
 use crate::logic::movement::{Movement, Moves};
 use crate::screens::Textures;
 use crate::util::{Angle, WIDTH, z_pos};
@@ -95,6 +96,8 @@ fn update(
                     moves: moves.clone(),
                     t_0: time.elapsed_seconds(),
                 })
+                // TODO customize credit count
+                .insert(Loot { credits: 2 })
             ;
             next = true;
         }
