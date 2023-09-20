@@ -1,4 +1,3 @@
-use bevy::log::info;
 use bevy::math::{Vec2, vec2};
 use bevy::prelude::{Component, Query, Res, Time};
 
@@ -21,8 +20,6 @@ impl Moves {
     pub fn pos(&self, time: f32, speed: f32) -> Vec2 {
         match self {
             Moves::Linear(starting, angle) => {
-                info!("{}", to_rad(angle.0).cos());
-                info!("{}", starting.x + time * speed * to_rad(angle.0).cos());
                 vec2(
                     starting.x + time * speed * to_rad(angle.0).cos(),
                     starting.y + time * speed * to_rad(angle.0).sin(),
