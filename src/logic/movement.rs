@@ -1,3 +1,4 @@
+use std::ops::Add;
 use bevy::math::{Vec2, vec2};
 use bevy::prelude::{Component, Query, Res, Time};
 
@@ -8,25 +9,42 @@ use crate::util::Angle;
 #[derive(Copy, Clone)]
 pub enum Moves {
     Linear(Vec2, Angle),
+    Wavy(Vec2, Angle, f32, f32),
+    Triangular(Vec2, Angle, f32, f32),
 }
 
 impl Moves {
     pub fn starting_pos(&self) -> &Vec2 {
         match &self {
             Moves::Linear(pos, _) => pos,
+            Moves::Wavy(pos, _, _, _) => pos,
+            Moves::Triangular(pos, _, _, _) => pos
         }
     }
 
     pub fn pos(&self, time: f32, speed: f32) -> Vec2 {
         match self {
             Moves::Linear(starting, angle) => {
-                vec2(
-                    starting.x + time * speed * to_rad(angle.0).cos(),
-                    starting.y + time * speed * to_rad(angle.0).sin(),
                 compute_position(starting, time * speed, 0., angle)
             }
+            Moves::Wavy(starting, angle, frequency, amplitude) => {
+                compute_position(
+                    starting,
+                    time * speed,
+                    // Note: frequency is not matching any specific time
+                    (time * frequency).cos() * amplitude,
+                    angle
                 )
-            },
+            }
+            Moves::Triangular(starting, angle, frequency, amplitude) => {
+                compute_position(
+                    starting,
+                    time * speed,
+                    // /\/\/\/\/\/\/\/\/\/\/\...POOF
+                    (((time * frequency) % 2. - 1.).abs() * 2. - 1.) * amplitude,
+                    angle
+                )
+            }
         }
     }
 }

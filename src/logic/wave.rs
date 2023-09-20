@@ -67,9 +67,9 @@ fn enter(
     mut commands: Commands,
 ) {
     commands.insert_resource(CurrentWave(vec![
-        WaveEvent::Spawn(Ships::Enemy, Moves::Linear(vec2(-16., 90.), Angle(0.))),
+        WaveEvent::Spawn(Ships::Enemy, Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)),
         WaveEvent::WaitSeconds(5.),
-        WaveEvent::Spawn(Ships::Enemy, Moves::Linear(vec2(WIDTH as f32 + 16., 110.), Angle(180.))),
+        WaveEvent::Spawn(Ships::Enemy, Moves::Triangular(vec2(WIDTH as f32 + 16., 110.), Angle(180.), 0.4,20.)),
     ]));
 }
 
