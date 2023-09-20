@@ -2,8 +2,6 @@ use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 
-use log::info;
-
 use crate::entities::{MainShip, Ship};
 use crate::entities::ship::Blink;
 use crate::entities::weapon::{ShipWeapons, Weapon};
