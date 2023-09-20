@@ -75,15 +75,6 @@ fn enter(
         .insert(SpaceUI)
     ;
 
-    commands
-        .spawn(ShipBundle::from(
-            textures.ship.clone(),
-            Ships::Enemy,
-            vec2(WIDTH as f32 / 2., 96.),
-        ))
-        .insert(SpaceUI)
-    ;
-
     // GUI
     commands
         .spawn(Text2dBundle {
