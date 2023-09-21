@@ -1,7 +1,14 @@
 use bevy::app::App;
+use bevy::math::vec2;
 use bevy::prelude::*;
+use bevy::sprite::Anchor;
+
+use crate::entities::Ships;
 use crate::GameState;
-use crate::screens::Textures;
+use crate::graphics::{ScreenTransition, TextStyles,};
+use crate::logic::ShipBundle;
+use crate::screens::{Fonts, Textures};
+use crate::util::{WIDTH, z_pos};
 
 pub struct TitlePlugin;
 
@@ -19,16 +26,32 @@ impl Plugin for TitlePlugin {
 }
 
 fn update(
-
+    keys: Res<Input<KeyCode>>,
+    mut commands: Commands,
 ) {
-
+    if keys.just_pressed(KeyCode::Space) {
+        commands.insert_resource(ScreenTransition::to(GameState::Space))
+    }
 }
 
 fn enter(
     mut commands: Commands,
-    textures: Res<Textures>
+    textures: Res<Textures>,
+    fonts: Res<Fonts>,
 ) {
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section("Press start", TextStyles::Basic.style(&fonts)),
+            text_anchor: Anchor::Center,
+            transform: Transform::from_xyz(WIDTH as f32 / 2., 44., z_pos::GUI),
+            ..default()
+        })
+        .insert(TitleUI)
+    ;
 
+    commands
+        .spawn(ShipBundle::from(textures.ship.clone(), Ships::Player, vec2(16., 16.)))
+        .insert(TitleUI);
 }
 
 fn exit(

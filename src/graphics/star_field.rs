@@ -26,8 +26,11 @@ impl Plugin for StarFieldPlugin {
             .insert_resource(StarsSpeed(Vec2 { x: 0.0, y: util::star_field::INITIAL_SPEED }))
             .add_systems(Startup, enter)
             .add_systems(Update, update.run_if(in_state(GameState::Space)))
+            .add_systems(Update, update.run_if(in_state(GameState::Title)))
             .add_systems(OnEnter(GameState::Space), enter)
+            .add_systems(OnEnter(GameState::Title), enter)
             .add_systems(OnExit(GameState::Space), exit)
+            .add_systems(OnExit(GameState::Title), exit)
         ;
     }
 }
