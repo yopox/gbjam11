@@ -3,7 +3,7 @@ use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
-use crate::entities::{MainShip, Ship, Ships};
+use crate::entities::{MainShip, Ship, Ships, Shot};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
@@ -158,7 +158,7 @@ fn update_life(
 
 fn exit(
     mut commands: Commands,
-    to_clean: Query<Entity, With<SpaceUI>>,
+    to_clean: Query<Entity, Or<(With<SpaceUI>, With<Ship>, With<Shot>)>>,
 ) {
     for id in to_clean.iter() {
         commands
