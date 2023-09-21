@@ -3,7 +3,7 @@ use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
-use crate::entities::{MuteShots, Ship, Ships};
+use crate::entities::{MuteShots, Ship, Ships, Shot};
 use crate::GameState;
 use crate::graphics::{CurrentPalette, Palette, ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::ShipBundle;
@@ -284,7 +284,7 @@ fn update_shooting(
 
 fn exit(
     mut commands: Commands,
-    to_clean: Query<Entity, With<HangarUI>>,
+    to_clean: Query<Entity, Or<(With<HangarUI>, With<Shot>)>>,
 ) {
     for id in to_clean.iter() {
         commands
