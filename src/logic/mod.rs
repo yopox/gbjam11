@@ -1,8 +1,8 @@
 use bevy::app::App;
 use bevy::prelude::*;
 
-pub use wave::ShipBundle;
 pub use money::Loot;
+pub use wave::ShipBundle;
 
 use crate::logic::damage::DamagePlugin;
 use crate::logic::hit::HitProcessingPlugin;
@@ -12,6 +12,7 @@ use crate::logic::wave::WavePlugin;
 pub mod upgrades;
 pub mod hit;
 pub mod damage;
+pub mod route;
 mod wave;
 mod movement;
 mod money;
