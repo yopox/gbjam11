@@ -154,7 +154,8 @@ fn damage_ship(
             if is_main_ship.and(is_blinking).is_none() {
                 let damage = shots.get(*shot).unwrap().weapon.attack.ceil() as usize;
                 if data.health > 0 {
-                    data.health = (data.health - damage).max(0);
+                    if data.health < damage { data.health = 0; }
+                    else { data.health -= damage; }
                     damage_event.send(DamageEvent { ship: *ship, fatal: data.health == 0 })
                 }
             }
