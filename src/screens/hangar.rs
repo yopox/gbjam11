@@ -6,6 +6,7 @@ use bevy::sprite::Anchor;
 use crate::entities::{MuteShots, Ship, Ships, Shot};
 use crate::GameState;
 use crate::graphics::{CurrentPalette, Palette, ScreenTransition, StarsSpeed, TextStyles};
+use crate::logic::route::CurrentRoute;
 use crate::logic::ShipBundle;
 use crate::screens::{Fonts, Textures};
 use crate::util::{star_field, z_pos};
@@ -109,6 +110,7 @@ impl PlayableShips {
 }
 
 fn update(
+    mut commands: Commands,
     mut transition: ResMut<ScreenTransition>,
     mut selection: ResMut<SelectedShip>,
     mut update_gui: EventWriter<UpdateGUI>,
@@ -126,6 +128,7 @@ fn update(
 
     if keys.just_pressed(KeyCode::Space) {
         transition.set_if_neq(ScreenTransition::to(GameState::Space));
+        commands.insert_resource(CurrentRoute::new());
     }
 }
 
