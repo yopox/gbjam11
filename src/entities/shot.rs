@@ -12,7 +12,7 @@ use crate::logic::damage::DamageEvent;
 use crate::logic::hit::HitEvent;
 use crate::logic::upgrades::ShotUpgrades;
 use crate::screens::Textures;
-use crate::util::{HEIGHT, WIDTH, z_pos};
+use crate::util::{HEIGHT, in_states, WIDTH, z_pos};
 
 pub struct ShotsPlugin;
 
@@ -20,7 +20,7 @@ impl Plugin for ShotsPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Update, (shoot, update_shots, collide_shots)
-                .run_if(in_state(GameState::Space)),
+                .run_if(in_states(vec![GameState::Space, GameState::Hangar])),
             )
             .add_systems(PostUpdate, damage_ship
                 .run_if(in_state(GameState::Space)),
@@ -66,9 +66,12 @@ impl Shots {
     }
 }
 
+#[derive(Component)]
+pub struct MuteShots;
+
 fn shoot(
     mut commands: Commands,
-    mut ships: Query<(&Ship, &FakeTransform, &mut ShipWeapons, Option<&ShotUpgrades>)>,
+    mut ships: Query<(&Ship, &FakeTransform, &mut ShipWeapons, Option<&ShotUpgrades>), Without<MuteShots>>,
     textures: Res<Textures>,
 ) {
     for (ship, ship_pos, mut weapons, upgrades) in ships.iter_mut() {

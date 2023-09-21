@@ -10,17 +10,22 @@ use crate::util::space::{BLINK_DURATION, BLINK_INTERVAL};
 
 pub struct ShipPlugin;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Ships {
     Player,
+    Player2,
+    Player3,
+    Player4,
     Enemy,
 }
 
 impl Ships {
     pub fn hitbox(&self) -> Hitbox {
         match self {
-            Ships::Player => Hitbox(vec2(6., 4.)),
-            Ships::Enemy => Hitbox(vec2(12., 8.)),
+            Ships::Player | Ships::Player2 | Ships::Player3 | Ships::Player4 =>
+                Hitbox(vec2(6., 4.)),
+            Ships::Enemy =>
+                Hitbox(vec2(12., 8.)),
         }
     }
 
@@ -29,6 +34,18 @@ impl Ships {
             Ships::Player => vec![
                 (Weapons::Standard, vec2(-4., 6.), Angle(90.)),
                 (Weapons::Standard, vec2(4., 6.), Angle(90.)),
+            ],
+            Ships::Player2 => vec![
+                (Weapons::Wave, vec2(-4., 6.), Angle(90.)),
+                (Weapons::Wave, vec2(4., 6.), Angle(90.)),
+            ],
+            Ships::Player3 => vec![
+                (Weapons::Ball, vec2(-4., 6.), Angle(115.)),
+                (Weapons::Ball, vec2(0., 6.), Angle(90.)),
+                (Weapons::Ball, vec2(4., 6.), Angle(65.)),
+            ],
+            Ships::Player4 => vec![
+                (Weapons::Energy, vec2(0., 6.), Angle(90.)),
             ],
             Ships::Enemy => vec![
                 (Weapons::Standard, vec2(0., -4.), Angle(270.)),
@@ -39,7 +56,7 @@ impl Ships {
 
 #[derive(Component)]
 pub struct Ship {
-    model: Ships,
+    pub(crate) model: Ships,
     pub friendly: bool,
     pub speed: f32,
     pub damage_factor: f32,
@@ -72,6 +89,12 @@ impl Ship {
         match model {
             Ships::Player => Ship::new(model, true)
                 .with_shot_frequency(base_stats::SHOT_FREQUENCY * 2.),
+            Ships::Player2 => Ship::new(model, true)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.25),
+            Ships::Player3 => Ship::new(model, true)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.),
+            Ships::Player4 => Ship::new(model, true)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.5),
             Ships::Enemy => Ship::new(model, false)
                 .with_speed(base_stats::SPEED / 2.),
         }
@@ -80,6 +103,9 @@ impl Ship {
     pub fn sprite_index(&self) -> usize {
         match self.model {
             Ships::Player => 0,
+            Ships::Player2 => 0,
+            Ships::Player3 => 0,
+            Ships::Player4 => 0,
             Ships::Enemy => 1,
         }
     }

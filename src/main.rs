@@ -19,6 +19,7 @@ pub enum GameState {
     #[default]
     Loading,
     Title,
+    Hangar,
     Space,
 }
 

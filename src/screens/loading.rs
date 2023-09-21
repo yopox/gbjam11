@@ -30,6 +30,12 @@ pub struct Textures {
 
     #[asset(path = "bar.png")]
     pub bar: Handle<Image>,
+
+    #[asset(path = "hangar.png")]
+    pub hangar: Handle<Image>,
+
+    #[asset(path = "legend.png")]
+    pub legend: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource)]

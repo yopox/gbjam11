@@ -56,8 +56,8 @@ impl Palette {
             ],
             Palette::GameBoy => [
                 Color::hex("0f380f").unwrap(),
-                Color::hex("306230").unwrap(),
                 Color::hex("8bac0f").unwrap(),
+                Color::hex("306230").unwrap(),
                 Color::hex("9bbc0f").unwrap(),
             ],
         }

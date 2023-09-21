@@ -1,14 +1,11 @@
 use bevy::app::App;
-use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
-use crate::entities::Ships;
 use crate::GameState;
-use crate::graphics::{ScreenTransition, TextStyles,};
-use crate::logic::ShipBundle;
+use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::screens::{Fonts, Textures};
-use crate::util::{WIDTH, z_pos};
+use crate::util::{star_field, WIDTH, z_pos};
 
 pub struct TitlePlugin;
 
@@ -27,18 +24,20 @@ impl Plugin for TitlePlugin {
 
 fn update(
     keys: Res<Input<KeyCode>>,
-    mut commands: Commands,
+    mut transition: ResMut<ScreenTransition>,
 ) {
     if keys.just_pressed(KeyCode::Space) {
-        commands.insert_resource(ScreenTransition::to(GameState::Space))
+        transition.set_if_neq(ScreenTransition::to(GameState::Hangar))
     }
 }
 
 fn enter(
     mut commands: Commands,
     textures: Res<Textures>,
+    mut star_speed: ResMut<StarsSpeed>,
     fonts: Res<Fonts>,
 ) {
+    star_speed.0 = star_field::INITIAL_SPEED;
     commands
         .spawn(Text2dBundle {
             text: Text::from_section("Press start", TextStyles::Basic.style(&fonts)),
@@ -48,10 +47,6 @@ fn enter(
         })
         .insert(TitleUI)
     ;
-
-    commands
-        .spawn(ShipBundle::from(textures.ship.clone(), Ships::Player, vec2(16., 16.)))
-        .insert(TitleUI);
 }
 
 fn exit(

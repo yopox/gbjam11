@@ -1,5 +1,7 @@
 use std::f32::consts::PI;
+
 use bevy::math::{Vec2, vec2};
+use bevy::prelude::{Res, State, States};
 
 use crate::entities::Shots;
 
@@ -17,7 +19,11 @@ pub mod space {
 }
 
 pub mod star_field {
-    pub const INITIAL_SPEED: f32 = -30.;
+    use bevy::math::vec2;
+    use bevy::prelude::Vec2;
+
+    pub const INITIAL_SPEED: Vec2 = vec2(0., -30.);
+    pub const HANGAR_SPEED: Vec2 = vec2(0., INITIAL_SPEED.y / 3.);
     pub const STARS_COUNT: usize = 50;
 }
 
@@ -30,6 +36,8 @@ pub mod z_pos {
     pub const GUI: f32 = 20.;
     pub const SHIPS: f32 = 30.;
     pub const SHOTS: f32 = 31.;
+    pub const HANGAR: f32 = 50.;
+    pub const HANGAR_TEXT: f32 = 51.;
 }
 
 pub mod base_stats {
@@ -73,4 +81,8 @@ impl Angle {
         let rad = self.to_rad();
         vec2(value * rad.cos(), value * rad.sin())
     }
+}
+
+pub fn in_states<S: States>(states: Vec<S>) -> impl FnMut(Res<State<S>>) -> bool + Clone {
+    move |current_state: Res<State<S>>| states.contains(current_state.get())
 }

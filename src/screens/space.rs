@@ -3,13 +3,14 @@ use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
-use crate::entities::{MainShip, Ship, Ships, Shot};
+use crate::entities::{MainShip, Ship, Shot};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
 use crate::logic::ShipBundle;
 use crate::screens::{Fonts, Textures};
+use crate::screens::hangar::SelectedShip;
 use crate::util::{BORDER, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
 
@@ -62,13 +63,14 @@ fn update(
 
 fn enter(
     mut commands: Commands,
+    selected_ship: Res<SelectedShip>,
     textures: Res<Textures>,
     fonts: Res<Fonts>,
 ) {
     commands
         .spawn(ShipBundle::from(
             textures.ship.clone(),
-            Ships::Player,
+            selected_ship.0.model(),
             vec2(WIDTH as f32 / 2., 24.),
         ))
         .insert(MainShip)

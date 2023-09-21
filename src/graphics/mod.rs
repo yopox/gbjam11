@@ -6,6 +6,7 @@ pub use palette::Palette;
 pub use pixel::FakeTransform;
 use shader::GBShaderPlugin;
 pub use shader::GBShaderSettings;
+pub use star_field::StarsSpeed;
 pub use text::TextStyles;
 pub use transition::ScreenTransition;
 
@@ -28,6 +29,7 @@ impl Plugin for GraphicsPlugin {
             .add_plugins((GBShaderPlugin, StarFieldPlugin))
             .insert_resource(CurrentPalette(palette))
             .insert_resource(ClearColor(palette.colors()[0]))
+            .insert_resource(ScreenTransition::default())
             .add_systems(Update, palette::update_palette)
             .add_systems(Update, transition::update)
             .add_systems(PostUpdate, pixel::update_positions)

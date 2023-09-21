@@ -2,8 +2,8 @@ use bevy::app::App;
 use bevy::prelude::*;
 use rand::{random, Rng};
 
-use crate::{GameState, util};
 use crate::graphics::{FakeTransform, Palette};
+use crate::util;
 use crate::util::{HEIGHT, WIDTH, z_pos};
 
 pub struct StarFieldPlugin;
@@ -23,14 +23,9 @@ pub struct StarsSpeed(pub Vec2);
 impl Plugin for StarFieldPlugin {
     fn build(&self, app: &mut App) {
         app
-            .insert_resource(StarsSpeed(Vec2 { x: 0.0, y: util::star_field::INITIAL_SPEED }))
+            .insert_resource(StarsSpeed(util::star_field::INITIAL_SPEED))
             .add_systems(Startup, enter)
-            .add_systems(Update, update.run_if(in_state(GameState::Space)))
-            .add_systems(Update, update.run_if(in_state(GameState::Title)))
-            .add_systems(OnEnter(GameState::Space), enter)
-            .add_systems(OnEnter(GameState::Title), enter)
-            .add_systems(OnExit(GameState::Space), exit)
-            .add_systems(OnExit(GameState::Title), exit)
+            .add_systems(Update, update)
         ;
     }
 }

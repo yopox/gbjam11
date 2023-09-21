@@ -9,6 +9,8 @@ use crate::util::Angle;
 pub enum Weapons {
     Standard,
     Wave,
+    Ball,
+    Energy,
 }
 
 impl Weapons {
@@ -16,6 +18,8 @@ impl Weapons {
         match self {
             Weapons::Standard => Shots::Bullet,
             Weapons::Wave => Shots::Wave,
+            Weapons::Ball => Shots::Ball,
+            Weapons::Energy => Shots::Energy,
         }
     }
 }
