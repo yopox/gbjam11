@@ -1,5 +1,6 @@
 use bevy::app::App;
 use bevy::prelude::*;
+use bevy::sprite::Anchor;
 use rand::{random, Rng};
 
 use crate::graphics::{FakeTransform, Palette};
@@ -37,6 +38,7 @@ fn enter(
 
     for _i in 0..util::star_field::STARS_COUNT {
         let sprite = Sprite {
+            anchor: Anchor::TopLeft,
             color: Palette::Greyscale.colors()[3],
             custom_size: Some(Vec2::new(1., 1.)),
             ..default()
