@@ -7,8 +7,8 @@ use crate::entities::{MainShip, Ship, Shot};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles};
 use crate::graphics::sizes::Hitbox;
+use crate::logic::{ShipBundle, WaveCleared};
 use crate::logic::damage::DamageEvent;
-use crate::logic::ShipBundle;
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
 use crate::util::{BORDER, WIDTH, z_pos};
@@ -32,7 +32,7 @@ impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(Credits(0))
-            .add_systems(Update, (update, update_gui, update_life)
+            .add_systems(Update, (update, update_gui, update_life, on_cleared)
                 .run_if(in_state(GameState::Space)),
             )
             .add_systems(OnEnter(GameState::Space), enter)
@@ -156,6 +156,15 @@ fn update_life(
             ))
         }
     }
+}
+
+fn on_cleared(
+    mut cleared: EventReader<WaveCleared>,
+) {
+    if cleared.is_empty() { return; }
+    cleared.clear();
+
+    info!("Wave cleared.")
 }
 
 fn exit(

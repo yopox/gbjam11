@@ -8,6 +8,7 @@ use crate::graphics::FakeTransform;
 use crate::graphics::sizes::Hitbox;
 use crate::logic::Loot;
 use crate::logic::movement::{Movement, Moves};
+use crate::logic::route::CurrentRoute;
 use crate::screens::Textures;
 use crate::util::{Angle, WIDTH, z_pos};
 
@@ -19,6 +20,7 @@ struct WaveUI;
 impl Plugin for WavePlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_event::<WaveCleared>()
             .add_systems(Update, update.run_if(in_state(GameState::Space)))
             .add_systems(OnEnter(GameState::Space), enter)
             .add_systems(OnExit(GameState::Space), exit)
@@ -64,14 +66,30 @@ enum WaveEvent {
 #[derive(Resource)]
 struct CurrentWave(Vec<WaveEvent>);
 
+impl CurrentWave {
+    pub fn new(difficulty: usize) -> Self {
+        let mut wave = vec![];
+
+        // TODO: generate wave
+        wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)));
+        wave.push(WaveEvent::WaitSeconds(5.));
+        wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::Triangular(vec2(WIDTH as f32 + 16., 110.), Angle(180.), 0.4,20.)));
+
+        // Always end wave with [WaveEvent::WaitForClear]
+        wave.push(WaveEvent::WaitForClear);
+        CurrentWave(wave)
+    }
+}
+
+#[derive(Event)]
+pub struct WaveCleared;
+
 fn enter(
     mut commands: Commands,
+    route: Res<CurrentRoute>,
 ) {
-    commands.insert_resource(CurrentWave(vec![
-        WaveEvent::Spawn(Ships::Enemy, Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)),
-        WaveEvent::WaitSeconds(5.),
-        WaveEvent::Spawn(Ships::Enemy, Moves::Triangular(vec2(WIDTH as f32 + 16., 110.), Angle(180.), 0.4,20.)),
-    ]));
+    info!("Start wave with difficulty {}", route.level);
+    commands.insert_resource(CurrentWave::new(route.level));
 }
 
 fn update(
@@ -80,11 +98,12 @@ fn update(
     textures: Res<Textures>,
     mut wave: ResMut<CurrentWave>,
     ships: Query<&Ship, Without<MainShip>>,
+    mut cleared: EventWriter<WaveCleared>,
 ) {
     let mut next = false;
 
     match wave.0.get_mut(0) {
-        None => { /* TODO: Next screen */ }
+        None => {}
         Some(WaveEvent::Spawn(model, moves)) => {
             commands
                 .spawn(ShipBundle::from(
@@ -106,7 +125,10 @@ fn update(
             else { next = true; }
         }
         Some(WaveEvent::WaitForClear) => {
-            if ships.is_empty() { next = true; }
+            if ships.is_empty() {
+                next = true;
+                if wave.0.len() == 1 { cleared.send(WaveCleared); }
+            }
         }
     }
 

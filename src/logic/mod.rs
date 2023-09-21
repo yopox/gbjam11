@@ -3,6 +3,7 @@ use bevy::prelude::*;
 
 pub use money::Loot;
 pub use wave::ShipBundle;
+pub use wave::WaveCleared;
 
 use crate::logic::damage::DamagePlugin;
 use crate::logic::hit::HitProcessingPlugin;
