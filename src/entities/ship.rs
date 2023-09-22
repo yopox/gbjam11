@@ -87,14 +87,10 @@ impl Ship {
 
     pub fn from(model: Ships) -> Self {
         match model {
-            Ships::Player => Ship::new(model, true)
-                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 2.),
-            Ships::Player2 => Ship::new(model, true)
-                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.25),
-            Ships::Player3 => Ship::new(model, true)
-                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.),
-            Ships::Player4 => Ship::new(model, true)
-                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.5),
+            Ships::Player => Ship::new(model, true),
+            Ships::Player2 => Ship::new(model, true),
+            Ships::Player3 => Ship::new(model, true),
+            Ships::Player4 => Ship::new(model, true),
             Ships::Enemy => Ship::new(model, false)
                 .with_speed(base_stats::SPEED / 2.),
         }

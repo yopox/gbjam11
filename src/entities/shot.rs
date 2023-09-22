@@ -71,13 +71,14 @@ pub struct MuteShots;
 
 fn shoot(
     mut commands: Commands,
+    time: Res<Time>,
     mut ships: Query<(&Ship, &FakeTransform, &mut ShipWeapons, Option<&ShotUpgrades>), Without<MuteShots>>,
     textures: Res<Textures>,
 ) {
     for (ship, ship_pos, mut weapons, upgrades) in ships.iter_mut() {
-        weapons.timer += 1;
+        weapons.timer += time.delta_seconds();
         for weapon in &weapons.weapons {
-            if weapon.fires(weapons.timer) {
+            if weapon.fires(weapons.timer, time.delta_seconds()) {
                 commands
                     .spawn(SpriteSheetBundle {
                         sprite: weapon.sprite(ship.friendly),

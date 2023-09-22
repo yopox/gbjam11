@@ -30,11 +30,11 @@ pub struct Weapon {
     pub attack: f32,
     pub speed: Vec2,
     pub offset: Vec2,
-    delay: usize,
+    delay: f32,
 }
 
 impl Weapon {
-    pub fn fires(&self, timer: usize) -> bool { timer % self.delay == 0 }
+    pub fn fires(&self, timer: f32, delta: f32) -> bool { ((timer - delta) % self.delay) > timer % self.delay }
 
     pub fn sprite(&self, friendly: bool) -> TextureAtlasSprite {
         TextureAtlasSprite {
@@ -53,7 +53,7 @@ impl Weapon {
             attack: model.attack() * ship.damage_factor,
             speed: angle.rotate(ship.shot_speed),
             offset,
-            delay: (model.delay() as f32 / ship.shot_frequency).ceil() as usize,
+            delay: model.delay() / ship.shot_frequency,
         }
     }
 }
@@ -61,7 +61,7 @@ impl Weapon {
 #[derive(Component)]
 pub struct ShipWeapons {
     pub weapons: Vec<Weapon>,
-    pub timer: usize,
+    pub timer: f32,
 }
 
 impl ShipWeapons {
@@ -73,7 +73,7 @@ impl ShipWeapons {
                 offset.clone(),
                 *angle,
             )).collect(),
-            timer: 0,
+            timer: 0.,
         }
     }
 }

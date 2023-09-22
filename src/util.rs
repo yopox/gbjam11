@@ -65,14 +65,18 @@ impl Shots {
             Shots::Bullet => 1.0,
             Shots::Wave => 0.5,
             Shots::Ball => 1.5,
-            Shots::Energy => 1.25,
-            Shots::DualBeam => 1.75,
+            Shots::Energy => 4.0,
+            Shots::DualBeam => 1.5,
         }
     }
 
-    pub fn delay(&self) -> usize {
+    pub fn delay(&self) -> f32 {
         match self {
-            _ => 120
+            Shots::Bullet => 1.0,
+            Shots::Wave => 1.25,
+            Shots::Ball => 1.0,
+            Shots::Energy => 1.75,
+            Shots::DualBeam => 0.9,
         }
     }
 }
