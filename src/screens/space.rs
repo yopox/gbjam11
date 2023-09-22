@@ -29,6 +29,9 @@ struct LifeBar;
 #[derive(Component)]
 struct CreditsText;
 
+#[derive(Component)]
+struct PauseText;
+
 impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
         app
@@ -36,6 +39,7 @@ impl Plugin for SpacePlugin {
             .add_systems(Update, (update, update_gui, update_life, on_cleared, update_next)
                 .run_if(in_state(GameState::Space)),
             )
+            .add_systems(PostUpdate, pause)
             .add_systems(OnEnter(GameState::Space), enter)
             .add_systems(OnExit(GameState::Space), exit)
         ;
@@ -137,6 +141,17 @@ fn enter(
             },
             ..default()
         })
+        .insert(SpaceUI)
+    ;
+
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section("Pause", TextStyles::Basic.style(&fonts)),
+            transform: Transform::from_xyz(WIDTH as f32 / 2., HEIGHT as f32 / 2., z_pos::PAUSE),
+            visibility: Visibility::Hidden,
+            ..default()
+        })
+        .insert(PauseText)
         .insert(SpaceUI)
     ;
 }
@@ -283,6 +298,23 @@ fn on_cleared(
         .insert(NextLevelSelectionSprite)
         .insert(SpaceUI)
     ;
+}
+
+fn pause(
+    mut time: ResMut<Time>,
+    mut pause: Query<&mut Visibility, With<PauseText>>,
+    keys: Res<Input<KeyCode>>,
+) {
+    if keys.just_pressed(KeyCode::Escape) {
+        let Ok(mut pause) = pause.get_single_mut() else { return; };
+        if time.is_paused() {
+            time.unpause();
+            pause.set_if_neq(Visibility::Hidden);
+        } else {
+            time.pause();
+            pause.set_if_neq(Visibility::Inherited);
+        }
+    }
 }
 
 fn exit(

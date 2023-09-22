@@ -46,6 +46,7 @@ pub mod z_pos {
     pub const GUI: f32 = 20.;
     pub const SHIPS: f32 = 30.;
     pub const SHOTS: f32 = 31.;
+    pub const PAUSE: f32 = 39.;
     pub const HANGAR: f32 = 50.;
     pub const HANGAR_TEXT: f32 = 51.;
 }
