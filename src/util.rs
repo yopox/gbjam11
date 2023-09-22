@@ -22,6 +22,8 @@ pub mod space {
     pub const NEXT_LEVEL_SPEED_Y: f32 = -12.;
     pub const NEXT_LEVEL_CHOICE_Y: f32 = HEIGHT as f32 / 2.;
     pub const RUSH_SPEED_Y: f32 = base_stats::SPEED * 10.;
+
+    pub fn time_ratio(level: usize) -> f32 { 1. + level as f32 / 26. * 0.3 }
 }
 
 pub mod star_field {

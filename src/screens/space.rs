@@ -5,11 +5,11 @@ use bevy::sprite::Anchor;
 
 use crate::entities::{MainShip, MuteShots, Ship, Shot};
 use crate::GameState;
-use crate::graphics::{FakeTransform, TextStyles, StarsSpeed, ScreenTransition};
+use crate::graphics::{FakeTransform, ScreenTransition, StarsSpeed, TextStyles};
 use crate::graphics::sizes::Hitbox;
-use crate::logic::route::{CurrentRoute, RouteElement};
 use crate::logic::{ShipBundle, WaveCleared};
 use crate::logic::damage::DamageEvent;
+use crate::logic::route::{CurrentRoute, RouteElement};
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
 use crate::util::{BORDER, HEIGHT, space, star_field, WIDTH, z_pos};
@@ -69,8 +69,10 @@ fn enter(
     fonts: Res<Fonts>,
     route: Res<CurrentRoute>,
     mut stars_speed: ResMut<StarsSpeed>,
+    mut time: ResMut<Time>,
 ) {
     stars_speed.set_by_level(route.level);
+    time.set_relative_speed(space::time_ratio(route.level));
 
     commands
         .spawn(ShipBundle::from(
