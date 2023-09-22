@@ -14,8 +14,14 @@ pub const SCALE: f32 = 4.;
 pub const BORDER: f32 = 2.;
 
 pub mod space {
+    use crate::util::{base_stats, HEIGHT};
+
     pub const BLINK_INTERVAL: usize = 20;
     pub const BLINK_DURATION: usize = BLINK_INTERVAL * 6;
+
+    pub const NEXT_LEVEL_SPEED_Y: f32 = -12.;
+    pub const NEXT_LEVEL_CHOICE_Y: f32 = HEIGHT as f32 / 2.;
+    pub const RUSH_SPEED_Y: f32 = base_stats::SPEED * 10.;
 }
 
 pub mod star_field {
@@ -24,6 +30,7 @@ pub mod star_field {
 
     pub const INITIAL_SPEED: Vec2 = vec2(0., -30.);
     pub const HANGAR_SPEED: Vec2 = vec2(0., INITIAL_SPEED.y / 3.);
+    pub const RUSH_SPEED: Vec2 = vec2(0., INITIAL_SPEED.y * 12.);
     pub const STARS_COUNT: usize = 50;
 }
 

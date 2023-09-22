@@ -31,6 +31,8 @@ impl ScreenTransition {
     pub fn reveal() -> Self {
         Self { transition: Transition::In, clock: 0 }
     }
+
+    pub fn is_none(&self) -> bool { self.transition == Transition::None }
 }
 
 pub fn update(

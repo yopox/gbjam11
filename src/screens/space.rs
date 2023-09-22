@@ -5,13 +5,14 @@ use bevy::sprite::Anchor;
 
 use crate::entities::{MainShip, Ship, Shot};
 use crate::GameState;
-use crate::graphics::{FakeTransform, TextStyles};
+use crate::graphics::{FakeTransform, TextStyles, StarsSpeed, ScreenTransition};
 use crate::graphics::sizes::Hitbox;
+use crate::logic::route::{CurrentRoute, RouteElement};
 use crate::logic::{ShipBundle, WaveCleared};
 use crate::logic::damage::DamageEvent;
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
-use crate::util::{BORDER, WIDTH, z_pos};
+use crate::util::{BORDER, HEIGHT, space, star_field, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
 
 pub struct SpacePlugin;
@@ -32,7 +33,7 @@ impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(Credits(0))
-            .add_systems(Update, (update, update_gui, update_life, on_cleared)
+            .add_systems(Update, (update, update_gui, update_life, on_cleared, update_next)
                 .run_if(in_state(GameState::Space)),
             )
             .add_systems(OnEnter(GameState::Space), enter)
@@ -44,7 +45,7 @@ impl Plugin for SpacePlugin {
 fn update(
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
-    mut ship: Query<(&Ship, &Hitbox, &mut FakeTransform)>,
+    mut ship: Query<(&Ship, &Hitbox, &mut FakeTransform), Without<Rush>>,
 ) {
     for (s, hitbox, mut pos) in ship.iter_mut() {
         if !s.friendly { continue; }
@@ -158,13 +159,118 @@ fn update_life(
     }
 }
 
+#[derive(Eq, PartialEq)]
+enum Position { Left, Center, Right }
+
+#[derive(Component)]
+struct NextLevelOption(Position);
+
+#[derive(Component)]
+struct NextLevelSelectionSprite;
+
+#[derive(Component)]
+struct Rush;
+
+fn update_next(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut ship: Query<(Entity, &mut FakeTransform, Option<&mut Rush>), (With<MainShip>, Without<NextLevelSelectionSprite>)>,
+    mut next: Query<(&NextLevelOption, &mut FakeTransform, &mut Text), (Without<MainShip>, Without<NextLevelSelectionSprite>)>,
+    mut bars: Query<&mut FakeTransform, (Without<MainShip>, With<NextLevelSelectionSprite>)>,
+    mut stars_speed: ResMut<StarsSpeed>,
+    mut transition: ResMut<ScreenTransition>,
+    fonts: Res<Fonts>,
+) {
+    let Ok(mut bars_pos) = bars.get_single_mut() else { return; };
+    let Ok((e, mut ship_pos, rush)) = ship.get_single_mut() else { return; };
+
+    let bars_y = bars_pos.translation.y;
+    let dy = space::NEXT_LEVEL_SPEED_Y * time.delta_seconds() * if rush.is_some() { 0. } else { 1. };
+    if rush.is_some() {
+        // Update ship
+        let ship_y = ship_pos.translation.y;
+        if ship_y > HEIGHT as f32 + 64. && transition.is_none() {
+            // TODO: Set correct next state according to the route and selection
+            transition.set_if_neq(ScreenTransition::to(GameState::Hangar));
+        }
+        ship_pos.translation.y += (space::RUSH_SPEED_Y * time.delta_seconds());
+    } else if bars_y > space::NEXT_LEVEL_CHOICE_Y && bars_y + dy <= space::NEXT_LEVEL_CHOICE_Y {
+        // Ship starts rushing
+        commands.entity(e).insert(Rush);
+        stars_speed.0 = star_field::RUSH_SPEED;
+    }
+    bars_pos.translation.y += dy;
+
+    for (option, mut pos, mut text) in next.iter_mut() {
+        pos.translation.y += dy;
+
+        if option.0 == Position::Left {
+            if ship_pos.translation.x <= WIDTH as f32 / 2. {
+                text.sections[0].style = TextStyles::Basic.style(&fonts);
+                bars_pos.translation.x = WIDTH as f32 / 4.;
+            } else {
+                text.sections[0].style = TextStyles::Gray.style(&fonts);
+            }
+        }
+
+        if option.0 == Position::Right {
+            if ship_pos.translation.x > WIDTH as f32 / 2. {
+                text.sections[0].style = TextStyles::Basic.style(&fonts);
+                bars_pos.translation.x = WIDTH as f32 / 4. * 3.;
+            } else {
+                text.sections[0].style = TextStyles::Gray.style(&fonts);
+            }
+        }
+    }
+}
+
 fn on_cleared(
+    mut commands: Commands,
     mut cleared: EventReader<WaveCleared>,
+    mut stars_speed: ResMut<StarsSpeed>,
+    route: Res<CurrentRoute>,
+    fonts: Res<Fonts>,
+    textures: Res<Textures>,
 ) {
     if cleared.is_empty() { return; }
     cleared.clear();
 
-    info!("Wave cleared.")
+    info!("Wave cleared.");
+
+    stars_speed.0.x /= 4.;
+    stars_speed.0.y /= 4.;
+
+    // Spawn next level options
+    for (name, x, position) in match route.route.0[route.level + 1] {
+        RouteElement::Level(l) => vec![
+            (l.name().to_owned(), WIDTH as f32 / 2., Position::Center),
+        ],
+        RouteElement::Choice(l1, l2) => vec![
+            (l1.name().to_owned(), WIDTH as f32 / 4., Position::Left),
+            (l2.name().to_owned(), WIDTH as f32 / 4. * 3., Position::Right),
+        ]
+    } {
+        commands
+            .spawn(Text2dBundle {
+                text: Text::from_section(name, TextStyles::Basic.style(&fonts)),
+                text_anchor: Anchor::Center,
+                ..default()
+            })
+            .insert(FakeTransform::from_xyz(x, HEIGHT as f32 + 16., z_pos::GUI))
+            .insert(NextLevelOption(position))
+            .insert(SpaceUI)
+        ;
+    }
+
+    commands
+        .spawn(SpriteBundle {
+            texture: textures.option_bars.clone(),
+            ..default()
+        })
+        .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., HEIGHT as f32 + 16., z_pos::GUI))
+        .insert(NextLevelSelectionSprite)
+        .insert(SpaceUI)
+    ;
 }
 
 fn exit(

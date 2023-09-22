@@ -18,9 +18,23 @@ pub enum Level {
     Elite,
     /// Can be anything except [Level::Boss]
     Unknown,
+
+    Win,
 }
 
 impl Level {
+    pub fn name(&self) -> &str {
+        match self {
+            Level::Space => "Fight",
+            Level::Upgrade => "Upgrade station",
+            Level::Boss => "Boss",
+            Level::Shop => "Shop",
+            Level::Repair => "Repair station",
+            Level::Elite => "Elite",
+            Level::Unknown => "???",
+            Level::Win => "You won!",
+        }
+    }
     fn random() -> Self {
         let mut rng = thread_rng();
         let options = [
@@ -82,7 +96,7 @@ impl RouteElement {
 }
 
 #[derive(Debug)]
-pub struct Route(pub [RouteElement; 27]);
+pub struct Route(pub [RouteElement; 28]);
 
 impl Route {
     fn new() -> Self {
@@ -97,6 +111,7 @@ impl Route {
             };
             route.push(element);
         }
+        route.push(RouteElement::Level(Level::Win));
         return Route(route.try_into().expect(""))
     }
 }
