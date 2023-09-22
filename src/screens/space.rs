@@ -67,7 +67,11 @@ fn enter(
     selected_ship: Res<SelectedShip>,
     textures: Res<Textures>,
     fonts: Res<Fonts>,
+    route: Res<CurrentRoute>,
+    mut stars_speed: ResMut<StarsSpeed>,
 ) {
+    stars_speed.set_by_level(route.level);
+
     commands
         .spawn(ShipBundle::from(
             textures.ship.clone(),

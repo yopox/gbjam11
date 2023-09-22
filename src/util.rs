@@ -29,6 +29,7 @@ pub mod star_field {
     use bevy::prelude::Vec2;
 
     pub const INITIAL_SPEED: Vec2 = vec2(0., -30.);
+    pub const MAX_INTENSITY_FACTOR: f32 = 6.;
     pub const HANGAR_SPEED: Vec2 = vec2(0., INITIAL_SPEED.y / 3.);
     pub const RUSH_SPEED: Vec2 = vec2(0., INITIAL_SPEED.y * 12.);
     pub const STARS_COUNT: usize = 50;

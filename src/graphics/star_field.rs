@@ -5,7 +5,7 @@ use rand::{random, Rng};
 
 use crate::graphics::{FakeTransform, Palette};
 use crate::util;
-use crate::util::{HEIGHT, WIDTH, z_pos};
+use crate::util::{HEIGHT, star_field, WIDTH, z_pos};
 
 pub struct StarFieldPlugin;
 
@@ -20,6 +20,13 @@ struct Star {
 /// Average speed of the star field
 #[derive(Resource)]
 pub struct StarsSpeed(pub Vec2);
+
+impl StarsSpeed {
+    pub fn set_by_level(&mut self, level: usize) {
+        self.0.x = star_field::INITIAL_SPEED.x + (star_field::MAX_INTENSITY_FACTOR - 1.) * level as f32 / 27.;
+        self.0.y = star_field::INITIAL_SPEED.y + (star_field::MAX_INTENSITY_FACTOR - 1.) * level as f32 / 27.;
+    }
+}
 
 impl Plugin for StarFieldPlugin {
     fn build(&self, app: &mut App) {
