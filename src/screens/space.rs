@@ -3,7 +3,7 @@ use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
-use crate::entities::{MainShip, Ship, Shot};
+use crate::entities::{MainShip, MuteShots, Ship, Shot};
 use crate::GameState;
 use crate::graphics::{FakeTransform, TextStyles, StarsSpeed, ScreenTransition};
 use crate::graphics::sizes::Hitbox;
@@ -232,6 +232,7 @@ fn on_cleared(
     mut commands: Commands,
     mut cleared: EventReader<WaveCleared>,
     mut stars_speed: ResMut<StarsSpeed>,
+    ship: Query<Entity, With<MainShip>>,
     route: Res<CurrentRoute>,
     fonts: Res<Fonts>,
     textures: Res<Textures>,
@@ -243,6 +244,11 @@ fn on_cleared(
 
     stars_speed.0.x /= 4.;
     stars_speed.0.y /= 4.;
+
+    // Mute ship shots
+    if let Ok(e) = ship.get_single() {
+        commands.entity(e).insert(MuteShots);
+    }
 
     // Spawn next level options
     for (name, x, position) in match route.route.0[route.level + 1] {
