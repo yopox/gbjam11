@@ -25,6 +25,7 @@ impl Plugin for LogicPlugin {
         app
             .add_systems(Update, upgrades::bounce_shots)
             .add_systems(Update, movement::apply_movement)
+            .add_systems(PostUpdate, movement::despawn_far_ships)
             .add_plugins((HitProcessingPlugin, DamagePlugin, WavePlugin, MoneyLaundryPlugin))
         ;
     }

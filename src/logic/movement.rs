@@ -1,10 +1,12 @@
 use std::ops::Add;
-use bevy::math::{Vec2, vec2};
-use bevy::prelude::{Component, Query, Res, Time};
 
-use crate::entities::Ship;
+use bevy::hierarchy::DespawnRecursiveExt;
+use bevy::math::{Vec2, vec2, Vec3Swizzles};
+use bevy::prelude::{Commands, Component, Entity, Query, Res, Time, Transform, Without};
+
+use crate::entities::{MainShip, Ship};
 use crate::graphics::FakeTransform;
-use crate::util::Angle;
+use crate::util::{Angle, HEIGHT, WIDTH};
 
 #[derive(Copy, Clone)]
 pub enum Moves {
@@ -70,5 +72,17 @@ pub fn apply_movement(
         let new_pos = movement.moves.pos(time.elapsed_seconds() - movement.t_0, ship.speed);
         pos.translation.x = new_pos.x;
         pos.translation.y = new_pos.y;
+    }
+}
+
+pub fn despawn_far_ships(
+    mut commands: Commands,
+    ships: Query<(Entity, &Transform), Without<MainShip>>,
+) {
+    let center = vec2(WIDTH as f32 / 2., HEIGHT as f32 / 2.);
+    for (e, pos) in ships.iter() {
+        if pos.translation.xy().distance(center) > HEIGHT as f32 {
+            commands.entity(e).despawn_recursive();
+        }
     }
 }
