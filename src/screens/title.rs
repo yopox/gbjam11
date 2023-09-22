@@ -5,7 +5,7 @@ use bevy::sprite::Anchor;
 use crate::GameState;
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::screens::{Fonts, Textures};
-use crate::util::{star_field, WIDTH, z_pos};
+use crate::util::{HALF_WIDTH, star_field, z_pos};
 
 pub struct TitlePlugin;
 
@@ -42,7 +42,7 @@ fn enter(
         .spawn(Text2dBundle {
             text: Text::from_section("Press start", TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::Center,
-            transform: Transform::from_xyz(WIDTH as f32 / 2., 44., z_pos::GUI),
+            transform: Transform::from_xyz(HALF_WIDTH, 44., z_pos::GUI),
             ..default()
         })
         .insert(TitleUI)

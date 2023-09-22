@@ -5,7 +5,7 @@ use crate::graphics::{GBShaderSettings, GraphicsPlugin};
 use crate::graphics::Palette;
 use crate::logic::LogicPlugin;
 use crate::screens::ScreensPlugin;
-use crate::util::{HEIGHT, SCALE, WIDTH};
+use crate::util::{HALF_HEIGHT, HALF_WIDTH, HEIGHT, SCALE, WIDTH};
 
 mod util;
 
@@ -52,7 +52,7 @@ fn init(mut commands: Commands) {
         .spawn(Camera2dBundle {
             transform: Transform {
                 scale: Vec3::new(1. / SCALE, 1. / SCALE, 1.),
-                translation: Vec3::new(WIDTH as f32 / 2., HEIGHT as f32 / 2., 100.),
+                translation: Vec3::new(HALF_WIDTH, HALF_HEIGHT, 100.),
                 ..default()
             },
             ..default()

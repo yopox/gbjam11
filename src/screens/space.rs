@@ -12,7 +12,7 @@ use crate::logic::damage::DamageEvent;
 use crate::logic::route::{CurrentRoute, RouteElement};
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
-use crate::util::{BORDER, HEIGHT, space, star_field, WIDTH, z_pos};
+use crate::util::{BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, space, star_field, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
 
 pub struct SpacePlugin;
@@ -82,7 +82,7 @@ fn enter(
         .spawn(ShipBundle::from(
             textures.ship.clone(),
             selected_ship.0.model(),
-            vec2(WIDTH as f32 / 2., 24.),
+            vec2(HALF_WIDTH, 24.),
         ))
         .insert(MainShip)
         .insert(SpaceUI)
@@ -147,7 +147,7 @@ fn enter(
     commands
         .spawn(Text2dBundle {
             text: Text::from_section("Pause", TextStyles::Basic.style(&fonts)),
-            transform: Transform::from_xyz(WIDTH as f32 / 2., HEIGHT as f32 / 2., z_pos::PAUSE),
+            transform: Transform::from_xyz(HALF_WIDTH, HALF_HEIGHT, z_pos::PAUSE),
             visibility: Visibility::Hidden,
             ..default()
         })
@@ -214,7 +214,7 @@ fn update_next(
             // TODO: Set correct next state according to the route and selection
             transition.set_if_neq(ScreenTransition::to(GameState::Hangar));
         }
-        ship_pos.translation.y += (space::RUSH_SPEED_Y * time.delta_seconds());
+        ship_pos.translation.y += space::RUSH_SPEED_Y * time.delta_seconds();
     } else if bars_y > space::NEXT_LEVEL_CHOICE_Y && bars_y + dy <= space::NEXT_LEVEL_CHOICE_Y {
         // Ship starts rushing
         commands.entity(e).insert(Rush);
@@ -226,7 +226,7 @@ fn update_next(
         pos.translation.y += dy;
 
         if option.0 == Position::Left {
-            if ship_pos.translation.x <= WIDTH as f32 / 2. {
+            if ship_pos.translation.x <= HALF_WIDTH {
                 text.sections[0].style = TextStyles::Basic.style(&fonts);
                 bars_pos.translation.x = WIDTH as f32 / 4.;
             } else {
@@ -235,7 +235,7 @@ fn update_next(
         }
 
         if option.0 == Position::Right {
-            if ship_pos.translation.x > WIDTH as f32 / 2. {
+            if ship_pos.translation.x > HALF_WIDTH {
                 text.sections[0].style = TextStyles::Basic.style(&fonts);
                 bars_pos.translation.x = WIDTH as f32 / 4. * 3.;
             } else {
@@ -270,7 +270,7 @@ fn on_cleared(
     // Spawn next level options
     for (name, x, position) in match route.route.0[route.level + 1] {
         RouteElement::Level(l) => vec![
-            (l.name().to_owned(), WIDTH as f32 / 2., Position::Center),
+            (l.name().to_owned(), HALF_WIDTH, Position::Center),
         ],
         RouteElement::Choice(l1, l2) => vec![
             (l1.name().to_owned(), WIDTH as f32 / 4., Position::Left),
@@ -294,7 +294,7 @@ fn on_cleared(
             texture: textures.option_bars.clone(),
             ..default()
         })
-        .insert(FakeTransform::from_xyz(WIDTH as f32 / 2., HEIGHT as f32 + 16., z_pos::GUI))
+        .insert(FakeTransform::from_xyz(HALF_WIDTH, HEIGHT as f32 + 16., z_pos::GUI))
         .insert(NextLevelSelectionSprite)
         .insert(SpaceUI)
     ;

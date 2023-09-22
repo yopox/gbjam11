@@ -6,7 +6,9 @@ use bevy::prelude::{Res, State, States};
 use crate::entities::Shots;
 
 pub const WIDTH: usize = 160;
+pub const HALF_WIDTH: f32 = WIDTH as f32 / 2.;
 pub const HEIGHT: usize = 144;
+pub const HALF_HEIGHT: f32 = HEIGHT as f32 / 2.;
 
 pub const SCALE: f32 = 4.;
 
@@ -14,13 +16,13 @@ pub const SCALE: f32 = 4.;
 pub const BORDER: f32 = 2.;
 
 pub mod space {
-    use crate::util::{base_stats, HEIGHT};
+    use crate::util::{base_stats, HALF_HEIGHT};
 
     pub const BLINK_INTERVAL: usize = 20;
     pub const BLINK_DURATION: usize = BLINK_INTERVAL * 6;
 
     pub const NEXT_LEVEL_SPEED_Y: f32 = -12.;
-    pub const NEXT_LEVEL_CHOICE_Y: f32 = HEIGHT as f32 / 2.;
+    pub const NEXT_LEVEL_CHOICE_Y: f32 = HALF_HEIGHT;
     pub const RUSH_SPEED_Y: f32 = base_stats::SPEED * 10.;
 
     pub fn time_ratio(level: usize) -> f32 { 1. + level as f32 / 26. * 0.3 }

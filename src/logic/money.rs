@@ -1,5 +1,6 @@
 use bevy::app::{App, PostUpdate};
-use bevy::prelude::{Component, EventReader, Plugin, Query, Res, ResMut};
+use bevy::prelude::{Component, EventReader, Plugin, Query, ResMut};
+
 use crate::entities::Ship;
 use crate::logic::damage::DamageEvent;
 use crate::screens::Credits;
@@ -18,7 +19,7 @@ impl Plugin for MoneyLaundryPlugin {
 
 fn credit_money(
     mut events: EventReader<DamageEvent>,
-    mut ships: Query<(&Ship, &Loot)>,
+    ships: Query<(&Ship, &Loot)>,
     mut credits: ResMut<Credits>
 ) {
     for DamageEvent { ship, fatal} in events.iter() {

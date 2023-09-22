@@ -6,7 +6,7 @@ use bevy::prelude::{Commands, Component, Entity, Query, Res, Time, Transform, Wi
 
 use crate::entities::{MainShip, Ship};
 use crate::graphics::FakeTransform;
-use crate::util::{Angle, HEIGHT, WIDTH};
+use crate::util::{Angle, HALF_HEIGHT, HALF_WIDTH, HEIGHT};
 
 #[derive(Copy, Clone)]
 pub enum Moves {
@@ -79,7 +79,7 @@ pub fn despawn_far_ships(
     mut commands: Commands,
     ships: Query<(Entity, &Transform), Without<MainShip>>,
 ) {
-    let center = vec2(WIDTH as f32 / 2., HEIGHT as f32 / 2.);
+    let center = vec2(HALF_WIDTH, HALF_HEIGHT);
     for (e, pos) in ships.iter() {
         if pos.translation.xy().distance(center) > HEIGHT as f32 {
             commands.entity(e).despawn_recursive();
