@@ -16,7 +16,9 @@ lto = true
 codegen-units = 1
 
 [dependencies]
-bevy = { version = "0.11.2", default-features = false, features = ["bevy_asset", "bevy_pbr", "bevy_winit", "bevy_text", "png", "x11"] }
+bevy = { version = "0.11.2", default-features = false, features = [
+    "bevy_asset", "bevy_pbr", "bevy_winit", "bevy_text", "png", "x11", "webgl2"
+] }
 bevy_asset_loader = { version = "0.17.0", default-features = false, features = ["2d"] }
 bevy_common_assets = { version = "0.7.0", features = ["ron"] }
 
@@ -25,3 +27,9 @@ strum = "0.25.0"
 strum_macros = "0.25.2"
 
 rand = { version = "0.8", features = ["alloc"]}
+
+winit = { version = "0.28", default-features = false }
+image = { version = "0.24", default-features = false }
+
+[build-dependencies]
+embed-resource = "1.4"
