@@ -39,6 +39,8 @@ fn update(
     fonts: Res<Fonts>,
     mut simple_text: ResMut<SimpleText>,
 ) {
+    if !transition.is_none() { return; }
+
     // Update credits text
     let Ok(mut text) = text.get_single_mut() else { return; };
     let Ok(mut dot_pos) = dot.get_single_mut() else { return; };

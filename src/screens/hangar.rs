@@ -116,6 +116,8 @@ fn update(
     mut update_gui: EventWriter<UpdateGUI>,
     keys: Res<Input<KeyCode>>,
 ) {
+    if !transition.is_none() { return; }
+
     if keys.just_pressed(KeyCode::Left) {
         selection.0 = selection.0.previous();
         update_gui.send(UpdateGUI);

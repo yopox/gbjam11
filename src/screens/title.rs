@@ -26,6 +26,8 @@ fn update(
     keys: Res<Input<KeyCode>>,
     mut transition: ResMut<ScreenTransition>,
 ) {
+    if !transition.is_none() { return; }
+
     if keys.just_pressed(KeyCode::Space) {
         transition.set_if_neq(ScreenTransition::to(GameState::Hangar))
     }
