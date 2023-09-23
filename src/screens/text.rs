@@ -41,11 +41,11 @@ fn on_enter_repair(
     let justine = match thread_rng().next_u32() % 10 {
         0 => {
             ship_status.add(&Items::Missile);
-            " 1 missile found!"
+            "\n1 missile found!"
         }
         1 => {
             ship_status.add(&Items::Shield);
-            " 1 shield found!"
+            "\n1 shield found!"
         }
         _ => ""
     };
