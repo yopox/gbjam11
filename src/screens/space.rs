@@ -10,6 +10,7 @@ use crate::graphics::sizes::Hitbox;
 use crate::logic::{ShipBundle, ShipStatus, WaveCleared};
 use crate::logic::damage::DamageEvent;
 use crate::logic::route::{CurrentRoute, Level, RouteElement};
+use crate::logic::upgrades::ShotUpgrades;
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
 use crate::util::{BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, space, star_field, WIDTH, z_pos};
@@ -85,10 +86,15 @@ fn enter(
     );
     main_ship_bundle.ship.health = ship_status.health().0;
     main_ship_bundle.ship.max_health = ship_status.health().1;
+    main_ship_bundle.ship.speed *= ship_status.speed_multiplier();
+    main_ship_bundle.ship.damage_factor *= ship_status.damage_multiplier();
+    main_ship_bundle.ship.shot_speed *= ship_status.shot_speed_multiplier();
+    main_ship_bundle.ship.shot_frequency *= ship_status.shot_frequency_multiplier();
 
     commands
         .spawn(main_ship_bundle)
         .insert(MainShip)
+        .insert(ShotUpgrades(ship_status.shot_upgrades()))
         .insert(SpaceUI)
     ;
 
@@ -272,8 +278,12 @@ fn on_cleared(
     route: Res<CurrentRoute>,
     fonts: Res<Fonts>,
     textures: Res<Textures>,
+    keys: Res<Input<KeyCode>>,
 ) {
-    if cleared.is_empty() { return; }
+    let mut force = false;
+    if keys.just_pressed(KeyCode::F12) {force = true; }
+
+    if cleared.is_empty() && !force { return; }
     cleared.clear();
 
     info!("Wave cleared.");
