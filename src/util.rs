@@ -22,9 +22,9 @@ pub mod space {
     pub const BLINK_DURATION: usize = BLINK_INTERVAL * 8;
     pub const BLINK_DURATION_ENEMY: usize = BLINK_INTERVAL * 4;
 
-    pub const NEXT_LEVEL_SPEED_Y: f32 = -12.;
+    pub const NEXT_LEVEL_SPEED_Y: f32 = -18.;
     pub const NEXT_LEVEL_CHOICE_Y: f32 = HALF_HEIGHT;
-    pub const RUSH_SPEED_Y: f32 = base_stats::SPEED * 10.;
+    pub const RUSH_SPEED_Y: f32 = base_stats::SPEED * 12.;
 
     pub fn time_ratio(level: usize) -> f32 { 1. + level as f32 / 26. * 0.3 }
 
@@ -44,7 +44,7 @@ pub mod star_field {
     pub const INITIAL_SPEED: Vec2 = vec2(0., -30.);
     pub const MAX_INTENSITY_FACTOR: f32 = 6.;
     pub const HANGAR_SPEED: Vec2 = vec2(0., INITIAL_SPEED.y / 3.);
-    pub const RUSH_SPEED: Vec2 = vec2(0., INITIAL_SPEED.y * 12.);
+    pub const RUSH_SPEED: Vec2 = vec2(0., INITIAL_SPEED.y * 10.);
     pub const STARS_COUNT: usize = 50;
 }
 
