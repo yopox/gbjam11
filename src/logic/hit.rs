@@ -21,7 +21,7 @@ pub struct HitEvent {
     pub ship: Entity,
 }
 
-fn clear_shots(
+pub fn clear_shots(
     mut commands: Commands,
     mut events: EventReader<HitEvent>,
 ) {

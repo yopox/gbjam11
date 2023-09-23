@@ -9,6 +9,7 @@ use crate::GameState;
 use crate::graphics::FakeTransform;
 use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
+use crate::logic::hit;
 use crate::logic::hit::HitEvent;
 use crate::logic::upgrades::ShotUpgrades;
 use crate::screens::Textures;
@@ -23,6 +24,7 @@ impl Plugin for ShotsPlugin {
                 .run_if(in_states(vec![GameState::Space, GameState::Hangar])),
             )
             .add_systems(PostUpdate, damage_ship
+                .before(hit::clear_shots)
                 .run_if(in_state(GameState::Space)),
             )
         ;
