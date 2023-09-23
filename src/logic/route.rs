@@ -101,7 +101,7 @@ impl RouteElement {
         match self {
             RouteElement::Level(l) => l.state(),
             RouteElement::Choice(_, _) => {
-                error!("Next RouteElement shouldn't be a shop.");
+                error!("Next RouteElement shouldn't be a choice.");
                 GameState::Space
             },
         }
@@ -152,6 +152,10 @@ pub struct CurrentRoute {
 impl CurrentRoute {
     pub fn new() -> Self {
         CurrentRoute { route: Route::new(), level: 0 }
+    }
+
+    pub fn advance(&mut self) {
+        self.level += 1;
     }
 
     pub fn state(&self) -> GameState {

@@ -127,8 +127,9 @@ fn update(
     }
 
     if keys.just_pressed(KeyCode::Space) {
-        transition.set_if_neq(ScreenTransition::to(GameState::Shop));
-        commands.insert_resource(CurrentRoute::new());
+        let route = CurrentRoute::new();
+        transition.set_if_neq(ScreenTransition::to(route.state()));
+        commands.insert_resource(route);
     }
 }
 

@@ -9,7 +9,7 @@ use crate::graphics::{FakeTransform, ScreenTransition, StarsSpeed, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::logic::{ShipBundle, WaveCleared};
 use crate::logic::damage::DamageEvent;
-use crate::logic::route::{CurrentRoute, RouteElement};
+use crate::logic::route::{CurrentRoute, Level, RouteElement};
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
 use crate::util::{BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, space, star_field, WIDTH, z_pos};
@@ -183,7 +183,7 @@ fn update_life(
 enum Position { Left, Center, Right }
 
 #[derive(Component)]
-struct NextLevelOption(Position);
+struct NextLevelOption(Position, Level);
 
 #[derive(Component)]
 struct NextLevelSelectionSprite;
@@ -194,6 +194,7 @@ struct Rush;
 fn update_next(
     mut commands: Commands,
     time: Res<Time>,
+    mut route: ResMut<CurrentRoute>,
     mut ship: Query<(Entity, &mut FakeTransform, Option<&mut Rush>), (With<MainShip>, Without<NextLevelSelectionSprite>)>,
     mut next: Query<(&NextLevelOption, &mut FakeTransform, &mut Text), (Without<MainShip>, Without<NextLevelSelectionSprite>)>,
     mut bars: Query<&mut FakeTransform, (Without<MainShip>, With<NextLevelSelectionSprite>)>,
@@ -204,14 +205,18 @@ fn update_next(
     let Ok(mut bars_pos) = bars.get_single_mut() else { return; };
     let Ok((e, mut ship_pos, rush)) = ship.get_single_mut() else { return; };
 
+    let mut do_transition = false;
+    let mut next_state: Option<Level> = None;
+
     let bars_y = bars_pos.translation.y;
     let dy = space::NEXT_LEVEL_SPEED_Y * time.delta_seconds() * if rush.is_some() { 0. } else { 1. };
     if rush.is_some() {
         // Update ship
         let ship_y = ship_pos.translation.y;
         if ship_y > HEIGHT as f32 + 64. && transition.is_none() {
-            // TODO: Set correct next state according to the route and selection
-            transition.set_if_neq(ScreenTransition::to(GameState::Hangar));
+            // Transition to next state
+            route.advance();
+            do_transition = true;
         }
         ship_pos.translation.y += space::RUSH_SPEED_Y * time.delta_seconds();
     } else if bars_y > space::NEXT_LEVEL_CHOICE_Y && bars_y + dy <= space::NEXT_LEVEL_CHOICE_Y {
@@ -228,6 +233,7 @@ fn update_next(
             if ship_pos.translation.x <= HALF_WIDTH {
                 text.sections[0].style = TextStyles::Basic.style(&fonts);
                 bars_pos.translation.x = WIDTH as f32 / 4.;
+                next_state = Some(option.1);
             } else {
                 text.sections[0].style = TextStyles::Gray.style(&fonts);
             }
@@ -237,10 +243,19 @@ fn update_next(
             if ship_pos.translation.x > HALF_WIDTH {
                 text.sections[0].style = TextStyles::Basic.style(&fonts);
                 bars_pos.translation.x = WIDTH as f32 / 4. * 3.;
+                next_state = Some(option.1);
             } else {
                 text.sections[0].style = TextStyles::Gray.style(&fonts);
             }
         }
+
+        if option.0 == Position::Center {
+            next_state = Some(option.1);
+        }
+    }
+
+    if do_transition && next_state.is_some() {
+        transition.set_if_neq(ScreenTransition::to(next_state.unwrap().state()));
     }
 }
 
@@ -267,13 +282,13 @@ fn on_cleared(
     }
 
     // Spawn next level options
-    for (name, x, position) in match route.route.0[route.level + 1] {
+    for (name, x, position, level) in match route.route.0[route.level + 1] {
         RouteElement::Level(l) => vec![
-            (l.name().to_owned(), HALF_WIDTH, Position::Center),
+            (l.name().to_owned(), HALF_WIDTH, Position::Center, l),
         ],
         RouteElement::Choice(l1, l2) => vec![
-            (l1.name().to_owned(), WIDTH as f32 / 4., Position::Left),
-            (l2.name().to_owned(), WIDTH as f32 / 4. * 3., Position::Right),
+            (l1.name().to_owned(), WIDTH as f32 / 4., Position::Left, l1),
+            (l2.name().to_owned(), WIDTH as f32 / 4. * 3., Position::Right, l2),
         ]
     } {
         commands
@@ -283,7 +298,7 @@ fn on_cleared(
                 ..default()
             })
             .insert(FakeTransform::from_xyz(x, HEIGHT as f32 + 16., z_pos::GUI))
-            .insert(NextLevelOption(position))
+            .insert(NextLevelOption(position, level))
             .insert(SpaceUI)
         ;
     }

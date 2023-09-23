@@ -73,8 +73,8 @@ fn update(
                 }
             }
             ShopOption::Exit => {
-                route.level += 1;
-                transition.set_if_neq(ScreenTransition::to(route.state()))
+                route.advance();
+                transition.set_if_neq(ScreenTransition::to(route.state()));
             }
         }
     }
