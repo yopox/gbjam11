@@ -40,28 +40,28 @@ impl Upgrades {
     pub fn description(&self, status: &ShipStatus) -> (String, String, String) {
         match self {
             Upgrades::Speed => { (
-                "Increase ship speed".to_string(),
-                format!("by {}%.", upgrades::SPEED * 100.),
+                "Improves ship speed".to_string(),
+                format!("by {:.0}%.", upgrades::SPEED * 100.),
                 format!("Current: x{:.2}", status.speed_multiplier()),
             ) }
             Upgrades::ShotSpeed => { (
-                "Increase shot speed".to_string(),
-                format!("by {}%.", upgrades::SHOT_SPEED * 100.),
+                "Improves shot speed".to_string(),
+                format!("by {:.0}%.", upgrades::SHOT_SPEED * 100.),
                 format!("Current: x{:.2}", status.shot_speed_multiplier()),
             ) }
             Upgrades::ShotFrequency => { (
-                "Increase shot frequency".to_string(),
-                format!("by {}%.", upgrades::SHOT_FREQUENCY * 100.),
+                "Makes your ship shoot".to_string(),
+                format!("{:.0}% faster.", upgrades::SHOT_FREQUENCY * 100.),
                 format!("Current: x{:.2}", status.shot_frequency_multiplier()),
             ) }
             Upgrades::Hull => { (
-                "Increase hull resistance".to_string(),
-                format!("by {}.", upgrades::HEALTH),
+                "Improves hull".to_string(),
+                format!("resistance by {:.0}.", upgrades::HEALTH),
                 format!("Current: {:.0}", status.health().1),
             ) }
             Upgrades::Damage => { (
-                "Increase shot damage".to_string(),
-                format!("by {}%.", upgrades::DAMAGE * 100.),
+                "Improves shot damage".to_string(),
+                format!("by {:.0}%.", upgrades::DAMAGE * 100.),
                 format!("Current: x{:.2}", status.damage_multiplier()),
             ) }
             Upgrades::BouncingShots => {(
