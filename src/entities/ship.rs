@@ -67,8 +67,8 @@ pub struct Ship {
     pub damage_factor: f32,
     pub shot_speed: f32,
     pub shot_frequency: f32,
-    pub health: usize,
-    pub max_health: usize,
+    pub health: f32,
+    pub max_health: f32,
 }
 
 impl Ship {
@@ -89,13 +89,18 @@ impl Ship {
     fn with_damage_factor(mut self, damage_factor: f32) -> Self { self.damage_factor = damage_factor; self }
     fn with_shot_speed(mut self, shot_speed: f32) -> Self { self.shot_speed = shot_speed; self }
     fn with_shot_frequency(mut self, shot_frequency: f32) -> Self { self.shot_frequency = shot_frequency; self }
+    fn with_health(mut self, health: f32) -> Self { self.health = health; self.max_health = health; self }
 
     pub fn from(model: Ships) -> Self {
         match model {
-            Ships::Player => Ship::new(model, true),
-            Ships::Player2 => Ship::new(model, true),
-            Ships::Player3 => Ship::new(model, true),
-            Ships::Player4 => Ship::new(model, true),
+            Ships::Player => Ship::new(model, true)
+                .with_health(base_stats::HEALTH * 1.5),
+            Ships::Player2 => Ship::new(model, true)
+                .with_health(base_stats::HEALTH * 1.5),
+            Ships::Player3 => Ship::new(model, true)
+                .with_health(base_stats::HEALTH * 1.5),
+            Ships::Player4 => Ship::new(model, true)
+                .with_health(base_stats::HEALTH * 1.5),
             Ships::Enemy => Ship::new(model, false)
                 .with_speed(base_stats::SPEED / 2.),
         }

@@ -38,12 +38,12 @@ pub fn damage_ship(
             // Main ship invulnerable if blinking
             // TODO all friendly ships?
             if is_main_ship.and(is_blinking).is_none() {
-                let damage = shots.get(*shot).unwrap().weapon.attack.ceil() as usize;
-                if data.health > 0 {
-                    if data.health < damage { data.health = 0; }
+                let damage = shots.get(*shot).unwrap().weapon.attack;
+                if data.health > 0.001 {
+                    if data.health < damage { data.health = 0.; }
                     else { data.health -= damage; }
                     if is_main_ship.is_some() { ship_status.set_health(data.health); }
-                    damage_event.send(DamageEvent { ship: *ship, fatal: data.health == 0 })
+                    damage_event.send(DamageEvent { ship: *ship, fatal: data.health < 0.001 })
                 }
             }
         }
@@ -58,7 +58,7 @@ pub fn die_gracefully(
     for &DamageEvent { ship, fatal } in events.iter() {
         if !fatal { continue; }
         let entity = commands.get_entity(ship);
-        if entity.is_some() && ships.get(ship).unwrap().health <= 0 {
+        if entity.is_some() && ships.get(ship).unwrap().health < 0.001 {
             entity.unwrap().despawn_recursive();
         }
     }

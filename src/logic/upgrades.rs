@@ -13,6 +13,7 @@ pub enum Upgrades {
     Damage,
     ShotSpeed,
     ShotFrequency,
+    Hull,
 
     /// TODO: Update [logic::item::ShipStatus::shot_upgrades]
     BouncingShots,
@@ -32,6 +33,7 @@ impl Upgrades {
             Upgrades::ShotSpeed => "Shot Speed +",
             Upgrades::ShotFrequency => "Shot Frequency +",
             Upgrades::Damage => "Power +",
+            Upgrades::Hull => "Hull +",
             Upgrades::BouncingShots => "Bouncing Shots",
         }
     }
@@ -53,6 +55,11 @@ impl Upgrades {
                 format!("by {}%.", upgrades::SHOT_FREQUENCY * 100.),
                 format!("Current: x{:.2}", status.shot_frequency_multiplier()),
             ) }
+            Upgrades::Hull => { (
+                "Increase hull resistance".to_string(),
+                format!("by {}.", upgrades::HEALTH),
+                format!("Current: {:.0}", status.health().1),
+            ) }
             Upgrades::Damage => { (
                 "Increase shot damage".to_string(),
                 format!("by {}%.", upgrades::DAMAGE * 100.),
@@ -70,14 +77,15 @@ impl Upgrades {
             Upgrades::Speed
             | Upgrades::ShotSpeed
             | Upgrades::ShotFrequency
-            | Upgrades::Damage => true,
+            | Upgrades::Damage
+            | Upgrades::Hull => true,
             _ => false,
         }
     }
 
     pub fn random_stat_upgrade() -> Self {
         let mut rng = thread_rng();
-        let options = [Upgrades::Speed, Upgrades::ShotSpeed, Upgrades::ShotFrequency, Upgrades::Damage];
+        let options = [Upgrades::Speed, Upgrades::ShotSpeed, Upgrades::ShotFrequency, Upgrades::Damage, Upgrades::Hull];
         options[rng.gen_range(0..options.len())]
     }
 

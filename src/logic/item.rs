@@ -12,14 +12,14 @@ use crate::util::{items, upgrades};
 pub struct ShipStatus {
     inventory: HashMap<Items, usize>,
     upgrades: Vec<Upgrades>,
-    health: usize,
-    max_health: usize,
+    health: f32,
+    max_health: f32,
 }
 
 impl ShipStatus {
     pub fn add(&mut self, item: &Items) {
         if *item == Items::Repair {
-            if self.health < self.max_health { self.health += 1; }
+            if self.health < self.max_health { self.health += 1.; }
             return;
         }
 
@@ -49,16 +49,16 @@ impl ShipStatus {
         *self.inventory.get(item).unwrap_or(&0)
     }
 
-    pub fn damage(&mut self, damage: usize) {
-        if self.health < damage { self.health = 0; }
+    pub fn damage(&mut self, damage: f32) {
+        if self.health < damage { self.health = 0.; }
         else { self.health -= damage; }
     }
 
-    pub fn health(&self) -> (usize, usize) {
+    pub fn health(&self) -> (f32, f32) {
         (self.health, self.max_health)
     }
 
-    pub fn set_health(&mut self, new_health: usize) {
+    pub fn set_health(&mut self, new_health: f32) {
         self.health = new_health;
     }
 

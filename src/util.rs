@@ -66,7 +66,7 @@ pub mod z_pos {
 }
 
 pub mod base_stats {
-    pub const HEALTH: usize = 9;
+    pub const HEALTH: f32 = 8.;
     pub const SPEED: f32 = 25.;
     pub const DAMAGE_FACTOR: f32 = 1.0;
     pub const SHOT_SPEED: f32 = 100.;
@@ -78,6 +78,7 @@ pub mod upgrades {
     pub const DAMAGE: f32 = 0.25;
     pub const SHOT_SPEED: f32 = 0.2;
     pub const SHOT_FREQUENCY: f32 = 0.15;
+    pub const HEALTH: f32 = 4.;
 }
 
 impl Shots {
