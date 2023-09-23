@@ -37,7 +37,7 @@ pub fn reset_inventory(
     mut commands: Commands,
 ) {
     commands.insert_resource(Inventory(items::STARTING_ITEMS.clone()));
-    commands.insert_resource(Credits(120));
+    commands.insert_resource(Credits(0));
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]

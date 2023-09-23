@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub use ship::MainShip;
 pub use ship::Ship;
 pub use ship::Ships;
+pub use shot::damage_ship;
 pub use shot::MuteShots;
 pub use shot::Shot;
 pub use shot::Shots;

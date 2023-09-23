@@ -22,7 +22,7 @@ pub struct DamageEvent {
     pub fatal: bool,
 }
 
-fn die_gracefully(
+pub fn die_gracefully(
     mut commands: Commands,
     mut events: EventReader<DamageEvent>,
     mut ships: Query<&Ship>

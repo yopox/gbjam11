@@ -145,7 +145,7 @@ fn collide_shots(
     }
 }
 
-fn damage_ship(
+pub fn damage_ship(
     mut hit_events: EventReader<HitEvent>,
     mut ships: Query<(&mut Ship, Option<&MainShip>, Option<&Blink>)>,
     mut shots: Query<&Shot>,

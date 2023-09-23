@@ -1,8 +1,9 @@
-use bevy::app::{App, Update};
+use bevy::app::{App, PostUpdate};
 use bevy::prelude::{Component, EventReader, in_state, IntoSystemConfigs, Plugin, Query, ResMut};
 
+use crate::{entities, GameState};
 use crate::entities::Ship;
-use crate::GameState;
+use crate::logic::damage;
 use crate::logic::damage::DamageEvent;
 use crate::screens::Credits;
 
@@ -14,7 +15,11 @@ pub struct Loot {
 }
 impl Plugin for LootPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, credit_money.run_if(in_state(GameState::Space)));
+        app.add_systems(PostUpdate, credit_money
+            .after(entities::damage_ship)
+            .before(damage::die_gracefully)
+            .run_if(in_state(GameState::Space))
+        );
     }
 }
 
@@ -29,7 +34,7 @@ fn credit_money(
         }
 
         if let Ok((_ship, loot)) = ships.get(*ship) {
-            credits.as_mut().0 += loot.credits;
+            credits.0 += loot.credits;
         }
     }
 }
