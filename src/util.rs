@@ -4,7 +4,6 @@ use bevy::math::{Vec2, vec2};
 use bevy::prelude::{Res, State, States};
 
 use crate::entities::Shots;
-use crate::screens::Credits;
 
 pub const WIDTH: usize = 160;
 pub const HALF_WIDTH: f32 = WIDTH as f32 / 2.;
@@ -109,6 +108,8 @@ pub mod items {
 
     use crate::logic::Items;
 
+    pub const STARTING_CREDITS: i16 = 0;
+
     lazy_static! {
         pub static ref STARTING_ITEMS: HashMap<Items, usize> = HashMap::from([
             (Items::Missile, 3),
@@ -120,7 +121,7 @@ pub mod items {
 pub mod shop {
     use crate::logic::Items;
 
-    pub fn item_price(item: &Items, sale: bool) -> u16 {
+    pub fn item_price(item: &Items, sale: bool) -> i16 {
         let p = match item {
             Items::Missile | Items::Shield => 12,
             Items::Repair => 6,
@@ -152,4 +153,4 @@ pub fn in_states<S: States>(states: Vec<S>) -> impl FnMut(Res<State<S>>) -> bool
     move |current_state: Res<State<S>>| states.contains(current_state.get())
 }
 
-pub fn format_credits(credits: &Credits) -> String { format!("Credits: {:03}", credits.0) }
+pub fn format_credits(credits: i16) -> String { format!("Credits: {:03}", credits) }

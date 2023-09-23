@@ -3,15 +3,14 @@ use bevy::prelude::{Component, EventReader, in_state, IntoSystemConfigs, Plugin,
 
 use crate::entities::Ship;
 use crate::GameState;
-use crate::logic::damage;
+use crate::logic::{damage, ShipStatus};
 use crate::logic::damage::DamageEvent;
-use crate::screens::Credits;
 
 pub struct LootPlugin;
 
 #[derive(Component)]
 pub struct Loot {
-    pub(crate) credits: u16
+    pub(crate) credits: i16
 }
 impl Plugin for LootPlugin {
     fn build(&self, app: &mut App) {
@@ -26,7 +25,7 @@ impl Plugin for LootPlugin {
 fn credit_money(
     mut events: EventReader<DamageEvent>,
     ships: Query<(&Ship, &Loot)>,
-    mut credits: ResMut<Credits>
+    mut status: ResMut<ShipStatus>
 ) {
     for DamageEvent { ship, fatal} in events.iter() {
         if !fatal {
@@ -34,7 +33,7 @@ fn credit_money(
         }
 
         if let Ok((_ship, loot)) = ships.get(*ship) {
-            credits.0 += loot.credits;
+            status.add_credits(loot.credits);
         }
     }
 }

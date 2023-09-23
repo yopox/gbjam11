@@ -5,7 +5,6 @@ use rand::{RngCore, thread_rng};
 use crate::entities::Ship;
 use crate::logic::upgrades::{BOUNCING, Upgrades};
 use crate::screens;
-use crate::screens::Credits;
 use crate::util::{items, upgrades};
 
 #[derive(Resource)]
@@ -14,6 +13,7 @@ pub struct ShipStatus {
     upgrades: Vec<Upgrades>,
     health: f32,
     max_health: f32,
+    credits: i16,
 }
 
 impl ShipStatus {
@@ -95,6 +95,12 @@ impl ShipStatus {
     }
 
     pub fn has_upgrade(&self, upgrade: Upgrades) -> bool { self.upgrades.contains(&upgrade) }
+
+    pub fn get_credits(&self) -> i16 { self.credits }
+    pub fn add_credits(&mut self, gain: i16) { self.credits += gain; }
+    pub fn buy(&mut self, cost: i16) {
+        self.credits -= cost;
+    }
 }
 
 pub fn reset_inventory(
@@ -107,8 +113,8 @@ pub fn reset_inventory(
         upgrades: vec![],
         health: ship.max_health,
         max_health: ship.max_health,
+        credits: items::STARTING_CREDITS,
     });
-    commands.insert_resource(Credits(0));
 }
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]

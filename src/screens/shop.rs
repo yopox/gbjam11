@@ -8,7 +8,7 @@ use crate::{GameState, util};
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::{Items, ShipStatus};
 use crate::logic::route::CurrentRoute;
-use crate::screens::{Credits, Fonts, Textures};
+use crate::screens::{Fonts, Textures};
 use crate::util::{shop, z_pos};
 
 pub struct ShopPlugin;
@@ -29,7 +29,6 @@ impl Plugin for ShopPlugin {
 fn update(
     mut text: Query<&mut Text, With<CreditsText>>,
     mut item_texts: Query<(&mut Text, &ShopOption), (Without<CreditsText>)>,
-    mut credits: ResMut<Credits>,
     mut ship_status: ResMut<ShipStatus>,
     keys: Res<Input<KeyCode>>,
     mut options: ResMut<Select<ShopOption>>,
@@ -42,7 +41,7 @@ fn update(
     let Ok(mut text) = text.get_single_mut() else { return; };
     let Ok(mut dot_pos) = dot.get_single_mut() else { return; };
 
-    text.sections[0].value = util::format_credits(&credits);
+    text.sections[0].value = util::format_credits(ship_status.get_credits());
 
     // Select previous / next option
     if keys.just_pressed(KeyCode::Up) {
@@ -60,16 +59,16 @@ fn update(
         match options.items[options.selected].1 {
             ShopOption::Buy(item, sale) => {
                 let price = shop::item_price(&item, sale);
-                if credits.0 >= price && !(item == Items::Repair && ship_status.is_max_health()) {
+                if !(item == Items::Repair && ship_status.is_max_health()) {
                     // Buy item
-                    credits.0 -= price;
+                    ship_status.buy(price);
                     ship_status.add(&item);
                 }
             }
             ShopOption::Sell(item) => {
                 if ship_status.remove(&item) {
                     // Sell item
-                    credits.0 += shop::item_price(&item, true);
+                    ship_status.add_credits(shop::item_price(&item, true));
                 }
             }
             ShopOption::Exit => {
@@ -85,7 +84,7 @@ fn update(
         match option {
             ShopOption::Buy(item, sale) => {
                 let price = shop::item_price(item, *sale);
-                item_text.sections[0].style = if price > credits.0 { TextStyles::Accent.style(&fonts) } else { TextStyles::Basic.style(&fonts) };
+                item_text.sections[0].style = if price > ship_status.get_credits() { TextStyles::Accent.style(&fonts) } else { TextStyles::Basic.style(&fonts) };
                 if *item == Items::Repair && ship_status.is_max_health() { item_text.sections[0].style = TextStyles::Accent.style(&fonts); }
             }
             ShopOption::Sell(item) => {

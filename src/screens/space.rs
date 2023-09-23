@@ -21,9 +21,6 @@ pub struct SpacePlugin;
 #[derive(Component)]
 struct SpaceUI;
 
-#[derive(Resource)]
-pub struct Credits(pub u16);
-
 #[derive(Component)]
 struct LifeBar;
 
@@ -128,7 +125,7 @@ fn enter(
 
     commands
         .spawn(Text2dBundle {
-            text: Text::from_section("Credits: 999", TextStyles::Basic.style(&fonts)),
+            text: Text::from_section(util::format_credits(ship_status.get_credits()), TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::BottomRight,
             transform: Transform::from_xyz(WIDTH as f32 - 7., 4., z_pos::GUI),
             ..default()
@@ -167,11 +164,11 @@ fn enter(
 }
 
 fn update_gui(
-    credits: Res<Credits>,
+    ship_status: Res<ShipStatus>,
     mut text: Query<&mut Text, With<CreditsText>>,
 ) {
-    if credits.is_changed() {
-        text.single_mut().sections[0].value = util::format_credits(&credits);
+    if ship_status.is_changed() {
+        text.single_mut().sections[0].value = util::format_credits(ship_status.get_credits());
     }
 }
 

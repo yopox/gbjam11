@@ -4,7 +4,6 @@ use bevy::prelude::*;
 pub use hangar::SelectedShip;
 pub use loading::Fonts;
 pub use loading::Textures;
-pub use space::Credits;
 
 use crate::screens::hangar::HangarPlugin;
 use crate::screens::loading::LoadingPlugin;
