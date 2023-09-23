@@ -1,6 +1,6 @@
 use bevy::app::App;
-use bevy::math::vec2;
 use bevy::prelude::*;
+use rand::{Rng, thread_rng};
 
 use crate::entities::{MainShip, Ship, Ships, ShipWeapons};
 use crate::GameState;
@@ -9,8 +9,9 @@ use crate::graphics::sizes::Hitbox;
 use crate::logic::Loot;
 use crate::logic::movement::{Movement, Moves};
 use crate::logic::route::CurrentRoute;
+use crate::logic::wave::WaveEvent::WaitSeconds;
 use crate::screens::Textures;
-use crate::util::{Angle, HALF_WIDTH, z_pos};
+use crate::util::{HALF_WIDTH, space, z_pos};
 
 pub struct WavePlugin;
 
@@ -63,32 +64,71 @@ enum WaveEvent {
     WaitForClear,
 }
 
+#[derive(Copy, Clone)]
+enum WavePart {
+    SimpleEnemy,
+    ConsecutiveWithPause(u8, f32, f32),
+}
+
+impl WavePart {
+    fn events(&self, level: usize) -> Vec<WaveEvent> {
+        let mut events = vec![];
+        match self {
+            WavePart::SimpleEnemy => {
+                events.push(WaveEvent::Spawn(
+                    Ships::random_enemy(level),
+                    Moves::random_crossing(),
+                ));
+            }
+            WavePart::ConsecutiveWithPause(n, x, pause) => {
+                let base_move = Moves::random_crossing();
+                for _ in 0..*n {
+                    events.push(WaveEvent::Spawn(
+                        Ships::random_enemy(level),
+                        Moves::WithPause(*x, *pause, 0., Box::new(base_move.clone())),
+                    ));
+                    events.push(WaitSeconds(*pause + 2.));
+                }
+            }
+        }
+        events
+    }
+
+    fn random(level: usize) -> Self {
+        let mut rng = thread_rng();
+        let possible_parts = match level {
+            0..=8 => [
+                WavePart::SimpleEnemy,
+                WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4.),
+            ],
+            9..=17 => [
+                WavePart::ConsecutiveWithPause(3, HALF_WIDTH, 4.),
+                WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3.5),
+
+            ],
+            _ => [
+                WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3.5),
+                WavePart::ConsecutiveWithPause(5, HALF_WIDTH, 3.5),
+
+            ],
+        };
+        return possible_parts[rng.gen_range(0..possible_parts.len())]
+    }
+}
+
 #[derive(Resource)]
 struct CurrentWave(Vec<WaveEvent>);
 
 impl CurrentWave {
-    pub fn new(difficulty: usize) -> Self {
+    pub fn new(level: usize) -> Self {
         let mut wave = vec![];
 
-        // TODO: generate wave
-        // wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)));
-        // wave.push(WaveEvent::WaitSeconds(5.));
-        // wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::Triangular(vec2(WIDTH as f32 + 16., 110.), Angle(180.), 0.4,20.)));
+        for _ in 0..space::patterns_nb(level) {
+            wave.append(&mut WavePart::random(level).events(level));
+            // Always end wave with [WaveEvent::WaitForClear]
+            wave.push(WaveEvent::WaitForClear);
+        }
 
-        wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::WithPause(
-            HALF_WIDTH, 2., 0., Box::new(
-                Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)
-            ))));
-
-        wave.push(WaveEvent::WaitSeconds(3.));
-
-        wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::StationaryAt(
-            HALF_WIDTH, Vec2::NAN.clone(), Box::new(
-                Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)
-            ))));
-
-        // Always end wave with [WaveEvent::WaitForClear]
-        wave.push(WaveEvent::WaitForClear);
         CurrentWave(wave)
     }
 }

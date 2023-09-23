@@ -20,6 +20,11 @@ pub enum Ships {
 }
 
 impl Ships {
+    pub fn random_enemy(level: usize) -> Self {
+        // TODO: Design enemies
+        return Ships::Enemy;
+    }
+
     pub fn hitbox(&self) -> Hitbox {
         match self {
             Ships::Player | Ships::Player2 | Ships::Player3 | Ships::Player4 =>

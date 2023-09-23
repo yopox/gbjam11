@@ -3,15 +3,18 @@ use std::ops::Add;
 use bevy::hierarchy::DespawnRecursiveExt;
 use bevy::math::{Vec2, vec2, Vec3Swizzles};
 use bevy::prelude::{Commands, Component, Entity, Query, Res, Time, Transform, Without};
+use rand::{Rng, RngCore, thread_rng};
 
 use crate::entities::{MainShip, Ship};
 use crate::graphics::FakeTransform;
-use crate::util::{Angle, HALF_HEIGHT, HALF_WIDTH, HEIGHT};
+use crate::util::{Angle, HALF_HEIGHT, HALF_WIDTH, HEIGHT, WIDTH};
 
 #[derive(Clone)]
 pub enum Moves {
     Linear(Vec2, Angle),
+    /// starting, angle, frequency, amplitude
     Wavy(Vec2, Angle, f32, f32),
+    /// starting, angle, frequency, amplitude
     Triangular(Vec2, Angle, f32, f32),
     /// x: f32, pause_duration: f32, t_x: f32, original move
     WithPause(f32, f32, f32, Box<Moves>),
@@ -20,6 +23,28 @@ pub enum Moves {
 }
 
 impl Moves {
+    pub fn random_crossing() -> Self {
+        let mut rng = thread_rng();
+        let y = HEIGHT as f32 / 5. * 2. + rng.gen_range(0.0..1.0) * HALF_HEIGHT;
+
+        let (pos, angle) = if rng.next_u32() % 2 == 0 {
+            // Left to right
+            (vec2(-16., y), 0.)
+        } else {
+            // Right to left
+            (vec2(WIDTH as f32 + 16., y), 180.)
+        };
+
+        let frequency = rng.gen_range(0.5..2.0);
+        let amplitude = rng.gen_range(4.0..12.0);
+
+        if rng.next_u32() % 2 == 0 {
+            Moves::Wavy(pos, Angle(angle), frequency, amplitude)
+        } else {
+            Moves::Triangular(pos, Angle(angle), frequency, amplitude)
+        }
+    }
+
     pub fn starting_pos(&self) -> &Vec2 {
         match &self {
             Moves::Linear(pos, _) => pos,

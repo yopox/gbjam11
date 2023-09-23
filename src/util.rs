@@ -26,6 +26,14 @@ pub mod space {
     pub const RUSH_SPEED_Y: f32 = base_stats::SPEED * 10.;
 
     pub fn time_ratio(level: usize) -> f32 { 1. + level as f32 / 26. * 0.3 }
+
+    pub fn patterns_nb(level: usize) -> usize {
+        match level {
+            0..=8 => 3,
+            9..=17 => 5,
+            _ => 7,
+        }
+    }
 }
 
 pub mod star_field {
