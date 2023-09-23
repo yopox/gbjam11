@@ -1,5 +1,4 @@
 use std::collections::BTreeMap;
-use std::fmt::Debug;
 
 use bevy::app::App;
 use bevy::prelude::*;
@@ -128,6 +127,7 @@ impl WavePart {
                     while y_pos.iter().any(|existing| (y - *existing).abs() < 18.) {
                         y = random_y(&mut rng);
                     }
+                    y_pos.push(y);
                     events.push(WaveEvent::WaitMilliseconds(i * *pause));
                     events.append(&mut part.events(level, y));
                     parallel.push(events.clone());
