@@ -45,6 +45,9 @@ pub struct Textures {
 
     #[asset(path = "dot.png")]
     pub dot: Handle<Image>,
+
+    #[asset(path = "upgrade_bg.png")]
+    pub upgrade_bg: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource)]

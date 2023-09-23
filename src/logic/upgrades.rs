@@ -3,15 +3,18 @@ use rand::{Rng, thread_rng};
 
 use crate::entities::Shot;
 use crate::graphics::FakeTransform;
-use crate::util::{HEIGHT, WIDTH};
+use crate::logic;
+use crate::logic::ShipStatus;
+use crate::util::{HEIGHT, upgrades, WIDTH};
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Upgrades {
     Speed,
+    Damage,
     ShotSpeed,
     ShotFrequency,
-    ShotDamage,
 
+    /// TODO: Update [logic::item::ShipStatus::shot_upgrades]
     BouncingShots,
     // PiercingShots,
     // LeechShots,
@@ -28,8 +31,38 @@ impl Upgrades {
             Upgrades::Speed => "Speed Module +",
             Upgrades::ShotSpeed => "Shot Speed +",
             Upgrades::ShotFrequency => "Shot Frequency +",
-            Upgrades::ShotDamage => "Power +",
+            Upgrades::Damage => "Power +",
             Upgrades::BouncingShots => "Bouncing Shots",
+        }
+    }
+
+    pub fn description(&self, status: &ShipStatus) -> (String, String, String) {
+        match self {
+            Upgrades::Speed => { (
+                "Increase ship speed".to_string(),
+                format!("by {}%.", upgrades::SPEED * 100.),
+                format!("Current: x{:.2}", status.speed_multiplier()),
+            ) }
+            Upgrades::ShotSpeed => { (
+                "Increase shot speed".to_string(),
+                format!("by {}%.", upgrades::SHOT_SPEED * 100.),
+                format!("Current: x{:.2}", status.shot_speed_multiplier()),
+            ) }
+            Upgrades::ShotFrequency => { (
+                "Increase shot frequency".to_string(),
+                format!("by {}%.", upgrades::SHOT_FREQUENCY * 100.),
+                format!("Current: x{:.2}", status.shot_frequency_multiplier()),
+            ) }
+            Upgrades::Damage => { (
+                "Increase shot damage".to_string(),
+                format!("by {}%.", upgrades::DAMAGE * 100.),
+                format!("Current: x{:.2}", status.damage_multiplier()),
+            ) }
+            Upgrades::BouncingShots => {(
+                "Make shots bounce".to_string(),
+                "against the edges".to_string(),
+                "of the screen.".to_string(),
+            )}
         }
     }
     pub fn is_stat_upgrade(&self) -> bool {
@@ -37,14 +70,14 @@ impl Upgrades {
             Upgrades::Speed
             | Upgrades::ShotSpeed
             | Upgrades::ShotFrequency
-            | Upgrades::ShotDamage => true,
+            | Upgrades::Damage => true,
             _ => false,
         }
     }
 
     pub fn random_stat_upgrade() -> Self {
         let mut rng = thread_rng();
-        let options = [Upgrades::Speed, Upgrades::ShotSpeed, Upgrades::ShotFrequency, Upgrades::ShotDamage];
+        let options = [Upgrades::Speed, Upgrades::ShotSpeed, Upgrades::ShotFrequency, Upgrades::Damage];
         options[rng.gen_range(0..options.len())]
     }
 
@@ -52,6 +85,16 @@ impl Upgrades {
         let mut rng = thread_rng();
         let options = [Upgrades::BouncingShots];
         options[rng.gen_range(0..options.len())]
+    }
+
+    pub fn new_non_stat_upgrade(status: &ShipStatus) -> Self {
+        let mut upgrade = Self::random_non_stat_upgrade();
+        for i in 0..=30 {
+            if status.has_upgrade(upgrade) { upgrade = Self::random_non_stat_upgrade(); }
+            else if i == 30 { upgrade = Self::random_stat_upgrade(); }
+            else { break }
+        }
+        upgrade
     }
 }
 

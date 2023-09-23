@@ -3,14 +3,15 @@ use bevy::utils::HashMap;
 use rand::{RngCore, thread_rng};
 
 use crate::entities::Ship;
-use crate::logic::upgrades::Upgrades;
+use crate::logic::upgrades::{BOUNCING, Upgrades};
 use crate::screens;
 use crate::screens::Credits;
-use crate::util::items;
+use crate::util::{items, upgrades};
 
 #[derive(Resource)]
 pub struct ShipStatus {
     inventory: HashMap<Items, usize>,
+    upgrades: Vec<Upgrades>,
     health: usize,
     max_health: usize,
 }
@@ -19,6 +20,12 @@ impl ShipStatus {
     pub fn add(&mut self, item: &Items) {
         if *item == Items::Repair {
             if self.health < self.max_health { self.health += 1; }
+            return;
+        }
+
+        if let Items::Upgrade(u) = *item {
+            self.upgrades.push(u);
+            return;
         }
 
         if let Some(mut n) = self.inventory.get_mut(item) {
@@ -56,6 +63,38 @@ impl ShipStatus {
     }
 
     pub fn is_max_health(&self) -> bool { self.health >= self.max_health }
+
+    pub fn speed_multiplier(&self) -> f32 {
+        1. + self.upgrades.iter().map(
+            |u| if *u == Upgrades::Speed { upgrades::SPEED } else { 0. }
+        ).sum::<f32>()
+    }
+
+    pub fn damage_multiplier(&self) -> f32 {
+        1. + self.upgrades.iter().map(
+            |u| if *u == Upgrades::Damage { upgrades::DAMAGE } else { 0. }
+        ).sum::<f32>()
+    }
+
+    pub fn shot_speed_multiplier(&self) -> f32 {
+        1. + self.upgrades.iter().map(
+            |u| if *u == Upgrades::ShotSpeed { upgrades::SHOT_SPEED } else { 0. }
+        ).sum::<f32>()
+    }
+
+    pub fn shot_frequency_multiplier(&self) -> f32 {
+        1. + self.upgrades.iter().map(
+            |u| if *u == Upgrades::ShotFrequency { upgrades::SHOT_FREQUENCY } else { 0. }
+        ).sum::<f32>()
+    }
+
+    pub fn shot_upgrades(&self) -> usize {
+        let mut modifier = 0;
+        if self.upgrades.contains(&Upgrades::BouncingShots) { modifier |= BOUNCING; }
+        modifier
+    }
+
+    pub fn has_upgrade(&self, upgrade: Upgrades) -> bool { self.upgrades.contains(&upgrade) }
 }
 
 pub fn reset_inventory(
@@ -65,6 +104,7 @@ pub fn reset_inventory(
     let ship = Ship::from(selected_ship.0.model());
     commands.insert_resource(ShipStatus {
         inventory: items::STARTING_ITEMS.clone(),
+        upgrades: vec![],
         health: ship.max_health,
         max_health: ship.max_health,
     });

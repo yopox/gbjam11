@@ -73,6 +73,13 @@ pub mod base_stats {
     pub const SHOT_FREQUENCY: f32 = 1.0;
 }
 
+pub mod upgrades {
+    pub const SPEED: f32 = 0.2;
+    pub const DAMAGE: f32 = 0.25;
+    pub const SHOT_SPEED: f32 = 0.2;
+    pub const SHOT_FREQUENCY: f32 = 0.15;
+}
+
 impl Shots {
     pub fn attack(&self) -> f32 {
         match self {

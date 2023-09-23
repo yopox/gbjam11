@@ -45,7 +45,7 @@ impl Level {
             | Level::Elite
             | Level::Boss => GameState::Space,
             Level::Shop => GameState::Shop,
-            Level::Upgrade => GameState::Hangar,
+            Level::Upgrade => GameState::Upgrade,
             Level::Repair => GameState::Hangar,
             Level::Unknown => GameState::Hangar,
             Level::Win => GameState::Hangar,
