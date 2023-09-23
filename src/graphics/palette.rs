@@ -50,7 +50,7 @@ impl Palette {
             ],
             Palette::YellowPurple => [
                 Color::hex("201e33").unwrap(),
-                Color::hex("d5348e").unwrap(),
+                Color::hex("ab1a5d").unwrap(),
                 Color::hex("ffbc43").unwrap(),
                 Color::hex("808a94").unwrap(),
             ],
