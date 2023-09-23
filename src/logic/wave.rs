@@ -273,7 +273,7 @@ fn merge_waves(waves: &[Vec<WaveEvent>]) -> Vec<WaveEvent> {
                 WaveEvent::WaitMilliseconds(s) => { pause += *s; }
                 WaveEvent::WaitForClear => {}
                 _ => {
-                    if let Some(mut e) = events.get_mut(&pause) {
+                    if let Some(e) = events.get_mut(&pause) {
                         e.push(event.clone());
                     } else {
                         events.insert(pause, vec![event.clone()]);

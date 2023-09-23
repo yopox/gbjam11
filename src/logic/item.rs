@@ -28,7 +28,7 @@ impl ShipStatus {
             return;
         }
 
-        if let Some(mut n) = self.inventory.get_mut(item) {
+        if let Some(n) = self.inventory.get_mut(item) {
             *n += 1;
         } else {
             self.inventory.insert(*item, 1);
@@ -36,7 +36,7 @@ impl ShipStatus {
     }
 
     pub fn remove(&mut self, item: &Items) -> bool {
-        if let Some(mut n) = self.inventory.get_mut(item) {
+        if let Some(n) = self.inventory.get_mut(item) {
             if *n > 0 {
                 *n -= 1;
                 return true;
@@ -47,11 +47,6 @@ impl ShipStatus {
 
     pub fn get(&self, item: &Items) -> usize {
         *self.inventory.get(item).unwrap_or(&0)
-    }
-
-    pub fn damage(&mut self, damage: f32) {
-        if self.health < damage { self.health = 0.; }
-        else { self.health -= damage; }
     }
 
     pub fn health(&self) -> (f32, f32) {

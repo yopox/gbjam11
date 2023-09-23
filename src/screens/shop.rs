@@ -28,7 +28,7 @@ impl Plugin for ShopPlugin {
 
 fn update(
     mut text: Query<&mut Text, With<CreditsText>>,
-    mut item_texts: Query<(&mut Text, &ShopOption), (Without<CreditsText>)>,
+    mut item_texts: Query<(&mut Text, &ShopOption), Without<CreditsText>>,
     mut ship_status: ResMut<ShipStatus>,
     keys: Res<Input<KeyCode>>,
     mut options: ResMut<Select<ShopOption>>,

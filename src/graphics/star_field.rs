@@ -30,7 +30,7 @@ impl StarsSpeed {
 impl Plugin for StarFieldPlugin {
     fn build(&self, app: &mut App) {
         app
-            .insert_resource(StarsSpeed(util::star_field::INITIAL_SPEED))
+            .insert_resource(StarsSpeed(star_field::INITIAL_SPEED))
             .add_systems(Startup, enter)
             .add_systems(Update, update)
         ;
@@ -85,16 +85,5 @@ fn update(
             transform.translation.x = (transform.translation.x + speed.0.x * speed_modifier).rem_euclid(WIDTH as f32);
         }
 
-    }
-}
-
-fn exit(
-    mut commands: Commands,
-    to_clean: Query<Entity, With<StarFieldUI>>,
-) {
-    for id in to_clean.iter() {
-        commands
-            .entity(id)
-            .despawn_recursive();
     }
 }

@@ -53,7 +53,7 @@ pub fn damage_ship(
 pub fn die_gracefully(
     mut commands: Commands,
     mut events: EventReader<DamageEvent>,
-    mut ships: Query<&Ship>
+    ships: Query<&Ship>,
 ) {
     for &DamageEvent { ship, fatal } in events.iter() {
         if !fatal { continue; }

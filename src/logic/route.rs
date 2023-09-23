@@ -47,7 +47,7 @@ impl Level {
             Level::Shop => GameState::Shop,
             Level::Upgrade => GameState::Upgrade,
             Level::Repair => GameState::Hangar,
-            Level::Unknown => GameState::Hangar,
+            Level::Unknown => Level::unknown().state(),
             Level::Win => GameState::Hangar,
         }
     }

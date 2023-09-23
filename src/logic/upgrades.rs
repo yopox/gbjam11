@@ -3,7 +3,6 @@ use rand::{Rng, thread_rng};
 
 use crate::entities::Shot;
 use crate::graphics::FakeTransform;
-use crate::logic;
 use crate::logic::ShipStatus;
 use crate::util::{HEIGHT, upgrades, WIDTH};
 
