@@ -6,7 +6,7 @@ use crate::entities::Weapons;
 use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
 use crate::util::{Angle, base_stats};
-use crate::util::space::{BLINK_DURATION, BLINK_INTERVAL};
+use crate::util::space::{BLINK_DURATION, BLINK_DURATION_ENEMY, BLINK_INTERVAL};
 
 pub struct ShipPlugin;
 
@@ -129,11 +129,13 @@ pub struct Blink(pub usize);
 fn add_blinking(
     mut commands: Commands,
     mut hits: EventReader<DamageEvent>,
+    ships: Query<&Ship>,
 ) {
-    for &DamageEvent { ship, fatal } in hits.iter() {
-        if let Some(mut ship) = commands.get_entity(ship) {
-            ship.insert(Blink(BLINK_DURATION));
-        }
+    for &DamageEvent { ship: ship_entity, fatal } in hits.iter() {
+        let Ok(ship) = ships.get(ship_entity) else { continue };
+        let friendly = ship.friendly;
+        let Some(mut ship_commands) = commands.get_entity(ship_entity) else { continue; };
+        ship_commands.insert(Blink(if friendly { BLINK_DURATION } else { BLINK_DURATION_ENEMY }));
     }
 }
 

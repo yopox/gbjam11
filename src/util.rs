@@ -19,8 +19,9 @@ pub const BORDER: f32 = 2.;
 pub mod space {
     use crate::util::{base_stats, HALF_HEIGHT};
 
-    pub const BLINK_INTERVAL: usize = 20;
-    pub const BLINK_DURATION: usize = BLINK_INTERVAL * 6;
+    pub const BLINK_INTERVAL: usize = 10;
+    pub const BLINK_DURATION: usize = BLINK_INTERVAL * 8;
+    pub const BLINK_DURATION_ENEMY: usize = BLINK_INTERVAL * 4;
 
     pub const NEXT_LEVEL_SPEED_Y: f32 = -12.;
     pub const NEXT_LEVEL_CHOICE_Y: f32 = HALF_HEIGHT;
