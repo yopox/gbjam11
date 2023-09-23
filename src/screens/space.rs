@@ -96,6 +96,23 @@ fn enter(
     main_ship_bundle.ship.shot_frequency *= ship_status.shot_frequency_multiplier();
 
     commands
+        .spawn(SpriteBundle {
+            sprite: Sprite {
+                anchor: Anchor::BottomLeft,
+                ..default()
+            },
+            texture: textures.bar.clone(),
+            ..default()
+        })
+        .insert(LifeBar)
+        .insert(FakeTransform::from_xyz_and_scale(
+            8., 4., z_pos::GUI,
+            main_ship_bundle.ship.health / main_ship_bundle.ship.max_health * HEALTH_BAR_SIZE as f32, 1.,
+        ))
+        .insert(SpaceUI)
+    ;
+
+    commands
         .spawn(main_ship_bundle)
         .insert(MainShip)
         .insert(ShotUpgrades(ship_status.shot_upgrades()))
@@ -110,23 +127,6 @@ fn enter(
             transform: Transform::from_xyz(8., 4., z_pos::GUI),
             ..default()
         })
-        .insert(SpaceUI)
-    ;
-
-    commands
-        .spawn(SpriteBundle {
-            sprite: Sprite {
-                anchor: Anchor::BottomLeft,
-                ..default()
-            },
-            texture: textures.bar.clone(),
-            ..default()
-        })
-        .insert(LifeBar)
-        .insert(FakeTransform::from_xyz_and_scale(
-            8., 4., z_pos::GUI,
-            HEALTH_BAR_SIZE as f32, 1.,
-        ))
         .insert(SpaceUI)
     ;
 
