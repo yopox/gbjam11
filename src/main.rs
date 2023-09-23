@@ -20,9 +20,10 @@ pub enum GameState {
     Loading,
     Title,
     Hangar,
-    Space,
+    Space, Elite, Boss,
     Shop,
     Upgrade,
+    SimpleText,
 }
 
 fn main() {

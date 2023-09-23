@@ -147,20 +147,23 @@ impl Route {
 pub struct CurrentRoute {
     pub route: Route,
     pub level: usize,
+    angry_shopkeepers: bool,
 }
 
 impl CurrentRoute {
     pub fn new() -> Self {
-        CurrentRoute { route: Route::new(), level: 0 }
+        CurrentRoute { route: Route::new(), level: 0, angry_shopkeepers: false }
     }
 
-    pub fn advance(&mut self) {
-        self.level += 1;
-    }
+    pub fn advance(&mut self) { self.level += 1; }
 
     pub fn state(&self) -> GameState {
-        self.route.0[self.level].state()
+        let s = self.route.0[self.level].state();
+        if self.angry_shopkeepers && s == GameState::Shop { GameState::Elite } else { s }
     }
+
+    pub fn set_angry_shopkeepers(&mut self, angry: bool) { self.angry_shopkeepers = angry; }
+    pub fn are_shopkeepers_angry(&mut self) -> bool { self.angry_shopkeepers }
 }
 
 #[test]

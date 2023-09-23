@@ -180,8 +180,8 @@ impl WavePart {
 struct CurrentWave(Vec<WaveEvent>);
 
 impl CurrentWave {
-    pub fn new(level: usize) -> Self {
-        info!("Generating events for level {}:", level);
+    pub fn new(state: &GameState, level: usize) -> Self {
+        info!("{:?} – Generating events for level {}:", state, level);
         let mut rng = thread_rng();
         let mut wave = vec![];
 
@@ -203,8 +203,9 @@ pub struct WaveCleared;
 fn enter(
     mut commands: Commands,
     route: Res<CurrentRoute>,
+    state: Res<State<GameState>>,
 ) {
-    commands.insert_resource(CurrentWave::new(route.level));
+    commands.insert_resource(CurrentWave::new(state.get(), route.level));
 }
 
 fn update(

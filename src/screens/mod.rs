@@ -9,6 +9,7 @@ use crate::screens::hangar::HangarPlugin;
 use crate::screens::loading::LoadingPlugin;
 use crate::screens::shop::ShopPlugin;
 use crate::screens::space::SpacePlugin;
+use crate::screens::text::SimpleTextPlugin;
 use crate::screens::title::TitlePlugin;
 use crate::screens::upgrade::UpgradePlugin;
 
@@ -18,6 +19,7 @@ mod title;
 mod hangar;
 mod shop;
 mod upgrade;
+mod text;
 
 pub struct ScreensPlugin;
 
@@ -31,6 +33,7 @@ impl Plugin for ScreensPlugin {
                 SpacePlugin,
                 ShopPlugin,
                 UpgradePlugin,
+                SimpleTextPlugin,
             ))
         ;
     }

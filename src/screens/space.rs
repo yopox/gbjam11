@@ -13,7 +13,7 @@ use crate::logic::route::{CurrentRoute, Level, RouteElement};
 use crate::logic::upgrades::ShotUpgrades;
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
-use crate::util::{BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, space, star_field, WIDTH, z_pos};
+use crate::util::{BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, star_field, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
 
 pub struct SpacePlugin;
@@ -34,11 +34,17 @@ impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Update, (update, update_gui, update_life, on_cleared, update_next)
-                .run_if(in_state(GameState::Space)),
+                .run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss])),
             )
-            .add_systems(PostUpdate, pause)
+            .add_systems(PostUpdate, pause
+                .run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss]))
+            )
             .add_systems(OnEnter(GameState::Space), enter)
+            .add_systems(OnEnter(GameState::Elite), enter)
+            .add_systems(OnEnter(GameState::Boss), enter)
             .add_systems(OnExit(GameState::Space), exit)
+            .add_systems(OnExit(GameState::Elite), exit)
+            .add_systems(OnExit(GameState::Boss), exit)
         ;
     }
 }
@@ -263,7 +269,10 @@ fn update_next(
     }
 
     if do_transition && next_state.is_some() {
-        transition.set_if_neq(ScreenTransition::to(next_state.unwrap().state()));
+        let mut state = next_state.unwrap().state();
+        if state == GameState::Shop && route.are_shopkeepers_angry() { state = GameState::Elite; }
+        if state == GameState::Space { state = GameState::Dummy; }
+        transition.set_if_neq(ScreenTransition::to(state));
     }
 }
 

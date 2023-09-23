@@ -9,6 +9,7 @@ use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::{Items, ShipStatus};
 use crate::logic::route::CurrentRoute;
 use crate::screens::{Fonts, Textures};
+use crate::screens::text::SimpleText;
 use crate::util::{shop, z_pos};
 
 pub struct ShopPlugin;
@@ -36,6 +37,7 @@ fn update(
     mut transition: ResMut<ScreenTransition>,
     mut route: ResMut<CurrentRoute>,
     fonts: Res<Fonts>,
+    mut simple_text: ResMut<SimpleText>,
 ) {
     // Update credits text
     let Ok(mut text) = text.get_single_mut() else { return; };
@@ -63,6 +65,12 @@ fn update(
                     // Buy item
                     ship_status.buy(price);
                     ship_status.add(&item);
+
+                    if ship_status.get_credits() < 0 {
+                        simple_text.0 = "The shopkeepers will find you.".to_string();
+                        route.set_angry_shopkeepers(true);
+                        transition.set_if_neq(ScreenTransition::to(GameState::SimpleText));
+                    }
                 }
             }
             ShopOption::Sell(item) => {
