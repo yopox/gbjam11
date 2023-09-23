@@ -5,7 +5,7 @@ use bevy::sprite::Anchor;
 use rand::{RngCore, thread_rng};
 
 use crate::{GameState, util};
-use crate::graphics::{ScreenTransition, TextStyles};
+use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::{Inventory, Items};
 use crate::logic::route::CurrentRoute;
 use crate::screens::{Credits, Fonts, Textures};
@@ -136,7 +136,11 @@ fn enter(
     textures: Res<Textures>,
     fonts: Res<Fonts>,
     inventory: Res<Inventory>,
+    route: Res<CurrentRoute>,
+    mut star_field: ResMut<StarsSpeed>,
 ) {
+    star_field.set_by_level(route.level);
+
     let mut rng = thread_rng();
     let mut is_sale = || rng.next_u32() % 10 == 0;
 
