@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::fmt::Debug;
 
 use bevy::app::App;
 use bevy::prelude::*;
@@ -80,6 +81,25 @@ impl Default for WavePart {
 fn random_y(rng: &mut ThreadRng) -> f32 { HEIGHT as f32 / 5. * 2. + rng.gen_range(0.0..1.0) * HALF_HEIGHT }
 
 impl WavePart {
+    fn debug_string(&self) -> String {
+        match self {
+            WavePart::SimpleEnemy =>
+                "Single Enemy".to_string(),
+            WavePart::ConsecutiveWithPause(n, x, pause) => format!(
+                "{} Enemies with {}ms pause on x={}",
+                n, pause, x
+            ),
+            WavePart::Parallel(pause, parts) => format!(
+                "Parallel with {}ms delay: {}",
+                pause,
+                parts.iter()
+                    .map(|p| p.debug_string())
+                    .reduce(|p1, p2| format!("{} / {}", p1, p2))
+                    .unwrap_or("None".to_string())
+            ),
+        }
+    }
+
     fn events(&self, level: usize, base_y: f32) -> Vec<WaveEvent> {
         let mut events = vec![];
         match self {
@@ -126,10 +146,6 @@ impl WavePart {
                 WavePart::SimpleEnemy,
                 WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
                 WavePart::Parallel(8000, vec![
-                    WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
-                    WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
-                ]),
-                WavePart::Parallel(8000, vec![
                     WavePart::SimpleEnemy,
                     WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
                 ]),
@@ -146,7 +162,10 @@ impl WavePart {
             9..=17 => vec![
                 WavePart::ConsecutiveWithPause(3, HALF_WIDTH, 4000),
                 WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3500),
-
+                WavePart::Parallel(8000, vec![
+                    WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
+                    WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
+                ]),
             ],
             _ => vec![
                 WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3500),
@@ -162,11 +181,14 @@ struct CurrentWave(Vec<WaveEvent>);
 
 impl CurrentWave {
     pub fn new(level: usize) -> Self {
+        info!("Generating events for level {}:", level);
         let mut rng = thread_rng();
         let mut wave = vec![];
 
         for _ in 0..space::patterns_nb(level) {
-            wave.append(&mut WavePart::random(level).events(level, random_y(&mut rng)));
+            let wave_part = WavePart::random(level);
+            info!("- {}", wave_part.debug_string());
+            wave.append(&mut wave_part.events(level, random_y(&mut rng)));
             // Always end wave with [WaveEvent::WaitForClear]
             wave.push(WaveEvent::WaitForClear);
         }
@@ -182,7 +204,6 @@ fn enter(
     mut commands: Commands,
     route: Res<CurrentRoute>,
 ) {
-    info!("Start wave with difficulty {}", route.level);
     commands.insert_resource(CurrentWave::new(route.level));
 }
 
