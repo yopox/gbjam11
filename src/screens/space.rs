@@ -42,6 +42,7 @@ impl Plugin for SpacePlugin {
             .add_systems(OnEnter(GameState::Space), enter)
             .add_systems(OnEnter(GameState::Elite), enter)
             .add_systems(OnEnter(GameState::Boss), enter)
+            .add_systems(OnEnter(GameState::Dummy), on_enter_dummy)
             .add_systems(OnExit(GameState::Space), exit)
             .add_systems(OnExit(GameState::Elite), exit)
             .add_systems(OnExit(GameState::Boss), exit)
@@ -274,6 +275,12 @@ fn update_next(
         if state == GameState::Space { state = GameState::Dummy; }
         transition.set_if_neq(ScreenTransition::to(state));
     }
+}
+
+fn on_enter_dummy(
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    next_state.set(GameState::Space);
 }
 
 fn on_cleared(

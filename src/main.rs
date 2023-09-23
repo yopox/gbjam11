@@ -24,6 +24,8 @@ pub enum GameState {
     Shop,
     Upgrade,
     SimpleText,
+    /// Dummy state to fix Space -> Space transition
+    Dummy,
 }
 
 fn main() {
