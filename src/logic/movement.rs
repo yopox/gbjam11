@@ -13,8 +13,10 @@ pub enum Moves {
     Linear(Vec2, Angle),
     Wavy(Vec2, Angle, f32, f32),
     Triangular(Vec2, Angle, f32, f32),
-    /// x: f32, pause_duration: f32, t_1: f32, original move
+    /// x: f32, pause_duration: f32, t_x: f32, original move
     WithPause(f32, f32, f32, Box<Moves>),
+    /// x: f32, final_pos: Vec2, original move
+    StationaryAt(f32, Vec2, Box<Moves>),
 }
 
 impl Moves {
@@ -23,7 +25,9 @@ impl Moves {
             Moves::Linear(pos, _) => pos,
             Moves::Wavy(pos, _, _, _) => pos,
             Moves::Triangular(pos, _, _, _) => pos,
-            Moves::WithPause(_, _, _, moves) => moves.starting_pos(),
+            Moves::WithPause(_, _, _, moves)
+            | Moves::StationaryAt(_, _, moves) =>
+                moves.starting_pos(),
         }
     }
 
@@ -50,11 +54,19 @@ impl Moves {
                     angle
                 )
             }
-            Moves::WithPause(x, pause, ref mut t_1, moves) => {
-                if *t_1 != 0. && time - *t_1 < *pause { moves.pos(*t_1, delta, speed) }
+            Moves::WithPause(x, pause, ref mut t_x, moves) => {
+                if *t_x != 0. && time - *t_x < *pause { moves.pos(*t_x, delta, speed) }
                 else {
-                    let pos = moves.pos(time - if *t_1 != 0. { *pause } else { 0. }, delta, speed);
-                    if (pos.x - *x).abs() < 0.5 && *t_1 == 0. { *t_1 = time; }
+                    let pos = moves.pos(time - if *t_x != 0. { *pause } else { 0. }, delta, speed);
+                    if (pos.x - *x).abs() < 0.5 && *t_x == 0. { *t_x = time; }
+                    pos
+                }
+            }
+            Moves::StationaryAt(x, ref mut final_pos, moves) => {
+                if !final_pos.is_nan() { *final_pos }
+                else {
+                    let pos = moves.pos(time, delta, speed);
+                    if (pos.x - *x).abs() < 0.5 { *final_pos = pos; }
                     pos
                 }
             }

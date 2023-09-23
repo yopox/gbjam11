@@ -80,6 +80,13 @@ impl CurrentWave {
                 Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)
             ))));
 
+        wave.push(WaveEvent::WaitSeconds(3.));
+
+        wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::StationaryAt(
+            HALF_WIDTH, Vec2::NAN.clone(), Box::new(
+                Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)
+            ))));
+
         // Always end wave with [WaveEvent::WaitForClear]
         wave.push(WaveEvent::WaitForClear);
         CurrentWave(wave)
