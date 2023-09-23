@@ -8,11 +8,13 @@ use crate::entities::{MainShip, Ship};
 use crate::graphics::FakeTransform;
 use crate::util::{Angle, HALF_HEIGHT, HALF_WIDTH, HEIGHT};
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub enum Moves {
     Linear(Vec2, Angle),
     Wavy(Vec2, Angle, f32, f32),
     Triangular(Vec2, Angle, f32, f32),
+    /// x: f32, pause_duration: f32, t_1: f32, original move
+    WithPause(f32, f32, f32, Box<Moves>),
 }
 
 impl Moves {
@@ -20,11 +22,12 @@ impl Moves {
         match &self {
             Moves::Linear(pos, _) => pos,
             Moves::Wavy(pos, _, _, _) => pos,
-            Moves::Triangular(pos, _, _, _) => pos
+            Moves::Triangular(pos, _, _, _) => pos,
+            Moves::WithPause(_, _, _, moves) => moves.starting_pos(),
         }
     }
 
-    pub fn pos(&self, time: f32, speed: f32) -> Vec2 {
+    pub fn pos(&mut self, time: f32, delta: f32, speed: f32) -> Vec2 {
         match self {
             Moves::Linear(starting, angle) => {
                 compute_position(starting, time * speed, 0., angle)
@@ -34,7 +37,7 @@ impl Moves {
                     starting,
                     time * speed,
                     // Note: frequency is not matching any specific time
-                    (time * frequency).cos() * amplitude,
+                    (time * *frequency).cos() * *amplitude,
                     angle
                 )
             }
@@ -43,9 +46,17 @@ impl Moves {
                     starting,
                     time * speed,
                     // /\/\/\/\/\/\/\/\/\/\/\...POOF
-                    (((time * frequency) % 2. - 1.).abs() * 2. - 1.) * amplitude,
+                    (((time * *frequency) % 2. - 1.).abs() * 2. - 1.) * *amplitude,
                     angle
                 )
+            }
+            Moves::WithPause(x, pause, ref mut t_1, moves) => {
+                if *t_1 != 0. && time - *t_1 < *pause { moves.pos(*t_1, delta, speed) }
+                else {
+                    let pos = moves.pos(time - if *t_1 != 0. { *pause } else { 0. }, delta, speed);
+                    if (pos.x - *x).abs() < 0.5 && *t_1 == 0. { *t_1 = time; }
+                    pos
+                }
             }
         }
     }
@@ -66,10 +77,11 @@ pub struct Movement {
 
 pub fn apply_movement(
     time: Res<Time>,
-    mut query: Query<(&Movement, &Ship, &mut FakeTransform)>,
+    mut query: Query<(&mut Movement, &Ship, &mut FakeTransform)>,
 ) {
-    for (movement, ship, mut pos) in query.iter_mut() {
-        let new_pos = movement.moves.pos(time.elapsed_seconds() - movement.t_0, ship.speed);
+    for (mut movement, ship, mut pos) in query.iter_mut() {
+        let t_0 = movement.t_0;
+        let new_pos = movement.moves.pos(time.elapsed_seconds() - t_0, time.delta_seconds(), ship.speed);
         pos.translation.x = new_pos.x;
         pos.translation.y = new_pos.y;
     }

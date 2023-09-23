@@ -10,7 +10,7 @@ use crate::logic::Loot;
 use crate::logic::movement::{Movement, Moves};
 use crate::logic::route::CurrentRoute;
 use crate::screens::Textures;
-use crate::util::{Angle, WIDTH, z_pos};
+use crate::util::{Angle, HALF_WIDTH, z_pos};
 
 pub struct WavePlugin;
 
@@ -71,9 +71,14 @@ impl CurrentWave {
         let mut wave = vec![];
 
         // TODO: generate wave
-        wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)));
-        wave.push(WaveEvent::WaitSeconds(5.));
-        wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::Triangular(vec2(WIDTH as f32 + 16., 110.), Angle(180.), 0.4,20.)));
+        // wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)));
+        // wave.push(WaveEvent::WaitSeconds(5.));
+        // wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::Triangular(vec2(WIDTH as f32 + 16., 110.), Angle(180.), 0.4,20.)));
+
+        wave.push(WaveEvent::Spawn(Ships::Enemy, Moves::WithPause(
+            HALF_WIDTH, 2., 0., Box::new(
+                Moves::Wavy(vec2(-16., 90.), Angle(0.), 2., 20.)
+            ))));
 
         // Always end wave with [WaveEvent::WaitForClear]
         wave.push(WaveEvent::WaitForClear);
