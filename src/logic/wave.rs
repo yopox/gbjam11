@@ -38,7 +38,7 @@ pub struct ShipBundle {
     pos: FakeTransform,
     weapons: ShipWeapons,
     hitbox: Hitbox,
-    ship: Ship,
+    pub ship: Ship,
 }
 
 impl ShipBundle {

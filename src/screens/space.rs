@@ -7,7 +7,7 @@ use crate::{GameState, util};
 use crate::entities::{MainShip, MuteShots, Ship, Shot};
 use crate::graphics::{FakeTransform, ScreenTransition, StarsSpeed, TextStyles};
 use crate::graphics::sizes::Hitbox;
-use crate::logic::{ShipBundle, WaveCleared};
+use crate::logic::{ShipBundle, ShipStatus, WaveCleared};
 use crate::logic::damage::DamageEvent;
 use crate::logic::route::{CurrentRoute, Level, RouteElement};
 use crate::screens::{Fonts, Textures};
@@ -68,6 +68,7 @@ fn update(
 fn enter(
     mut commands: Commands,
     selected_ship: Res<SelectedShip>,
+    ship_status: Res<ShipStatus>,
     textures: Res<Textures>,
     fonts: Res<Fonts>,
     route: Res<CurrentRoute>,
@@ -77,12 +78,16 @@ fn enter(
     stars_speed.set_by_level(route.level);
     time.set_relative_speed(space::time_ratio(route.level));
 
+    let mut main_ship_bundle = ShipBundle::from(
+        textures.ship.clone(),
+        selected_ship.0.model(),
+        vec2(HALF_WIDTH, 24.),
+    );
+    main_ship_bundle.ship.health = ship_status.health().0;
+    main_ship_bundle.ship.max_health = ship_status.health().1;
+
     commands
-        .spawn(ShipBundle::from(
-            textures.ship.clone(),
-            selected_ship.0.model(),
-            vec2(HALF_WIDTH, 24.),
-        ))
+        .spawn(main_ship_bundle)
         .insert(MainShip)
         .insert(SpaceUI)
     ;

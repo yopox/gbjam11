@@ -6,7 +6,7 @@ use rand::{RngCore, thread_rng};
 
 use crate::{GameState, util};
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
-use crate::logic::{Inventory, Items};
+use crate::logic::{Items, ShipStatus};
 use crate::logic::route::CurrentRoute;
 use crate::screens::{Credits, Fonts, Textures};
 use crate::util::{shop, z_pos};
@@ -30,7 +30,7 @@ fn update(
     mut text: Query<&mut Text, With<CreditsText>>,
     mut item_texts: Query<(&mut Text, &ShopOption), (Without<CreditsText>)>,
     mut credits: ResMut<Credits>,
-    mut inventory: ResMut<Inventory>,
+    mut ship_status: ResMut<ShipStatus>,
     keys: Res<Input<KeyCode>>,
     mut options: ResMut<Select<ShopOption>>,
     mut dot: Query<&mut Transform, With<SelectionDot>>,
@@ -60,14 +60,14 @@ fn update(
         match options.items[options.selected].1 {
             ShopOption::Buy(item, sale) => {
                 let price = shop::item_price(&item, sale);
-                if credits.0 >= price {
+                if credits.0 >= price && !(item == Items::Repair && ship_status.is_max_health()) {
                     // Buy item
                     credits.0 -= price;
-                    inventory.add(&item);
+                    ship_status.add(&item);
                 }
             }
             ShopOption::Sell(item) => {
-                if inventory.remove(&item) {
+                if ship_status.remove(&item) {
                     // Sell item
                     credits.0 += shop::item_price(&item, true);
                 }
@@ -81,14 +81,15 @@ fn update(
 
     // Update item texts
     for (mut item_text, option) in item_texts.iter_mut() {
-        item_text.sections[0].value = option.text(&inventory);
+        item_text.sections[0].value = option.text(&ship_status);
         match option {
             ShopOption::Buy(item, sale) => {
                 let price = shop::item_price(item, *sale);
                 item_text.sections[0].style = if price > credits.0 { TextStyles::Accent.style(&fonts) } else { TextStyles::Basic.style(&fonts) };
+                if *item == Items::Repair && ship_status.is_max_health() { item_text.sections[0].style = TextStyles::Accent.style(&fonts); }
             }
             ShopOption::Sell(item) => {
-                let amount = inventory.get(item);
+                let amount = ship_status.get(item);
                 item_text.sections[0].style = if amount == 0 { TextStyles::Accent.style(&fonts) } else { TextStyles::Basic.style(&fonts) };
             }
             ShopOption::Exit => {}
@@ -107,15 +108,20 @@ enum ShopOption {
 }
 
 impl ShopOption {
-    fn text(&self, inventory: &Inventory) -> String {
+    fn text(&self, ship_status: &ShipStatus) -> String {
         match self {
+            ShopOption::Buy(item, sale) if *item == Items::Repair => format!(
+                "[{}]{} - {} ({}/{})",
+                shop::item_price(&Items::Repair, *sale), if *sale { "!" } else { "" }, item.name(),
+                ship_status.health().0, ship_status.health().1
+            ),
             ShopOption::Buy(item, sale) => format!(
                 "[{}]{} - {}",
                 shop::item_price(item, *sale), if *sale { "!" } else { "" }, item.name()
             ),
             ShopOption::Sell(item) => format!(
                 "[{}] - {} ({})",
-                shop::item_price(item, true), item.name(), inventory.get(item)
+                shop::item_price(item, true), item.name(), ship_status.get(item)
             ),
             ShopOption::Exit => "EXIT".to_string(),
         }
@@ -135,7 +141,7 @@ fn enter(
     mut commands: Commands,
     textures: Res<Textures>,
     fonts: Res<Fonts>,
-    inventory: Res<Inventory>,
+    ship_status: Res<ShipStatus>,
     route: Res<CurrentRoute>,
     mut star_field: ResMut<StarsSpeed>,
 ) {
@@ -189,7 +195,7 @@ fn enter(
     for (pos, option) in options.iter() {
         commands
             .spawn(Text2dBundle {
-                text: Text::from_section(option.text(&inventory), TextStyles::Basic.style(&fonts)),
+                text: Text::from_section(option.text(&ship_status), TextStyles::Basic.style(&fonts)),
                 text_anchor: Anchor::BottomLeft,
                 transform: Transform::from_xyz(pos.x, pos.y - 4., z_pos::SHOP_TEXT),
                 ..default()

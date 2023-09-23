@@ -2,13 +2,12 @@ use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 
-use crate::entities::{MainShip, Ship};
-use crate::entities::ship::Blink;
+use crate::entities::Ship;
 use crate::entities::weapon::{ShipWeapons, Weapon};
 use crate::GameState;
 use crate::graphics::FakeTransform;
 use crate::graphics::sizes::Hitbox;
-use crate::logic::damage::DamageEvent;
+use crate::logic::damage::damage_ship;
 use crate::logic::hit;
 use crate::logic::hit::HitEvent;
 use crate::logic::upgrades::ShotUpgrades;
@@ -140,30 +139,6 @@ fn collide_shots(
             );
             if collision.is_some() {
                 event_writer.send(HitEvent { shot: shot_entity, ship: ship_entity });
-            }
-        }
-    }
-}
-
-pub fn damage_ship(
-    mut hit_events: EventReader<HitEvent>,
-    mut ships: Query<(&mut Ship, Option<&MainShip>, Option<&Blink>)>,
-    mut shots: Query<&Shot>,
-    mut damage_event: EventWriter<DamageEvent>,
-) {
-    for HitEvent { ship, shot } in hit_events.iter() {
-        if ships.contains(*ship) && shots.contains(*shot) {
-            let (mut data, is_main_ship, is_blinking) = ships.get_mut(*ship).unwrap();
-
-            // Main ship invulnerable if blinking
-            // TODO all friendly ships?
-            if is_main_ship.and(is_blinking).is_none() {
-                let damage = shots.get(*shot).unwrap().weapon.attack.ceil() as usize;
-                if data.health > 0 {
-                    if data.health < damage { data.health = 0; }
-                    else { data.health -= damage; }
-                    damage_event.send(DamageEvent { ship: *ship, fatal: data.health == 0 })
-                }
             }
         }
     }
