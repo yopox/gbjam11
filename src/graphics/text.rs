@@ -1,10 +1,12 @@
 use bevy::text::TextStyle;
+
 use crate::graphics::Palette;
 use crate::screens::Fonts;
 
 pub enum TextStyles {
     Basic,
     Gray,
+    Accent,
 }
 
 impl TextStyles {
@@ -19,6 +21,11 @@ impl TextStyles {
                 font: fonts.rank.clone(),
                 font_size: 16.0,
                 color: Palette::Greyscale.colors()[3],
+            },
+            TextStyles::Accent => TextStyle {
+                font: fonts.rank.clone(),
+                font_size: 16.0,
+                color: Palette::Greyscale.colors()[1],
             },
         }
     }

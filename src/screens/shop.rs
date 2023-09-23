@@ -6,7 +6,7 @@ use rand::{RngCore, thread_rng};
 
 use crate::{GameState, util};
 use crate::graphics::{ScreenTransition, TextStyles};
-use crate::logic::Items;
+use crate::logic::{Inventory, Items};
 use crate::logic::route::CurrentRoute;
 use crate::screens::{Credits, Fonts, Textures};
 use crate::util::{shop, z_pos};
@@ -28,12 +28,15 @@ impl Plugin for ShopPlugin {
 
 fn update(
     mut text: Query<&mut Text, With<CreditsText>>,
-    credits: Res<Credits>,
+    mut item_texts: Query<(&mut Text, &ShopOption), (Without<CreditsText>)>,
+    mut credits: ResMut<Credits>,
+    mut inventory: ResMut<Inventory>,
     keys: Res<Input<KeyCode>>,
     mut options: ResMut<Select<ShopOption>>,
     mut dot: Query<&mut Transform, With<SelectionDot>>,
     mut transition: ResMut<ScreenTransition>,
     mut route: ResMut<CurrentRoute>,
+    fonts: Res<Fonts>,
 ) {
     // Update credits text
     let Ok(mut text) = text.get_single_mut() else { return; };
@@ -55,12 +58,40 @@ fn update(
     // Buy
     if keys.just_pressed(KeyCode::Space) {
         match options.items[options.selected].1 {
-            ShopOption::Buy(item, sale) => {}
-            ShopOption::Sell(item) => {}
+            ShopOption::Buy(item, sale) => {
+                let price = shop::item_price(&item, sale);
+                if credits.0 >= price {
+                    // Buy item
+                    credits.0 -= price;
+                    inventory.add(&item);
+                }
+            }
+            ShopOption::Sell(item) => {
+                if inventory.remove(&item) {
+                    // Sell item
+                    credits.0 += shop::item_price(&item, true);
+                }
+            }
             ShopOption::Exit => {
                 route.level += 1;
                 transition.set_if_neq(ScreenTransition::to(route.state()))
             }
+        }
+    }
+
+    // Update item texts
+    for (mut item_text, option) in item_texts.iter_mut() {
+        item_text.sections[0].value = option.text(&inventory);
+        match option {
+            ShopOption::Buy(item, sale) => {
+                let price = shop::item_price(item, *sale);
+                item_text.sections[0].style = if price > credits.0 { TextStyles::Accent.style(&fonts) } else { TextStyles::Basic.style(&fonts) };
+            }
+            ShopOption::Sell(item) => {
+                let amount = inventory.get(item);
+                item_text.sections[0].style = if amount == 0 { TextStyles::Accent.style(&fonts) } else { TextStyles::Basic.style(&fonts) };
+            }
+            ShopOption::Exit => {}
         }
     }
 }
@@ -76,7 +107,7 @@ enum ShopOption {
 }
 
 impl ShopOption {
-    fn text(&self) -> String {
+    fn text(&self, inventory: &Inventory) -> String {
         match self {
             ShopOption::Buy(item, sale) => format!(
                 "[{}]{} - {}",
@@ -84,8 +115,7 @@ impl ShopOption {
             ),
             ShopOption::Sell(item) => format!(
                 "[{}] - {} ({})",
-                // TODO: # of this item in the player's inventory
-                shop::item_price(item, true), item.name(), 0
+                shop::item_price(item, true), item.name(), inventory.get(item)
             ),
             ShopOption::Exit => "EXIT".to_string(),
         }
@@ -105,6 +135,7 @@ fn enter(
     mut commands: Commands,
     textures: Res<Textures>,
     fonts: Res<Fonts>,
+    inventory: Res<Inventory>,
 ) {
     let mut rng = thread_rng();
     let mut is_sale = || rng.next_u32() % 10 == 0;
@@ -154,7 +185,7 @@ fn enter(
     for (pos, option) in options.iter() {
         commands
             .spawn(Text2dBundle {
-                text: Text::from_section(option.text(), TextStyles::Basic.style(&fonts)),
+                text: Text::from_section(option.text(&inventory), TextStyles::Basic.style(&fonts)),
                 text_anchor: Anchor::BottomLeft,
                 transform: Transform::from_xyz(pos.x, pos.y - 4., z_pos::SHOP_TEXT),
                 ..default()

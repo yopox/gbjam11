@@ -111,7 +111,7 @@ pub mod items {
 pub mod shop {
     use crate::logic::Items;
 
-    pub fn item_price(item: &Items, sale: bool) -> usize {
+    pub fn item_price(item: &Items, sale: bool) -> u16 {
         let p = match item {
             Items::Missile | Items::Shield => 12,
             Items::Repair => 6,

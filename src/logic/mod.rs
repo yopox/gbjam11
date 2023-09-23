@@ -1,6 +1,7 @@
 use bevy::app::App;
 use bevy::prelude::*;
 
+pub use item::Inventory;
 pub use item::Items;
 pub use loot::Loot;
 pub use wave::ShipBundle;

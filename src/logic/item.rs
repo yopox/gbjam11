@@ -7,7 +7,31 @@ use crate::screens::Credits;
 use crate::util::items;
 
 #[derive(Resource)]
-pub struct Inventory(pub HashMap<Items, usize>);
+pub struct Inventory(HashMap<Items, usize>);
+
+impl Inventory {
+    pub fn add(&mut self, item: &Items) {
+        if let Some(mut n) = self.0.get_mut(item) {
+            *n += 1;
+        } else {
+            self.0.insert(*item, 1);
+        }
+    }
+
+    pub fn remove(&mut self, item: &Items) -> bool {
+        if let Some(mut n) = self.0.get_mut(item) {
+            if *n > 0 {
+                *n -= 1;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    pub fn get(&self, item: &Items) -> usize {
+        *self.0.get(item).unwrap_or(&0)
+    }
+}
 
 pub fn reset_inventory(
     mut commands: Commands,
