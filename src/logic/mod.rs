@@ -1,13 +1,15 @@
 use bevy::app::App;
 use bevy::prelude::*;
 
-pub use money::Loot;
+pub use item::Items;
+pub use loot::Loot;
 pub use wave::ShipBundle;
 pub use wave::WaveCleared;
 
+use crate::GameState;
 use crate::logic::damage::DamagePlugin;
 use crate::logic::hit::HitProcessingPlugin;
-use crate::logic::money::MoneyLaundryPlugin;
+use crate::logic::loot::LootPlugin;
 use crate::logic::wave::WavePlugin;
 
 pub mod upgrades;
@@ -16,7 +18,7 @@ pub mod damage;
 pub mod route;
 mod wave;
 mod movement;
-mod money;
+mod loot;
 
 pub struct LogicPlugin;
 
@@ -26,7 +28,7 @@ impl Plugin for LogicPlugin {
             .add_systems(Update, upgrades::bounce_shots)
             .add_systems(Update, movement::apply_movement)
             .add_systems(PostUpdate, movement::despawn_far_ships)
-            .add_plugins((HitProcessingPlugin, DamagePlugin, WavePlugin, MoneyLaundryPlugin))
+            .add_plugins((HitProcessingPlugin, DamagePlugin, WavePlugin, LootPlugin))
         ;
     }
 }

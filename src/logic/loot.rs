@@ -1,19 +1,20 @@
-use bevy::app::{App, PostUpdate};
-use bevy::prelude::{Component, EventReader, Plugin, Query, ResMut};
+use bevy::app::{App, Update};
+use bevy::prelude::{Component, EventReader, in_state, IntoSystemConfigs, Plugin, Query, ResMut};
 
 use crate::entities::Ship;
+use crate::GameState;
 use crate::logic::damage::DamageEvent;
 use crate::screens::Credits;
 
-pub struct MoneyLaundryPlugin;
+pub struct LootPlugin;
 
 #[derive(Component)]
 pub struct Loot {
     pub(crate) credits: u16
 }
-impl Plugin for MoneyLaundryPlugin {
+impl Plugin for LootPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(PostUpdate, credit_money);
+        app.add_systems(Update, credit_money.run_if(in_state(GameState::Space)));
     }
 }
 
