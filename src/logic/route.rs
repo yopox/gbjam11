@@ -1,5 +1,8 @@
+use bevy::log::error;
 use bevy::prelude::Resource;
 use rand::{Rng, RngCore, thread_rng};
+
+use crate::GameState;
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Level {
@@ -35,6 +38,20 @@ impl Level {
             Level::Win => "You won!",
         }
     }
+
+    pub fn state(&self) -> GameState {
+        match self {
+            Level::Space
+            | Level::Elite
+            | Level::Boss => GameState::Space,
+            Level::Shop => GameState::Shop,
+            Level::Upgrade => GameState::Hangar,
+            Level::Repair => GameState::Hangar,
+            Level::Unknown => GameState::Hangar,
+            Level::Win => GameState::Hangar,
+        }
+    }
+
     fn random() -> Self {
         let mut rng = thread_rng();
         let options = [
@@ -80,6 +97,16 @@ pub enum RouteElement {
 }
 
 impl RouteElement {
+    pub fn state(&self) -> GameState {
+        match self {
+            RouteElement::Level(l) => l.state(),
+            RouteElement::Choice(_, _) => {
+                error!("Next RouteElement shouldn't be a shop.");
+                GameState::Space
+            },
+        }
+    }
+
     fn choice() -> Self {
         let l1 = Level::random();
         let mut l2 = l1;
@@ -125,6 +152,10 @@ pub struct CurrentRoute {
 impl CurrentRoute {
     pub fn new() -> Self {
         CurrentRoute { route: Route::new(), level: 0 }
+    }
+
+    pub fn state(&self) -> GameState {
+        self.route.0[self.level].state()
     }
 }
 

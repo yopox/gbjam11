@@ -1,8 +1,59 @@
 use bevy::prelude::{Component, Query, Transform};
+use rand::{Rng, thread_rng};
 
 use crate::entities::Shot;
 use crate::graphics::FakeTransform;
 use crate::util::{HEIGHT, WIDTH};
+
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+pub enum Upgrades {
+    Speed,
+    ShotSpeed,
+    ShotFrequency,
+    ShotDamage,
+
+    BouncingShots,
+    // PiercingShots,
+    // LeechShots,
+    // HomingShots,
+    // StunShots,
+    // SlowingShots,
+    // SplitShots,
+    // CurlyShots,
+}
+
+impl Upgrades {
+    pub fn name(&self) -> &str {
+        match self {
+            Upgrades::Speed => "Speed Module +",
+            Upgrades::ShotSpeed => "Shot Speed +",
+            Upgrades::ShotFrequency => "Shot Frequency +",
+            Upgrades::ShotDamage => "Power +",
+            Upgrades::BouncingShots => "Bouncing Shots",
+        }
+    }
+    pub fn is_stat_upgrade(&self) -> bool {
+        match self {
+            Upgrades::Speed
+            | Upgrades::ShotSpeed
+            | Upgrades::ShotFrequency
+            | Upgrades::ShotDamage => true,
+            _ => false,
+        }
+    }
+
+    pub fn random_stat_upgrade() -> Self {
+        let mut rng = thread_rng();
+        let options = [Upgrades::Speed, Upgrades::ShotSpeed, Upgrades::ShotFrequency, Upgrades::ShotDamage];
+        options[rng.gen_range(0..options.len())]
+    }
+
+    pub fn random_non_stat_upgrade() -> Self {
+        let mut rng = thread_rng();
+        let options = [Upgrades::BouncingShots];
+        options[rng.gen_range(0..options.len())]
+    }
+}
 
 pub const BOUNCING: usize = 1 << 1;
 pub const PIERCING: usize = 1 << 2;

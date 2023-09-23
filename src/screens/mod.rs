@@ -7,6 +7,7 @@ pub use space::Credits;
 
 use crate::screens::hangar::HangarPlugin;
 use crate::screens::loading::LoadingPlugin;
+use crate::screens::shop::ShopPlugin;
 use crate::screens::space::SpacePlugin;
 use crate::screens::title::TitlePlugin;
 
@@ -14,13 +15,14 @@ mod loading;
 mod space;
 mod title;
 mod hangar;
+mod shop;
 
 pub struct ScreensPlugin;
 
 impl Plugin for ScreensPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_plugins((LoadingPlugin, TitlePlugin, HangarPlugin, SpacePlugin))
+            .add_plugins((LoadingPlugin, TitlePlugin, HangarPlugin, SpacePlugin, ShopPlugin))
         ;
     }
 }

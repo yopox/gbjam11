@@ -3,8 +3,8 @@ use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
+use crate::{GameState, util};
 use crate::entities::{MainShip, MuteShots, Ship, Shot};
-use crate::GameState;
 use crate::graphics::{FakeTransform, ScreenTransition, StarsSpeed, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::logic::{ShipBundle, WaveCleared};
@@ -35,7 +35,6 @@ struct PauseText;
 impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
         app
-            .insert_resource(Credits(0))
             .add_systems(Update, (update, update_gui, update_life, on_cleared, update_next)
                 .run_if(in_state(GameState::Space)),
             )
@@ -161,7 +160,7 @@ fn update_gui(
     mut text: Query<&mut Text, With<CreditsText>>,
 ) {
     if credits.is_changed() {
-        text.single_mut().sections[0].value = format!("Credits: {:03}", credits.0);
+        text.single_mut().sections[0].value = util::format_credits(&credits);
     }
 }
 

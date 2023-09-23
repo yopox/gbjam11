@@ -4,6 +4,7 @@ use bevy::math::{Vec2, vec2};
 use bevy::prelude::{Res, State, States};
 
 use crate::entities::Shots;
+use crate::screens::Credits;
 
 pub const WIDTH: usize = 160;
 pub const HALF_WIDTH: f32 = WIDTH as f32 / 2.;
@@ -59,6 +60,8 @@ pub mod z_pos {
     pub const PAUSE: f32 = 39.;
     pub const HANGAR: f32 = 50.;
     pub const HANGAR_TEXT: f32 = 51.;
+    pub const SHOP: f32 = 50.;
+    pub const SHOP_TEXT: f32 = 51.;
 }
 
 pub mod base_stats {
@@ -91,6 +94,34 @@ impl Shots {
     }
 }
 
+pub mod items {
+    use bevy::utils::HashMap;
+    use lazy_static::lazy_static;
+
+    use crate::logic::Items;
+
+    lazy_static! {
+        pub static ref STARTING_ITEMS: HashMap<Items, usize> = HashMap::from([
+            (Items::Missile, 3),
+            (Items::Shield, 1),
+        ]);
+    }
+}
+
+pub mod shop {
+    use crate::logic::Items;
+
+    pub fn item_price(item: &Items, sale: bool) -> usize {
+        let p = match item {
+            Items::Missile | Items::Shield => 12,
+            Items::Repair => 6,
+            Items::Upgrade(u) if u.is_stat_upgrade() => 50,
+            Items::Upgrade(_) => 100,
+        };
+        if sale { p / 2 } else { p }
+    }
+}
+
 /// Angle in degrees
 #[derive(Copy, Clone)]
 pub struct Angle(pub f32);
@@ -111,3 +142,5 @@ impl Angle {
 pub fn in_states<S: States>(states: Vec<S>) -> impl FnMut(Res<State<S>>) -> bool + Clone {
     move |current_state: Res<State<S>>| states.contains(current_state.get())
 }
+
+pub fn format_credits(credits: &Credits) -> String { format!("Credits: {:03}", credits.0) }

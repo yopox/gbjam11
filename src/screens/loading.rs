@@ -39,6 +39,12 @@ pub struct Textures {
 
     #[asset(path = "option_bars.png")]
     pub option_bars: Handle<Image>,
+
+    #[asset(path = "shop_bg.png")]
+    pub shop_bg: Handle<Image>,
+
+    #[asset(path = "dot.png")]
+    pub dot: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource)]

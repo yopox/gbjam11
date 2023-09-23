@@ -21,6 +21,7 @@ pub enum GameState {
     Title,
     Hangar,
     Space,
+    Shop,
 }
 
 fn main() {
