@@ -1,9 +1,11 @@
 use bevy::app::App;
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
+use rand::{RngCore, thread_rng};
 
 use crate::GameState;
 use crate::graphics::{ScreenTransition, TextStyles};
+use crate::logic::{Items, ShipStatus};
 use crate::logic::route::CurrentRoute;
 use crate::screens::Fonts;
 use crate::util::{HALF_HEIGHT, HALF_WIDTH, z_pos};
@@ -24,10 +26,32 @@ impl Plugin for SimpleTextPlugin {
         app
             .insert_resource(SimpleText(String::new()))
             .add_systems(Update, update.run_if(in_state(GameState::SimpleText)))
+            .add_systems(OnEnter(GameState::Repair), on_enter_repair)
             .add_systems(OnEnter(GameState::SimpleText), enter)
             .add_systems(OnExit(GameState::SimpleText), exit)
         ;
     }
+}
+
+fn on_enter_repair(
+    mut text: ResMut<SimpleText>,
+    mut ship_status: ResMut<ShipStatus>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    let justine = match thread_rng().next_u32() % 10 {
+        0 => {
+            ship_status.add(&Items::Missile);
+            " 1 missile found!"
+        }
+        1 => {
+            ship_status.add(&Items::Shield);
+            " 1 shield found!"
+        }
+        _ => ""
+    };
+    for _ in 0..4 { ship_status.add(&Items::Repair); }
+    text.0 = format!("Hull repaired. ({:.0}/{:.0}){}", ship_status.health().0, ship_status.health().1, justine);
+    next_state.set(GameState::SimpleText);
 }
 
 fn update(

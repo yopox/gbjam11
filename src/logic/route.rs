@@ -46,7 +46,7 @@ impl Level {
             | Level::Boss => GameState::Space,
             Level::Shop => GameState::Shop,
             Level::Upgrade => GameState::Upgrade,
-            Level::Repair => GameState::Hangar,
+            Level::Repair => GameState::Repair,
             Level::Unknown => Level::unknown().state(),
             Level::Win => GameState::Hangar,
         }

@@ -23,6 +23,7 @@ pub enum GameState {
     Space, Elite, Boss,
     Shop,
     Upgrade,
+    Repair,
     SimpleText,
     /// Dummy state to fix Space -> Space transition
     Dummy,
