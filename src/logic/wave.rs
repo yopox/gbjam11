@@ -1,6 +1,9 @@
+use std::collections::BTreeMap;
+
 use bevy::app::App;
 use bevy::prelude::*;
 use rand::{Rng, thread_rng};
+use rand::rngs::ThreadRng;
 
 use crate::entities::{MainShip, Ship, Ships, ShipWeapons};
 use crate::GameState;
@@ -9,9 +12,8 @@ use crate::graphics::sizes::Hitbox;
 use crate::logic::Loot;
 use crate::logic::movement::{Movement, Moves};
 use crate::logic::route::CurrentRoute;
-use crate::logic::wave::WaveEvent::WaitSeconds;
 use crate::screens::Textures;
-use crate::util::{HALF_WIDTH, space, z_pos};
+use crate::util::{HALF_HEIGHT, HALF_WIDTH, HEIGHT, space, z_pos};
 
 pub struct WavePlugin;
 
@@ -58,37 +60,60 @@ impl ShipBundle {
     }
 }
 
+#[derive(Clone)]
 enum WaveEvent {
     Spawn(Ships, Moves),
-    WaitSeconds(f32),
+    WaitMilliseconds(usize),
     WaitForClear,
 }
 
-#[derive(Copy, Clone)]
 enum WavePart {
     SimpleEnemy,
-    ConsecutiveWithPause(u8, f32, f32),
+    ConsecutiveWithPause(u8, f32, usize),
+    Parallel(usize, Vec<WavePart>),
 }
 
+impl Default for WavePart {
+    fn default() -> Self { WavePart::SimpleEnemy }
+}
+
+fn random_y(rng: &mut ThreadRng) -> f32 { HEIGHT as f32 / 5. * 2. + rng.gen_range(0.0..1.0) * HALF_HEIGHT }
+
 impl WavePart {
-    fn events(&self, level: usize) -> Vec<WaveEvent> {
+    fn events(&self, level: usize, base_y: f32) -> Vec<WaveEvent> {
         let mut events = vec![];
         match self {
             WavePart::SimpleEnemy => {
                 events.push(WaveEvent::Spawn(
                     Ships::random_enemy(level),
-                    Moves::random_crossing(),
+                    Moves::random_crossing(base_y),
                 ));
             }
             WavePart::ConsecutiveWithPause(n, x, pause) => {
-                let base_move = Moves::random_crossing();
+                let base_move = Moves::random_crossing(base_y);
                 for _ in 0..*n {
                     events.push(WaveEvent::Spawn(
                         Ships::random_enemy(level),
-                        Moves::WithPause(*x, *pause, 0., Box::new(base_move.clone())),
+                        Moves::WithPause(*x, *pause as f32 / 1000., 0., Box::new(base_move.clone())),
                     ));
-                    events.push(WaitSeconds(*pause + 2.));
+                    events.push(WaveEvent::WaitMilliseconds(*pause + 2000));
                 }
+            }
+            WavePart::Parallel(pause, parts) => {
+                let mut rng = thread_rng();
+                let mut y_pos: Vec<f32> = vec![-100.];
+                let mut parallel = vec![];
+                for (i, part) in parts.iter().enumerate() {
+                    let mut y = -100.;
+                    while y_pos.iter().any(|existing| (y - *existing).abs() < 18.) {
+                        y = random_y(&mut rng);
+                    }
+                    events.push(WaveEvent::WaitMilliseconds(i * *pause));
+                    events.append(&mut part.events(level, y));
+                    parallel.push(events.clone());
+                    events.clear();
+                }
+                events = merge_waves(parallel.as_slice());
             }
         }
         events
@@ -96,23 +121,39 @@ impl WavePart {
 
     fn random(level: usize) -> Self {
         let mut rng = thread_rng();
-        let possible_parts = match level {
-            0..=8 => [
+        let mut possible_parts = match level {
+            0..=8 => vec![
                 WavePart::SimpleEnemy,
-                WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4.),
+                WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
+                WavePart::Parallel(8000, vec![
+                    WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
+                    WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
+                ]),
+                WavePart::Parallel(8000, vec![
+                    WavePart::SimpleEnemy,
+                    WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
+                ]),
+                WavePart::Parallel(4000, vec![
+                    WavePart::SimpleEnemy,
+                    WavePart::SimpleEnemy,
+                ]),
+                WavePart::Parallel(5000, vec![
+                    WavePart::SimpleEnemy,
+                    WavePart::SimpleEnemy,
+                    WavePart::SimpleEnemy,
+                ]),
             ],
-            9..=17 => [
-                WavePart::ConsecutiveWithPause(3, HALF_WIDTH, 4.),
-                WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3.5),
+            9..=17 => vec![
+                WavePart::ConsecutiveWithPause(3, HALF_WIDTH, 4000),
+                WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3500),
 
             ],
-            _ => [
-                WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3.5),
-                WavePart::ConsecutiveWithPause(5, HALF_WIDTH, 3.5),
-
+            _ => vec![
+                WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3500),
+                WavePart::ConsecutiveWithPause(5, HALF_WIDTH, 3500),
             ],
         };
-        return possible_parts[rng.gen_range(0..possible_parts.len())]
+        possible_parts.remove(rng.gen_range(0..possible_parts.len()))
     }
 }
 
@@ -121,10 +162,11 @@ struct CurrentWave(Vec<WaveEvent>);
 
 impl CurrentWave {
     pub fn new(level: usize) -> Self {
+        let mut rng = thread_rng();
         let mut wave = vec![];
 
         for _ in 0..space::patterns_nb(level) {
-            wave.append(&mut WavePart::random(level).events(level));
+            wave.append(&mut WavePart::random(level).events(level, random_y(&mut rng)));
             // Always end wave with [WaveEvent::WaitForClear]
             wave.push(WaveEvent::WaitForClear);
         }
@@ -172,8 +214,11 @@ fn update(
             ;
             next = true;
         }
-        Some(WaveEvent::WaitSeconds(ref mut s)) => {
-            if *s > 0. { *s -= time.delta_seconds(); }
+        Some(WaveEvent::WaitMilliseconds(ref mut s)) => {
+            if *s > 0 {
+                let dt = (time.delta_seconds() * 1000.) as usize;
+                *s = if *s < dt { 0 } else { *s - dt };
+            }
             else { next = true; }
         }
         Some(WaveEvent::WaitForClear) => {
@@ -196,4 +241,34 @@ fn exit(
             .entity(id)
             .despawn_recursive();
     }
+}
+
+fn merge_waves(waves: &[Vec<WaveEvent>]) -> Vec<WaveEvent> {
+    let mut events = BTreeMap::<usize, Vec<WaveEvent>>::new();
+    for wave in waves {
+        let mut pause = 0;
+        for event in wave.iter() {
+            match event {
+                WaveEvent::WaitMilliseconds(s) => { pause += *s; }
+                WaveEvent::WaitForClear => {}
+                _ => {
+                    if let Some(mut e) = events.get_mut(&pause) {
+                        e.push(event.clone());
+                    } else {
+                        events.insert(pause, vec![event.clone()]);
+                    }
+                }
+            }
+        }
+    }
+
+    let mut merged = vec![];
+    let mut last_pause = 0;
+    for (p, e) in events.iter() {
+        let wait = *p - last_pause;
+        last_pause = *p;
+        merged.push(WaveEvent::WaitMilliseconds(wait));
+        e.iter().for_each(|event| merged.push(event.clone()));
+    }
+    merged
 }

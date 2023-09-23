@@ -23,9 +23,8 @@ pub enum Moves {
 }
 
 impl Moves {
-    pub fn random_crossing() -> Self {
+    pub fn random_crossing(y: f32) -> Self {
         let mut rng = thread_rng();
-        let y = HEIGHT as f32 / 5. * 2. + rng.gen_range(0.0..1.0) * HALF_HEIGHT;
 
         let (pos, angle) = if rng.next_u32() % 2 == 0 {
             // Left to right
