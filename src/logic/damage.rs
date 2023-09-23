@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 use crate::entities::{Blink, MainShip, Ship, Shot};
 use crate::GameState;
+use crate::graphics::ScreenTransition;
 use crate::logic::hit::HitEvent;
 use crate::logic::ShipStatus;
 
@@ -53,13 +54,18 @@ pub fn damage_ship(
 pub fn die_gracefully(
     mut commands: Commands,
     mut events: EventReader<DamageEvent>,
-    ships: Query<&Ship>,
+    mut transition: ResMut<ScreenTransition>,
+    ships: Query<(&Ship, Option<&MainShip>)>,
 ) {
     for &DamageEvent { ship, fatal } in events.iter() {
         if !fatal { continue; }
         let entity = commands.get_entity(ship);
-        if entity.is_some() && ships.get(ship).unwrap().health < 0.001 {
-            entity.unwrap().despawn_recursive();
+        if entity.is_some() {
+            let (ship, main) = ships.get(ship).unwrap();
+            if ship.health < 0.001 {
+                entity.unwrap().despawn_recursive();
+                if main.is_some() { transition.set_if_neq(ScreenTransition::to(GameState::GameOver)); }
+            }
         }
     }
 }

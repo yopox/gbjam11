@@ -91,6 +91,10 @@ impl ShipStatus {
 
     pub fn has_upgrade(&self, upgrade: Upgrades) -> bool { self.upgrades.contains(&upgrade) }
 
+    pub fn non_stat_upgrades(&self) -> Vec<&Upgrades> {
+        self.upgrades.iter().filter(|u| !u.is_stat_upgrade()).collect()
+    }
+
     pub fn get_credits(&self) -> i16 { self.credits }
     pub fn add_credits(&mut self, gain: i16) { self.credits += gain; }
     pub fn buy(&mut self, cost: i16) {

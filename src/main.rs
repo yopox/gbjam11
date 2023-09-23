@@ -25,6 +25,7 @@ pub enum GameState {
     Upgrade,
     Repair,
     SimpleText,
+    GameOver,
     /// Dummy state to fix Space -> Space transition
     Dummy,
 }

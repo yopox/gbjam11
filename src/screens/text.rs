@@ -18,9 +18,6 @@ struct SimpleTextUI;
 #[derive(Resource)]
 pub struct SimpleText(pub String);
 
-#[derive(Resource)]
-struct Wait(f32);
-
 impl Plugin for SimpleTextPlugin {
     fn build(&self, app: &mut App) {
         app
@@ -55,13 +52,11 @@ fn on_enter_repair(
 }
 
 fn update(
-    time: Res<Time>,
-    mut wait: ResMut<Wait>,
+    keys: Res<Input<KeyCode>>,
     mut route: ResMut<CurrentRoute>,
     mut transition: ResMut<ScreenTransition>,
 ) {
-    wait.0 -= time.delta_seconds();
-    if wait.0 < 0. && transition.is_none() {
+    if keys.just_pressed(KeyCode::Space) && transition.is_none() {
         route.advance();
         transition.set_if_neq(ScreenTransition::to(route.state()));
     }
@@ -72,11 +67,11 @@ fn enter(
     text: Res<SimpleText>,
     fonts: Res<Fonts>,
 ) {
-    commands.insert_resource(Wait(4.));
-
     commands
         .spawn(Text2dBundle {
-            text: Text::from_section(&text.0, TextStyles::Basic.style(&fonts)),
+            text: Text::from_section(&text.0, TextStyles::Basic.style(&fonts))
+                .with_alignment(TextAlignment::Center)
+            ,
             text_anchor: Anchor::Center,
             transform: Transform::from_xyz(HALF_WIDTH, HALF_HEIGHT, z_pos::GUI),
             ..default()

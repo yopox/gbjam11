@@ -48,7 +48,7 @@ impl Level {
             Level::Upgrade => GameState::Upgrade,
             Level::Repair => GameState::Repair,
             Level::Unknown => Level::unknown().state(),
-            Level::Win => GameState::Hangar,
+            Level::Win => GameState::GameOver,
         }
     }
 
@@ -158,9 +158,13 @@ impl CurrentRoute {
     pub fn advance(&mut self) { self.level += 1; }
 
     pub fn state(&self) -> GameState {
+        if self.level >= self.route.0.len() { return GameState::Hangar; }
+
         let s = self.route.0[self.level].state();
         if self.angry_shopkeepers && s == GameState::Shop { GameState::Elite } else { s }
     }
+
+    pub fn win(&self) -> bool { self.level == self.route.0.len() - 1 }
 
     pub fn set_angry_shopkeepers(&mut self, angry: bool) { self.angry_shopkeepers = angry; }
     pub fn are_shopkeepers_angry(&mut self) -> bool { self.angry_shopkeepers }
