@@ -17,12 +17,13 @@ pub enum Ships {
     Player(u8),
     Invader(u8),
     Elite(u8),
+    Boss(u8),
 }
 
 impl Ships {
     pub fn is_elite(&self) -> bool {
         match self {
-            Ships::Elite(_) => true,
+            Ships::Elite(_) | Ships::Boss(_) => true,
             _ => false,
         }
     }
@@ -44,6 +45,7 @@ impl Ships {
             Ships::Player(_) => Hitbox(vec2(6., 4.)),
             Ships::Invader(_) => Hitbox(vec2(12., 6.)),
             Ships::Elite(_) => Hitbox(vec2(8., 4.)),
+            Ships::Boss(_) => Hitbox(vec2(48., 24.)),
         }
     }
 
@@ -98,6 +100,20 @@ impl Ships {
             Ships::Invader(8) => vec![
                 (Weapons::Standard, vec2(-5., -3.), Angle(270.)),
                 (Weapons::Standard, vec2(5., -3.), Angle(270.)),
+            ],
+            Ships::Boss(0) => vec![
+
+            ],
+            Ships::Boss(1) => vec![
+                (Weapons::Standard, vec2(-10., -24.), Angle(270.)),
+                (Weapons::Standard, vec2(10., -24.), Angle(270.)),
+            ],
+            Ships::Boss(2) => vec![
+                (Weapons::Standard, vec2(-16., -24.), Angle(270. - 45. - 22.5)),
+                (Weapons::Standard, vec2(-8., -24.), Angle(270. - 45.)),
+                (Weapons::Standard, vec2(0., -24.), Angle(270.)),
+                (Weapons::Standard, vec2(8., -24.), Angle(270. + 45.)),
+                (Weapons::Standard, vec2(16., -24.), Angle(270. + 45. + 22.5)),
             ],
             _ => vec![],
         }
@@ -206,7 +222,21 @@ impl Ship {
                 .with_shot_frequency(base_stats::SHOT_FREQUENCY * 2.0)
                 .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.5)
             ,
-            Ships::Invader(_) => Ship::new(model, false),
+            Ships::Boss(0) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 14.)
+                .with_speed(base_stats::SPEED / 1.5)
+            ,
+            Ships::Boss(1) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 12.)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY / 1.25)
+                .with_speed(base_stats::SPEED / 1.25)
+            ,
+            Ships::Boss(2) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 14.)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.15)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.35)
+            ,
+            _ => Ship::new(model, false),
         }
     }
 
@@ -215,6 +245,16 @@ impl Ship {
             Ships::Player(n) => n as usize,
             Ships::Invader(n) => 4 + n as usize,
             Ships::Elite(n) => 13 + n as usize,
+            Ships::Boss(0) => 4,
+            Ships::Boss(1) => 9,
+            Ships::Boss(_) => 11,
+        }
+    }
+
+    pub fn scale(&self) -> f32 {
+        match self.model {
+            Ships::Boss(_) => 4.,
+            _ => 1.,
         }
     }
 }

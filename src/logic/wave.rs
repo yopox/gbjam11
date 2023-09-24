@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::vec;
 
 use bevy::app::App;
-use bevy::math::vec2;
+use bevy::math::{vec2, vec3};
 use bevy::prelude::*;
 use rand::{Rng, thread_rng};
 use rand::rngs::ThreadRng;
@@ -51,6 +51,7 @@ impl ShipBundle {
                     index: ship.sprite_index(),
                     ..default()
                 },
+                transform: Transform::from_scale(vec3(ship.scale(), ship.scale(), 1.)),
                 texture_atlas: atlas,
                 ..default()
             },

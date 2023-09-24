@@ -44,6 +44,7 @@ pub mod space {
             Ships::Invader(n) if n <= 6 => 5,
             Ships::Invader(_) => 10,
             Ships::Elite(_) => 25,
+            Ships::Boss(_) => 50,
         }
     }
 }
