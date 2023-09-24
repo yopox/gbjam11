@@ -138,13 +138,4 @@ impl Items {
         let mut rng = thread_rng();
         if rng.next_u32() % 2 == 0 { Items::Missile } else { Items::Shield }
     }
-
-    pub fn random_upgrade() -> Self {
-        let mut rng = thread_rng();
-        if rng.next_u32() % 3 == 0 {
-            Items::Upgrade(Upgrades::random_non_stat_upgrade())
-        } else {
-            Items::Upgrade(Upgrades::random_stat_upgrade())
-        }
-    }
 }
