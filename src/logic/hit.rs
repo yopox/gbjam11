@@ -3,6 +3,7 @@ use bevy::prelude::{Commands, Entity, Event, EventReader};
 use bevy::prelude::*;
 
 use crate::GameState;
+use crate::util::in_states;
 
 pub struct HitProcessingPlugin;
 
@@ -10,7 +11,7 @@ impl Plugin for HitProcessingPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<HitEvent>()
-            .add_systems(PostUpdate, clear_shots.run_if(in_state(GameState::Space)))
+            .add_systems(PostUpdate, clear_shots.run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss])))
         ;
     }
 }

@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use std::ops::Add;
 
 use bevy::hierarchy::DespawnRecursiveExt;
@@ -20,6 +21,8 @@ pub enum Moves {
     WithPause(f32, f32, f32, Box<Moves>),
     /// x: f32, final_pos: Vec2, original move
     StationaryAt(f32, Vec2, Box<Moves>),
+    /// starting (top), frequency, half_x, half_y
+    Ellipsis(Vec2, f32, f32, f32),
 }
 
 impl Moves {
@@ -46,9 +49,10 @@ impl Moves {
 
     pub fn starting_pos(&self) -> &Vec2 {
         match &self {
-            Moves::Linear(pos, _) => pos,
-            Moves::Wavy(pos, _, _, _) => pos,
-            Moves::Triangular(pos, _, _, _) => pos,
+            Moves::Linear(pos, _)
+            | Moves::Wavy(pos, _, _, _)
+            | Moves::Triangular(pos, _, _, _)
+            | Moves::Ellipsis(pos, _, _, _) => pos,
             Moves::WithPause(_, _, _, moves)
             | Moves::StationaryAt(_, _, moves) =>
                 moves.starting_pos(),
@@ -58,10 +62,10 @@ impl Moves {
     pub fn pos(&mut self, time: f32, delta: f32, speed: f32) -> Vec2 {
         match self {
             Moves::Linear(starting, angle) => {
-                compute_position(starting, time * speed, 0., angle)
+                compute_linear_position(starting, time * speed, 0., angle)
             }
             Moves::Wavy(starting, angle, frequency, amplitude) => {
-                compute_position(
+                compute_linear_position(
                     starting,
                     time * speed,
                     // Note: frequency is not matching any specific time
@@ -70,7 +74,7 @@ impl Moves {
                 )
             }
             Moves::Triangular(starting, angle, frequency, amplitude) => {
-                compute_position(
+                compute_linear_position(
                     starting,
                     time * speed,
                     // /\/\/\/\/\/\/\/\/\/\/\...POOF
@@ -94,6 +98,11 @@ impl Moves {
                     pos
                 }
             }
+            Moves::Ellipsis(starting, frequency, half_x, half_y) => {
+                let center = *starting - vec2(0., *half_y);
+                let angle = PI / 2. + *frequency * time;
+                vec2(center.x + angle.cos() * *half_x, center.y + angle.sin() * *half_y)
+            }
         }
     }
 }
@@ -101,7 +110,7 @@ impl Moves {
 /// Compute positions for moves that follow a line (start, angle) with variation on normal position
 /// (eg. movement on x -> variation on y based on time)
 #[inline]
-fn compute_position(start: &Vec2, linear_diff: f32, normal_diff: f32, angle: &Angle) -> Vec2 {
+fn compute_linear_position(start: &Vec2, linear_diff: f32, normal_diff: f32, angle: &Angle) -> Vec2 {
     return start.add(angle.rotate_vec(vec2(linear_diff, normal_diff)))
 }
 

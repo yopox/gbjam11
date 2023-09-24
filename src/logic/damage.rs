@@ -7,6 +7,7 @@ use crate::GameState;
 use crate::graphics::ScreenTransition;
 use crate::logic::hit::HitEvent;
 use crate::logic::ShipStatus;
+use crate::util::in_states;
 
 pub struct DamagePlugin;
 
@@ -14,7 +15,7 @@ impl Plugin for DamagePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<DamageEvent>()
-            .add_systems(PostUpdate, die_gracefully.run_if(in_state(GameState::Space)))
+            .add_systems(PostUpdate, die_gracefully.run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss])))
         ;
     }
 }

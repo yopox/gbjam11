@@ -20,11 +20,11 @@ impl Plugin for ShotsPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Update, (shoot, update_shots, collide_shots)
-                .run_if(in_states(vec![GameState::Space, GameState::Hangar])),
+                .run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss, GameState::Hangar])),
             )
             .add_systems(PostUpdate, damage_ship
                 .before(hit::clear_shots)
-                .run_if(in_state(GameState::Space)),
+                .run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss])),
             )
         ;
     }

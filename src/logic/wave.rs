@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
+use std::vec;
 
 use bevy::app::App;
+use bevy::math::vec2;
 use bevy::prelude::*;
 use rand::{Rng, thread_rng};
 use rand::rngs::ThreadRng;
@@ -13,20 +15,18 @@ use crate::logic::Loot;
 use crate::logic::movement::{Movement, Moves};
 use crate::logic::route::CurrentRoute;
 use crate::screens::Textures;
-use crate::util::{HALF_HEIGHT, HALF_WIDTH, HEIGHT, space, z_pos};
+use crate::util::{HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, z_pos};
 
 pub struct WavePlugin;
-
-#[derive(Component)]
-struct WaveUI;
 
 impl Plugin for WavePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<WaveCleared>()
-            .add_systems(Update, update.run_if(in_state(GameState::Space)))
+            .add_systems(Update, update.run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss])))
             .add_systems(OnEnter(GameState::Space), enter)
-            .add_systems(OnExit(GameState::Space), exit)
+            .add_systems(OnEnter(GameState::Elite), enter)
+            .add_systems(OnEnter(GameState::Boss), enter)
         ;
     }
 }
@@ -69,10 +69,20 @@ enum WaveEvent {
     WaitForClear,
 }
 
+#[derive(Clone)]
+enum SpecialEvent {
+    Spawn(Ships, Moves),
+    /// Spawn enemies continuously (delay / y)
+    InfiniteWave(usize, f32),
+    /// Spawn enemies continuously with a pause on x_0 (delay / y / pause / x_0)
+    InfiniteWaveWithPause(usize, f32, usize, f32),
+}
+
 enum WavePart {
     SimpleEnemy,
     ConsecutiveWithPause(u8, f32, usize),
     Parallel(usize, Vec<WavePart>),
+    InfiniteWave(usize, f32),
 }
 
 impl Default for WavePart {
@@ -97,6 +107,10 @@ impl WavePart {
                     .map(|p| p.debug_string())
                     .reduce(|p1, p2| format!("{} / {}", p1, p2))
                     .unwrap_or("None".to_string())
+            ),
+            WavePart::InfiniteWave(pause, y) => format!(
+                "Infinite wave with {}ms delay between enemies on y={}",
+                pause, y
             ),
         }
     }
@@ -136,6 +150,13 @@ impl WavePart {
                     events.clear();
                 }
                 events = merge_waves(parallel.as_slice());
+            }
+            WavePart::InfiniteWave(delay, y) => {
+                events.push(WaveEvent::Spawn(
+                    Ships::random_enemy(level),
+                    Moves::random_crossing(*y),
+                ));
+                events.push(WaveEvent::WaitMilliseconds(*delay));
             }
         }
         events
@@ -179,11 +200,22 @@ impl WavePart {
 }
 
 #[derive(Resource)]
-struct CurrentWave(Vec<WaveEvent>);
+struct CurrentWave(Vec<WaveEvent>, Vec<SpecialEvent>);
 
 impl CurrentWave {
     pub fn new(state: &GameState, level: usize) -> Self {
         info!("{:?} – Generating events for level {}:", state, level);
+
+        let (wave, special) = match state {
+            GameState::Elite => (vec![], Self::gen_elite_wave(level)),
+            GameState::Boss => (vec![], Self::gen_boss_wave(level)),
+            _ => (Self::gen_space_wave(level), vec![]),
+        };
+
+        CurrentWave(wave, special)
+    }
+
+    fn gen_space_wave(level: usize) -> Vec<WaveEvent> {
         let mut rng = thread_rng();
         let mut wave = vec![];
 
@@ -194,8 +226,26 @@ impl CurrentWave {
             // Always end wave with [WaveEvent::WaitForClear]
             wave.push(WaveEvent::WaitForClear);
         }
+        wave
+    }
 
-        CurrentWave(wave)
+    fn gen_elite_wave(level: usize) -> Vec<SpecialEvent> {
+        let mut rng = thread_rng();
+        let mut wave = vec![];
+
+        wave.push(SpecialEvent::Spawn(
+            Ships::Elite(1),
+            Moves::Ellipsis(vec2(HALF_WIDTH, HALF_HEIGHT + 32.), 1.2, 32., 16.))
+        );
+
+        wave
+    }
+
+    fn gen_boss_wave(level: usize) -> Vec<SpecialEvent> {
+        let mut rng = thread_rng();
+        let mut wave = vec![];
+
+        wave
     }
 }
 
@@ -252,17 +302,29 @@ fn update(
     }
 
     if next { wave.0.remove(0); }
-}
 
-fn exit(
-    mut commands: Commands,
-    to_clean: Query<Entity, With<WaveUI>>,
-) {
-    for id in to_clean.iter() {
-        commands
-            .entity(id)
-            .despawn_recursive();
+    next = false;
+    match wave.1.get_mut(0) {
+        Some(SpecialEvent::Spawn(model, moves)) => {
+            commands
+                .spawn(ShipBundle::from(
+                    textures.ship.clone(),
+                    model.clone(),
+                    *moves.starting_pos(),
+                ))
+                .insert(Movement {
+                    moves: moves.clone(),
+                    t_0: time.elapsed_seconds(),
+                })
+            ;
+            next = true;
+        }
+        Some(SpecialEvent::InfiniteWave(_, _)) => {}
+        Some(SpecialEvent::InfiniteWaveWithPause(_, _, _, _)) => {}
+        None => {}
     }
+
+    if next { wave.1.remove(0); }
 }
 
 fn merge_waves(waves: &[Vec<WaveEvent>]) -> Vec<WaveEvent> {

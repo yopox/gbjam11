@@ -62,7 +62,7 @@ impl Ships {
             Ships::Elite(n) => Ships::Player(*n)
                 .weapons()
                 .iter()
-                .map(|&(w, pos, Angle(a))| (w, vec2(pos.x, -pos.y), Angle(180. - a)))
+                .map(|&(w, pos, Angle(a))| (w, vec2(pos.x, -pos.y), Angle(180. + a)))
                 .collect()
             ,
             Ships::Invader(0) | Ships::Invader(2) => vec![
