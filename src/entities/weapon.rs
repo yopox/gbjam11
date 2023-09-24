@@ -10,7 +10,7 @@ use crate::util::Angle;
 pub enum Weapons {
     Standard,
     Wave,
-    Ball,
+    Missile,
     Energy,
     Dual,
 }
@@ -20,7 +20,7 @@ impl Weapons {
         match self {
             Weapons::Standard => Shots::Bullet,
             Weapons::Wave => Shots::Wave,
-            Weapons::Ball => Shots::Ball,
+            Weapons::Missile => Shots::Missile,
             Weapons::Energy => Shots::Energy,
             Weapons::Dual => Shots::DualBeam,
         }
@@ -51,7 +51,7 @@ impl Weapon {
 }
 
 impl Weapon {
-    fn new(model: Shots, ship: &Ship, offset: Vec2, angle: Angle) -> Self {
+    pub(crate) fn new(model: Shots, ship: &Ship, offset: Vec2, angle: Angle) -> Self {
         Weapon {
             shot: model,
             attack: model.attack() * ship.damage_factor,

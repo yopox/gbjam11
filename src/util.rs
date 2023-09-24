@@ -17,13 +17,15 @@ pub const BORDER: f32 = 2.;
 
 pub mod space {
     use crate::entities::Ships;
-    use crate::util::{base_stats, HALF_HEIGHT};
+    use crate::util::{base_stats, HALF_HEIGHT, WIDTH};
 
     pub const BLINK_INTERVAL: f32 = 10. / 60.;
     pub const BLINK_DURATION: f32 = BLINK_INTERVAL * 8.;
     pub const BLINK_DURATION_ENEMY: f32 = BLINK_INTERVAL * 4.;
 
     pub const SHIELD_DURATION: f32 = 6.;
+    pub const MISSILE_RANGE: usize = WIDTH / 3;
+    pub const MISSILE_SPEED: f32 = base_stats::SPEED / 3.;
 
     pub const NEXT_LEVEL_SPEED_Y: f32 = -18.;
     pub const NEXT_LEVEL_CHOICE_Y: f32 = HALF_HEIGHT;
@@ -99,9 +101,9 @@ impl Shots {
         match self {
             Shots::Bullet => 1.0,
             Shots::Wave => 0.5,
-            Shots::Ball => 1.5,
             Shots::Energy => 4.0,
             Shots::DualBeam => 1.25,
+            Shots::Missile => 8.0,
         }
     }
 
@@ -109,7 +111,7 @@ impl Shots {
         match self {
             Shots::Bullet => 1.0,
             Shots::Wave => 1.25,
-            Shots::Ball => 1.0,
+            Shots::Missile => 1.0,
             Shots::Energy => 1.75,
             Shots::DualBeam => 0.9,
         }

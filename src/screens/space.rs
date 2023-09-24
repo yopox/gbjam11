@@ -1,11 +1,11 @@
 use bevy::app::App;
-use bevy::math::{vec2, vec3};
+use bevy::math::{vec2, vec3, Vec3Swizzles};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
 use crate::{GameState, util};
-use crate::entities::{Blink, MainShip, MuteShots, Ship, Shot};
-use crate::graphics::{FakeTransform, ScreenTransition, StarsSpeed, TextStyles};
+use crate::entities::{Blink, MainShip, MuteShots, Ship, Shot, Shots, Weapon};
+use crate::graphics::{FakeTransform, Palette, ScreenTransition, StarsSpeed, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::logic::{Items, ShipBundle, ShipStatus, WaveCleared};
 use crate::logic::damage::DamageEvent;
@@ -14,7 +14,7 @@ use crate::logic::upgrades::{ShotUpgrades, Upgrades};
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
 use crate::screens::text::SimpleText;
-use crate::util::{BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, star_field, WIDTH, z_pos};
+use crate::util::{Angle, BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, star_field, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
 
 pub struct SpacePlugin;
@@ -37,7 +37,7 @@ struct PauseText;
 impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(Update, (update, update_gui, update_life, on_cleared, update_next, update_shield)
+            .add_systems(Update, (update, update_gui, update_life, on_cleared, update_next, update_shield, update_missiles)
                 .run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss])),
             )
             .add_systems(PostUpdate, pause
@@ -273,7 +273,62 @@ fn update_shield(
                 .insert(Hitbox(vec2(16., 2.)))
                 .insert(Shield(space::SHIELD_DURATION * if ship_status.has_upgrade(Upgrades::BetterShields) { 2. } else { 1. }))
                 .insert(Ship::shield())
+                .insert(SpaceUI)
             ;
+        }
+    }
+}
+
+#[derive(Component)]
+struct Missile;
+
+fn update_missiles(
+    mut commands: Commands,
+    keys: Res<Input<KeyCode>>,
+    player: Query<(&FakeTransform, &Ship), (With<MainShip>, Without<Missile>)>,
+    mut ship_status: ResMut<ShipStatus>,
+    mut missiles: Query<&mut FakeTransform, With<Missile>>,
+    mut enemies: Query<(&FakeTransform, &Ship), (Without<MainShip>, Without<Missile>)>,
+    time: Res<Time>,
+    textures: Res<Textures>,
+) {
+    let Ok((ship_pos, ship)) = player.get_single() else { return; };
+
+    // Spawn missiles
+    if keys.just_pressed(KeyCode::Up) && ship_status.remove(&Items::Missile) {
+        for offset in [vec2(0., 4.)] {
+            let weapon = Weapon::new(Shots::Missile, &ship, offset, Angle(90.));
+            commands
+                .spawn(SpriteSheetBundle {
+                    sprite: TextureAtlasSprite {
+                        index: Shots::Missile.sprite_atlas_index(),
+                        color: Palette::Greyscale.colors()[2],
+                        ..default()
+                    },
+                    texture_atlas: textures.shots.clone(),
+                    ..default()
+                })
+                .insert(Shot { weapon, friendly: true })
+                .insert(Shots::Missile.hitbox())
+                .insert(ShotUpgrades(0))
+                .insert(FakeTransform::from_xyz(
+                    ship_pos.translation.x + weapon.offset.x,
+                    ship_pos.translation.y + weapon.offset.y,
+                    z_pos::SHOTS,
+                ))
+                .insert(Missile)
+            ;
+        }
+    }
+
+    // Auto aim
+    for mut pos in missiles.iter_mut() {
+        if let Some(closest) = enemies
+            .iter()
+            .filter(|(p, s)| !s.friendly && (p.translation.xy().distance(pos.translation.xy()) as usize) < space::MISSILE_RANGE)
+            .map(|(p, _)| p.translation.xy())
+            .min_by_key(|p| p.distance(pos.translation.xy()) as usize) {
+            pos.translation.x += time.delta_seconds() * space::MISSILE_SPEED * if closest.x > pos.translation.x { 1. } else { -1. };
         }
     }
 }

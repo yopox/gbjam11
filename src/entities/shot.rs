@@ -40,7 +40,7 @@ pub struct Shot {
 pub enum Shots {
     Bullet,
     Wave,
-    Ball,
+    Missile,
     Energy,
     DualBeam,
 }
@@ -50,7 +50,7 @@ impl Shots {
         match self {
             Shots::Bullet => 0,
             Shots::Wave => 1,
-            Shots::Ball => 2,
+            Shots::Missile => 2,
             Shots::Energy => 3,
             Shots::DualBeam => 4
         }
@@ -60,7 +60,7 @@ impl Shots {
         match self {
             Shots::Bullet => Hitbox(vec2(2., 2.)),
             Shots::Wave => Hitbox(vec2(6., 2.)),
-            Shots::Ball => Hitbox(vec2(4., 4.)),
+            Shots::Missile => Hitbox(vec2(4., 4.)),
             Shots::Energy => Hitbox(vec2(2., 4.)),
             Shots::DualBeam => Hitbox(vec2(4., 4.)),
         }

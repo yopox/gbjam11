@@ -9,6 +9,7 @@ pub use shot::MuteShots;
 pub use shot::Shot;
 pub use shot::Shots;
 pub use weapon::ShipWeapons;
+pub use weapon::Weapon;
 pub use weapon::Weapons;
 
 use crate::entities::ship::ShipPlugin;
