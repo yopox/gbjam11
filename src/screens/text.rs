@@ -6,7 +6,7 @@ use rand::{RngCore, thread_rng};
 use crate::GameState;
 use crate::graphics::{ScreenTransition, TextStyles};
 use crate::logic::{Items, ShipStatus};
-use crate::logic::route::CurrentRoute;
+use crate::logic::route::{CurrentRoute, Route};
 use crate::screens::Fonts;
 use crate::util::{HALF_HEIGHT, HALF_WIDTH, z_pos};
 
@@ -78,6 +78,7 @@ fn enter(
     mut commands: Commands,
     text: Res<SimpleText>,
     fonts: Res<Fonts>,
+    route: Res<CurrentRoute>,
 ) {
     commands.insert_resource(Wait(4.));
 
@@ -88,6 +89,16 @@ fn enter(
             ,
             text_anchor: Anchor::Center,
             transform: Transform::from_xyz(HALF_WIDTH, HALF_HEIGHT, z_pos::GUI),
+            ..default()
+        })
+        .insert(SimpleTextUI)
+    ;
+
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section(format!("{}-{}", route.act(), (route.level + 1 - (route.act() - 1) * Route::act_len())), TextStyles::Basic.style(&fonts)),
+            text_anchor: Anchor::BottomCenter,
+            transform: Transform::from_xyz(HALF_WIDTH, 2., z_pos::GUI),
             ..default()
         })
         .insert(SimpleTextUI)

@@ -7,7 +7,7 @@ use rand::{RngCore, thread_rng};
 use crate::{GameState, util};
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::{Items, ShipStatus};
-use crate::logic::route::CurrentRoute;
+use crate::logic::route::{CurrentRoute, Route};
 use crate::logic::upgrades::Upgrades;
 use crate::screens::{Fonts, Textures};
 use crate::screens::text::SimpleText;
@@ -167,7 +167,7 @@ fn enter(
         (vec2(32., 65.), ShopOption::Buy(Items::Shield, is_sale())),
         (vec2(32., 53.), ShopOption::Buy(Items::Repair, is_sale())),
         (vec2(32., 28.), ShopOption::Sell(Items::random_collectible())),
-        (vec2(32., 8.), ShopOption::Exit),
+        (vec2(20., 8.), ShopOption::Exit),
     ];
 
     // Spawn shop UI
@@ -179,6 +179,16 @@ fn enter(
             },
             texture: textures.shop_bg.clone(),
             transform: Transform::from_xyz(0., 0., z_pos::SHOP),
+            ..default()
+        })
+        .insert(ShopUI)
+    ;
+
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section(format!("{}-{}", route.act(), (route.level + 1 - (route.act() - 1) * Route::act_len())), TextStyles::Basic.style(&fonts)),
+            text_anchor: Anchor::BottomLeft,
+            transform: Transform::from_xyz(56., 4., z_pos::GUI),
             ..default()
         })
         .insert(ShopUI)
@@ -235,7 +245,7 @@ fn enter(
         .spawn(Text2dBundle {
             text: Text::from_section("", TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::BottomRight,
-            transform: Transform::from_xyz(129., 8. - 4., z_pos::SHOP_TEXT),
+            transform: Transform::from_xyz(141., 8. - 4., z_pos::SHOP_TEXT),
             ..default()
         })
         .insert(CreditsText)
