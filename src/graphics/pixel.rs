@@ -24,6 +24,7 @@ pub fn update_positions(
     for (fake_pos, mut pos) in query.iter_mut() {
         pos.translation.x = fake_pos.translation.x.round();
         pos.translation.y = fake_pos.translation.y.round();
+        pos.translation.z = fake_pos.translation.z;
 
         if fake_pos.scale.is_some() {
             // Assume initial size is round and short (scale = 0.5 ignored even if size = 2)
