@@ -56,10 +56,12 @@ pub fn update(
         Transition::In => {
             let colors = palette.0.colors();
             match transition.clock {
-                5 => { shader.color_3 = Vec4::from_array(colors[3].as_linear_rgba_f32()); },
-                25 => { shader.color_2 = Vec4::from_array(colors[2].as_linear_rgba_f32()); },
-                30 => { shader.color_1 = Vec4::from_array(colors[1].as_linear_rgba_f32()); },
-                40 => { transition.set_if_neq(ScreenTransition::default()); }
+                4 => { shader.color_3 = Vec4::from_array(colors[3].as_linear_rgba_f32()); },
+                8 => { shader.color_2 = Vec4::from_array(colors[2].as_linear_rgba_f32()); },
+                12 => {
+                    shader.color_1 = Vec4::from_array(colors[1].as_linear_rgba_f32());
+                    transition.set_if_neq(ScreenTransition::default());
+                },
                 _ => {},
             }
         }
