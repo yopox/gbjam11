@@ -20,7 +20,7 @@ impl Plugin for LoadingPlugin {
 
 #[derive(AssetCollection, Resource)]
 pub struct Textures {
-    #[asset(texture_atlas(tile_size_x = 16., tile_size_y = 16., columns = 2, rows = 1, padding_x = 0., padding_y = 0.))]
+    #[asset(texture_atlas(tile_size_x = 16., tile_size_y = 16., columns = 13, rows = 1, padding_x = 0., padding_y = 0.))]
     #[asset(path = "ships.png")]
     pub ship: Handle<TextureAtlas>,
 

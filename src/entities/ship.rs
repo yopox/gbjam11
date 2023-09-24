@@ -30,7 +30,7 @@ impl Ships {
             Ships::Player | Ships::Player2 | Ships::Player3 | Ships::Player4 =>
                 Hitbox(vec2(6., 4.)),
             Ships::Enemy =>
-                Hitbox(vec2(12., 8.)),
+                Hitbox(vec2(12., 6.)),
         }
     }
 
@@ -109,10 +109,10 @@ impl Ship {
     pub fn sprite_index(&self) -> usize {
         match self.model {
             Ships::Player => 0,
-            Ships::Player2 => 0,
-            Ships::Player3 => 0,
-            Ships::Player4 => 0,
-            Ships::Enemy => 1,
+            Ships::Player2 => 1,
+            Ships::Player3 => 2,
+            Ships::Player4 => 3,
+            Ships::Enemy => 4,
         }
     }
 }
