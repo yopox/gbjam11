@@ -4,6 +4,7 @@ use crate::entities::EntitiesPlugin;
 use crate::graphics::{GBShaderSettings, GraphicsPlugin};
 use crate::graphics::Palette;
 use crate::logic::LogicPlugin;
+use crate::music::{AudioPlugin, BGM};
 use crate::screens::ScreensPlugin;
 use crate::util::{HALF_HEIGHT, HALF_WIDTH, HEIGHT, SCALE, WIDTH};
 
@@ -13,6 +14,7 @@ mod entities;
 mod graphics;
 mod logic;
 mod screens;
+mod music;
 
 #[derive(Debug, Clone, Copy, Default, Eq, PartialEq, Hash, States)]
 pub enum GameState {
@@ -28,6 +30,23 @@ pub enum GameState {
     GameOver,
     /// Dummy state to fix Space -> Space transition
     Dummy,
+}
+
+impl GameState {
+    pub fn bgm(&self) -> Option<BGM> {
+        match self {
+            GameState::Title => Some(BGM::Title),
+            GameState::Hangar
+            | GameState::Upgrade => Some(BGM::Hangar),
+            GameState::Space => Some(BGM::Space),
+            GameState::Elite => Some(BGM::Elite),
+            GameState::Boss => Some(BGM::Boss),
+            GameState::Shop
+            | GameState::GameOver => Some(BGM::Shop),
+            GameState::Repair => Some(BGM::Repair),
+            _ => None,
+        }
+    }
 }
 
 fn main() {
@@ -48,7 +67,7 @@ fn main() {
                 ..default()
             })
         )
-        .add_plugins((EntitiesPlugin, GraphicsPlugin, LogicPlugin, ScreensPlugin))
+        .add_plugins((EntitiesPlugin, GraphicsPlugin, LogicPlugin, ScreensPlugin, AudioPlugin))
         .add_state::<GameState>()
         .add_systems(Startup, init)
         .run();

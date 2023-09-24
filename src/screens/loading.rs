@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
 use crate::GameState;
+use crate::music::{BGM, PlayBGMEvent};
 
 pub struct LoadingPlugin;
 
@@ -14,9 +15,13 @@ impl Plugin for LoadingPlugin {
             )
             .add_collection_to_loading_state::<_, Textures>(GameState::Loading)
             .add_collection_to_loading_state::<_, Fonts>(GameState::Loading)
+            .add_collection_to_loading_state::<_, Sounds>(GameState::Loading)
+            .add_systems(OnExit(GameState::Loading), exit)
         ;
     }
 }
+
+fn exit(mut play_bgm: EventWriter<PlayBGMEvent>) { play_bgm.send(PlayBGMEvent(BGM::Title)); }
 
 #[derive(AssetCollection, Resource)]
 pub struct Textures {
@@ -57,4 +62,28 @@ pub struct Textures {
 pub struct Fonts {
     #[asset(path = "Rank 6h.ttf")]
     pub rank: Handle<Font>,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct Sounds {
+    #[asset(path = "bgm/1_Title screen.ogg")]
+    pub title: Handle<AudioSource>,
+
+    #[asset(path = "bgm/2_Ship selection.ogg")]
+    pub hangar: Handle<AudioSource>,
+
+    #[asset(path = "bgm/3_Main game.ogg")]
+    pub space: Handle<AudioSource>,
+
+    #[asset(path = "bgm/4_Elite.ogg")]
+    pub elite: Handle<AudioSource>,
+
+    #[asset(path = "bgm/5_Boss.ogg")]
+    pub boss: Handle<AudioSource>,
+
+    #[asset(path = "bgm/6_Shop.ogg")]
+    pub shop: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Repairing.ogg")]
+    pub repair: Handle<AudioSource>,
 }

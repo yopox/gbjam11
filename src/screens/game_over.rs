@@ -4,8 +4,8 @@ use bevy::sprite::Anchor;
 
 use crate::GameState;
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
-use crate::logic::ShipStatus;
 use crate::logic::route::CurrentRoute;
+use crate::logic::ShipStatus;
 use crate::screens::Fonts;
 use crate::util::{HALF_HEIGHT, HALF_WIDTH, z_pos};
 
@@ -29,7 +29,7 @@ fn update(
     mut transition: ResMut<ScreenTransition>,
 ) {
     if keys.just_pressed(KeyCode::Space) && transition.is_none() {
-        transition.set_if_neq(ScreenTransition::to(GameState::Hangar));
+        transition.set_if_neq(ScreenTransition::to(GameState::Title));
     }
 }
 

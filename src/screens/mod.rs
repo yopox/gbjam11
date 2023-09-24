@@ -3,6 +3,7 @@ use bevy::prelude::*;
 
 pub use hangar::SelectedShip;
 pub use loading::Fonts;
+pub use loading::Sounds;
 pub use loading::Textures;
 
 use crate::screens::game_over::GameOverPlugin;
