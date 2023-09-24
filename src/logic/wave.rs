@@ -233,9 +233,13 @@ impl CurrentWave {
         let mut rng = thread_rng();
         let mut wave = vec![];
 
+        // wave.push(SpecialEvent::Spawn(
+        //     Ships::Elite(1),
+        //     Moves::Ellipsis(vec2(HALF_WIDTH, HALF_HEIGHT + 32.), 1.2, 32., 16.))
+        // );
         wave.push(SpecialEvent::Spawn(
             Ships::Elite(1),
-            Moves::Ellipsis(vec2(HALF_WIDTH, HALF_HEIGHT + 32.), 1.2, 32., 16.))
+            Moves::Lemniscate(vec2(HALF_WIDTH, HALF_HEIGHT), 1.2, 32.))
         );
 
         wave

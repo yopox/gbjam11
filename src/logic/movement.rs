@@ -23,6 +23,8 @@ pub enum Moves {
     StationaryAt(f32, Vec2, Box<Moves>),
     /// starting (top), frequency, half_x, half_y
     Ellipsis(Vec2, f32, f32, f32),
+    /// starting (center), frequency, half foci distance
+    Lemniscate(Vec2, f32, f32)
 }
 
 impl Moves {
@@ -52,7 +54,8 @@ impl Moves {
             Moves::Linear(pos, _)
             | Moves::Wavy(pos, _, _, _)
             | Moves::Triangular(pos, _, _, _)
-            | Moves::Ellipsis(pos, _, _, _) => pos,
+            | Moves::Ellipsis(pos, _, _, _)
+            | Moves::Lemniscate(pos, _, _) => pos,
             Moves::WithPause(_, _, _, moves)
             | Moves::StationaryAt(_, _, moves) =>
                 moves.starting_pos(),
@@ -102,6 +105,17 @@ impl Moves {
                 let center = *starting - vec2(0., *half_y);
                 let angle = PI / 2. + *frequency * time;
                 vec2(center.x + angle.cos() * *half_x, center.y + angle.sin() * *half_y)
+            }
+            Moves::Lemniscate(starting, frequency, half_foci) => {
+                let param = *half_foci * 2f32.sqrt();
+                let angle = PI / 2. + *frequency * time;
+
+                let (cos, sin) = (angle.cos(), angle.sin());
+
+                vec2(
+                    starting.x + (param * cos) / (sin.powi(2) + 1.),
+                    starting.y + (param * cos * sin) / (sin.powi(2) + 1.)
+                )
             }
         }
     }
