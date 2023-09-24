@@ -44,6 +44,7 @@ impl Weapon {
             index: self.shot.sprite_atlas_index(),
             anchor: Anchor::Center,
             color: if friendly { Palette::Greyscale.colors()[2] } else { Palette::Greyscale.colors()[1] },
+            flip_y: !friendly,
             ..default()
         }
     }
