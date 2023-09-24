@@ -1,5 +1,5 @@
 use bevy::prelude::{Component, Query, Transform};
-use rand::{Rng, thread_rng};
+use rand::{Rng, RngCore, thread_rng};
 
 use crate::entities::Shot;
 use crate::graphics::FakeTransform;
@@ -110,6 +110,15 @@ impl Upgrades {
             else { break }
         }
         upgrade
+    }
+
+    pub fn new_upgrade(status: &ShipStatus) -> Self {
+        let mut rng = thread_rng();
+        if rng.next_u32() % 3 == 0 {
+            Upgrades::new_non_stat_upgrade(status)
+        } else {
+            Upgrades::random_stat_upgrade()
+        }
     }
 }
 

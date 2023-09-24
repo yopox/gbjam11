@@ -8,6 +8,7 @@ use crate::{GameState, util};
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::{Items, ShipStatus};
 use crate::logic::route::CurrentRoute;
+use crate::logic::upgrades::Upgrades;
 use crate::screens::{Fonts, Textures};
 use crate::screens::text::SimpleText;
 use crate::util::{shop, z_pos};
@@ -161,7 +162,7 @@ fn enter(
 
     // Generate shop options
     let options = vec![
-        (vec2(32., 89.), ShopOption::Buy(Items::random_upgrade(), is_sale())),
+        (vec2(32., 89.), ShopOption::Buy(Items::Upgrade(Upgrades::new_upgrade(&ship_status)), is_sale())),
         (vec2(32., 77.), ShopOption::Buy(Items::Missile, is_sale())),
         (vec2(32., 65.), ShopOption::Buy(Items::Shield, is_sale())),
         (vec2(32., 53.), ShopOption::Buy(Items::Repair, is_sale())),
