@@ -239,7 +239,12 @@ impl CurrentWave {
         // );
         wave.push(SpecialEvent::Spawn(
             Ships::Elite(1),
-            Moves::Lemniscate(vec2(HALF_WIDTH, HALF_HEIGHT), 1.2, 32.))
+            Moves::DownUntil(
+                vec2(HALF_WIDTH, HEIGHT as f32 + 16.),
+                HALF_HEIGHT * 7. / 5.,
+                0.,
+                Box::new(Moves::Lemniscate(vec2(HALF_WIDTH, HALF_HEIGHT * 7. / 5.), 1.2, 32.)))
+            )
         );
 
         wave

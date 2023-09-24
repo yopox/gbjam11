@@ -24,7 +24,9 @@ pub enum Moves {
     /// starting (top), frequency, half_x, half_y
     Ellipsis(Vec2, f32, f32, f32),
     /// starting (center), frequency, half foci distance
-    Lemniscate(Vec2, f32, f32)
+    Lemniscate(Vec2, f32, f32),
+    /// starting, final y, t_y, original move
+    DownUntil(Vec2, f32, f32, Box<Moves>),
 }
 
 impl Moves {
@@ -55,7 +57,8 @@ impl Moves {
             | Moves::Wavy(pos, _, _, _)
             | Moves::Triangular(pos, _, _, _)
             | Moves::Ellipsis(pos, _, _, _)
-            | Moves::Lemniscate(pos, _, _) => pos,
+            | Moves::Lemniscate(pos, _, _)
+            | Moves::DownUntil(pos, _, _, _) => pos,
             Moves::WithPause(_, _, _, moves)
             | Moves::StationaryAt(_, _, moves) =>
                 moves.starting_pos(),
@@ -116,6 +119,17 @@ impl Moves {
                     starting.x + (param * cos) / (sin.powi(2) + 1.),
                     starting.y + (param * cos * sin) / (sin.powi(2) + 1.)
                 )
+            }
+            Moves::DownUntil(starting, y, t_y, original) => {
+                if *t_y > 0. {
+                    original.pos(time - *t_y, delta, speed)
+                } else {
+                    let new_pos = *starting - vec2(0., time * speed);
+                    if new_pos.y <= *y {
+                        *t_y = time;
+                    }
+                    new_pos
+                }
             }
         }
     }
