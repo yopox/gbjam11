@@ -23,6 +23,8 @@ pub enum Upgrades {
     // SlowingShots,
     // SplitShots,
     // CurlyShots,
+
+    BetterShields,
 }
 
 impl Upgrades {
@@ -34,6 +36,7 @@ impl Upgrades {
             Upgrades::Damage => "Power +",
             Upgrades::Hull => "Hull +",
             Upgrades::BouncingShots => "Bouncing Shots",
+            Upgrades::BetterShields => "Better Shields",
         }
     }
 
@@ -69,6 +72,11 @@ impl Upgrades {
                 "against the edges".to_string(),
                 "of the screen.".to_string(),
             )}
+            Upgrades::BetterShields => {(
+                "Make shields last".to_string(),
+                "twice as long.".to_string(),
+                "".to_string(),
+            )}
         }
     }
     pub fn is_stat_upgrade(&self) -> bool {
@@ -90,7 +98,7 @@ impl Upgrades {
 
     pub fn random_non_stat_upgrade() -> Self {
         let mut rng = thread_rng();
-        let options = [Upgrades::BouncingShots];
+        let options = [Upgrades::BouncingShots, Upgrades::BetterShields];
         options[rng.gen_range(0..options.len())]
     }
 

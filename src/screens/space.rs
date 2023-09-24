@@ -10,7 +10,7 @@ use crate::graphics::sizes::Hitbox;
 use crate::logic::{Items, ShipBundle, ShipStatus, WaveCleared};
 use crate::logic::damage::DamageEvent;
 use crate::logic::route::{CurrentRoute, Level, RouteElement};
-use crate::logic::upgrades::ShotUpgrades;
+use crate::logic::upgrades::{ShotUpgrades, Upgrades};
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
 use crate::screens::text::SimpleText;
@@ -271,7 +271,7 @@ fn update_shield(
                 })
                 .insert(FakeTransform::from_xyz(player_pos.translation.x, player_pos.translation.y + 8., player_pos.translation.y))
                 .insert(Hitbox(vec2(16., 2.)))
-                .insert(Shield(space::SHIELD_DURATION))
+                .insert(Shield(space::SHIELD_DURATION * if ship_status.has_upgrade(Upgrades::BetterShields) { 2. } else { 1. }))
                 .insert(Ship::shield())
             ;
         }
