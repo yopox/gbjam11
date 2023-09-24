@@ -7,6 +7,7 @@ use crate::GameState;
 use crate::graphics::ScreenTransition;
 use crate::logic::{EliteKilled, ShipStatus, WaveCleared};
 use crate::logic::hit::HitEvent;
+use crate::music::{PlaySFXEvent, SFX};
 use crate::util::{in_states, space};
 
 pub struct DamagePlugin;
@@ -35,7 +36,10 @@ pub fn damage_ship(
     mut shots: Query<&Shot>,
     mut damage_event: EventWriter<DamageEvent>,
     mut ship_status: ResMut<ShipStatus>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
+    let mut hit = None;
+
     for HitEvent { ship, shot } in hit_events.iter() {
         if ships.contains(*ship) && shots.contains(*shot) {
             let (mut data, is_main_ship, is_blinking) = ships.get_mut(*ship).unwrap();
@@ -45,6 +49,7 @@ pub fn damage_ship(
             if is_main_ship.and(is_blinking).is_none() {
                 let damage = shots.get(*shot).unwrap().weapon.attack;
                 if data.health > 0.001 {
+                    hit = Some(data.friendly);
                     if data.health < damage { data.health = 0.; }
                     else { data.health -= damage; }
                     if is_main_ship.is_some() { ship_status.set_health(data.health); }
@@ -52,6 +57,12 @@ pub fn damage_ship(
                 }
             }
         }
+    }
+
+    match hit {
+        None => {}
+        Some(true) => { sfx.send(PlaySFXEvent(SFX::ShipHit)); }
+        Some(false) => { sfx.send(PlaySFXEvent(SFX::EnemyHit)); }
     }
 }
 
@@ -86,6 +97,7 @@ pub fn die_gracefully(
     mut transition: ResMut<ScreenTransition>,
     mut elite_killed: EventWriter<EliteKilled>,
     ships: Query<(&Ship, Option<&MainShip>)>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     for &DamageEvent { ship, fatal } in events.iter() {
         if !fatal { continue; }
@@ -97,7 +109,7 @@ pub fn die_gracefully(
                     .insert(Dead)
                     .insert(MuteShots)
                 ;
-                if main.is_some() { transition.set_if_neq(ScreenTransition::to(GameState::GameOver)); }
+                if main.is_some() { sfx.send(PlaySFXEvent(SFX::Die)); transition.set_if_neq(ScreenTransition::to(GameState::GameOver)); }
                 if ship.model.is_elite() { elite_killed.send(EliteKilled); }
             }
         }

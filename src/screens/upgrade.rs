@@ -8,6 +8,7 @@ use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::{Items, ShipStatus};
 use crate::logic::route::{CurrentRoute, Route};
 use crate::logic::upgrades::Upgrades;
+use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::{Fonts, Textures};
 use crate::screens::shop::Select;
 use crate::util::{HALF_WIDTH, z_pos};
@@ -34,6 +35,7 @@ fn update(
     mut select: ResMut<Select<Upgrades>>,
     mut transition: ResMut<ScreenTransition>,
     mut dot: Query<&mut Transform, With<SelectionDot>>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     // Select previous / next option
     if keys.just_pressed(KeyCode::Up) {
@@ -49,6 +51,7 @@ fn update(
     dot_pos.translation.y = pos.y - 1.;
 
     if transition.is_none() && keys.just_pressed(KeyCode::Space) {
+        sfx.send(PlaySFXEvent(SFX::Buy));
         status.add(&Items::Upgrade(upgrade));
         route.advance();
         transition.set_if_neq(ScreenTransition::to(route.state()));

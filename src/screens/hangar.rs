@@ -8,6 +8,7 @@ use crate::GameState;
 use crate::graphics::{CurrentPalette, Palette, ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::route::CurrentRoute;
 use crate::logic::ShipBundle;
+use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::{Fonts, Textures};
 use crate::util::{star_field, z_pos};
 
@@ -115,20 +116,24 @@ fn update(
     mut selection: ResMut<SelectedShip>,
     mut update_gui: EventWriter<UpdateGUI>,
     keys: Res<Input<KeyCode>>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     if !transition.is_none() { return; }
 
     if keys.just_pressed(KeyCode::Left) {
+        sfx.send(PlaySFXEvent(SFX::Left));
         selection.0 = selection.0.previous();
         update_gui.send(UpdateGUI);
     }
 
     if keys.just_pressed(KeyCode::Right) {
+        sfx.send(PlaySFXEvent(SFX::Right));
         selection.0 = selection.0.next();
         update_gui.send(UpdateGUI);
     }
 
     if keys.just_pressed(KeyCode::Space) {
+        sfx.send(PlaySFXEvent(SFX::Select));
         let route = CurrentRoute::new();
         transition.set_if_neq(ScreenTransition::to(route.state()));
         commands.insert_resource(route);

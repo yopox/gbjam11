@@ -4,6 +4,7 @@ use bevy::sprite::Anchor;
 
 use crate::GameState;
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
+use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::{Fonts, Textures};
 use crate::util::{HALF_WIDTH, star_field, z_pos};
 
@@ -25,10 +26,12 @@ impl Plugin for TitlePlugin {
 fn update(
     keys: Res<Input<KeyCode>>,
     mut transition: ResMut<ScreenTransition>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     if !transition.is_none() { return; }
 
     if keys.just_pressed(KeyCode::Space) {
+        sfx.send(PlaySFXEvent(SFX::Select));
         transition.set_if_neq(ScreenTransition::to(GameState::Hangar))
     }
 }

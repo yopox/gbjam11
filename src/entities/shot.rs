@@ -11,6 +11,7 @@ use crate::logic::damage::damage_ship;
 use crate::logic::hit;
 use crate::logic::hit::HitEvent;
 use crate::logic::upgrades::{PIERCING, ShotUpgrades};
+use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::Textures;
 use crate::util::{HEIGHT, in_states, WIDTH, z_pos};
 
@@ -83,11 +84,14 @@ fn shoot(
     time: Res<Time>,
     mut ships: Query<(&Ship, &FakeTransform, &mut ShipWeapons, Option<&ShotUpgrades>), Without<MuteShots>>,
     textures: Res<Textures>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     for (ship, ship_pos, mut weapons, upgrades) in ships.iter_mut() {
         weapons.timer += time.delta_seconds();
+        let mut fired = false;
         for weapon in &weapons.weapons {
             if weapon.fires(weapons.timer, time.delta_seconds()) {
+                fired = true;
                 commands
                     .spawn(SpriteSheetBundle {
                         sprite: weapon.sprite(ship.friendly),
@@ -107,6 +111,9 @@ fn shoot(
                     ))
                 ;
             }
+        }
+        if fired {
+            sfx.send(PlaySFXEvent(if ship.friendly { SFX::ShipFire } else { SFX::EnemyFire }));
         }
     }
 }

@@ -9,6 +9,7 @@ use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::{Items, ShipStatus};
 use crate::logic::route::{CurrentRoute, Route};
 use crate::logic::upgrades::Upgrades;
+use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::{Fonts, Textures};
 use crate::screens::text::SimpleText;
 use crate::util::{shop, z_pos};
@@ -39,6 +40,7 @@ fn update(
     mut route: ResMut<CurrentRoute>,
     fonts: Res<Fonts>,
     mut simple_text: ResMut<SimpleText>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     if !transition.is_none() { return; }
 
@@ -53,10 +55,12 @@ fn update(
         options.selected = (options.items.len() + options.selected - 1) % options.items.len();
         dot_pos.translation.x = options.items[options.selected].0.x - 2.;
         dot_pos.translation.y = options.items[options.selected].0.y - 1.;
+        sfx.send(PlaySFXEvent(SFX::Left));
     } else if keys.just_pressed(KeyCode::Down) {
         options.selected = (options.selected + 1) % options.items.len();
         dot_pos.translation.x = options.items[options.selected].0.x - 2.;
         dot_pos.translation.y = options.items[options.selected].0.y - 1.;
+        sfx.send(PlaySFXEvent(SFX::Right));
     }
 
     // Buy
@@ -73,16 +77,21 @@ fn update(
                         simple_text.0 = "The shopkeepers will find you.".to_string();
                         route.set_angry_shopkeepers(true);
                         transition.set_if_neq(ScreenTransition::to(GameState::SimpleText));
+                        sfx.send(PlaySFXEvent(SFX::Error));
+                    } else {
+                        sfx.send(PlaySFXEvent(SFX::Buy));
                     }
                 }
             }
             ShopOption::Sell(item) => {
                 if ship_status.remove(&item) {
+                    sfx.send(PlaySFXEvent(SFX::Sell));
                     // Sell item
                     ship_status.add_credits(shop::item_price(&item, true));
                 }
             }
             ShopOption::Exit => {
+                sfx.send(PlaySFXEvent(SFX::Select));
                 route.advance();
                 transition.set_if_neq(ScreenTransition::to(route.state()));
             }

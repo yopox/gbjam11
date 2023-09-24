@@ -6,6 +6,7 @@ use crate::GameState;
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::route::CurrentRoute;
 use crate::logic::ShipStatus;
+use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::Fonts;
 use crate::util::{HALF_HEIGHT, HALF_WIDTH, z_pos};
 
@@ -27,8 +28,10 @@ impl Plugin for GameOverPlugin {
 fn update(
     keys: Res<Input<KeyCode>>,
     mut transition: ResMut<ScreenTransition>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     if keys.just_pressed(KeyCode::Space) && transition.is_none() {
+        sfx.send(PlaySFXEvent(SFX::Select));
         transition.set_if_neq(ScreenTransition::to(GameState::Title));
     }
 }

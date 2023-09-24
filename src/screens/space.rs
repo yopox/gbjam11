@@ -11,6 +11,7 @@ use crate::logic::{Items, ShipBundle, ShipStatus, WaveCleared};
 use crate::logic::damage::DamageEvent;
 use crate::logic::route::{CurrentRoute, Level, Route, RouteElement};
 use crate::logic::upgrades::{ShotUpgrades, Upgrades};
+use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
 use crate::screens::text::SimpleText;
@@ -264,6 +265,7 @@ fn update_shield(
     mut ship_status: ResMut<ShipStatus>,
     time: Res<Time>,
     textures: Res<Textures>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     let Ok(player_pos) = player.get_single() else { return; };
 
@@ -277,6 +279,7 @@ fn update_shield(
         if shield.0 <= 0. { commands.entity(e).despawn_recursive(); }
     } else if keys.just_pressed(KeyCode::Down) {
         if ship_status.remove(&Items::Shield) {
+            sfx.send(PlaySFXEvent(SFX::Shield));
             // Spawn new shield
             commands
                 .spawn(SpriteBundle {
@@ -305,11 +308,13 @@ fn update_missiles(
     mut enemies: Query<(&FakeTransform, &Ship), (Without<MainShip>, Without<Missile>)>,
     time: Res<Time>,
     textures: Res<Textures>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     let Ok((ship_pos, ship)) = player.get_single() else { return; };
 
     // Spawn missiles
     if keys.just_pressed(KeyCode::Up) && ship_status.remove(&Items::Missile) {
+        sfx.send(PlaySFXEvent(SFX::Missile));
         for offset in [vec2(0., 4.)] {
             let weapon = Weapon::new(Shots::Missile, &ship, offset, Angle(90.));
             commands
@@ -369,6 +374,7 @@ fn update_next(
     mut stars_speed: ResMut<StarsSpeed>,
     mut transition: ResMut<ScreenTransition>,
     fonts: Res<Fonts>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     let Ok(mut bars_pos) = bars.get_single_mut() else { return; };
     let Ok((e, mut ship_pos, rush)) = ship.get_single_mut() else { return; };
@@ -391,6 +397,7 @@ fn update_next(
         // Ship starts rushing
         commands.entity(e).insert(Rush);
         stars_speed.0 = star_field::RUSH_SPEED;
+        sfx.send(PlaySFXEvent(SFX::Dash));
     }
     bars_pos.translation.y += dy;
 

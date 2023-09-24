@@ -86,4 +86,49 @@ pub struct Sounds {
 
     #[asset(path = "sfx/OS_Repairing.ogg")]
     pub repair: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Buy_upgrade.ogg")]
+    pub buy: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Boom.ogg")]
+    pub missile: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Shield.ogg")]
+    pub shield: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Die.ogg")]
+    pub game_over: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_EnemyFiring.ogg")]
+    pub enemy_fire: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Hit.ogg")]
+    pub enemy_hit: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Shoot.ogg")]
+    pub ship_fire: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Touch.ogg")]
+    pub ship_hit: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Select.ogg")]
+    pub select: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Cancel.ogg")]
+    pub cancel: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Dash.ogg")]
+    pub dash: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Left.ogg")]
+    pub left: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Right.ogg")]
+    pub right: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Sell.ogg")]
+    pub sell: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Error.ogg")]
+    pub error: Handle<AudioSource>,
 }
