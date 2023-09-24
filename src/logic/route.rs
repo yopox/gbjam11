@@ -132,7 +132,6 @@ impl Route {
         let mut route = vec![];
         for i in 0..27 {
             let element = match i % 9 {
-                0 => RouteElement::Level(Level::Elite),
                 3 => RouteElement::Level(Level::Upgrade),
                 7 => RouteElement::choice_with(Level::Repair),
                 8 => RouteElement::Level(Level::Boss),

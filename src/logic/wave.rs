@@ -23,6 +23,7 @@ impl Plugin for WavePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_event::<WaveCleared>()
+            .add_event::<EliteKilled>()
             .add_systems(Update, update.run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss])))
             .add_systems(OnEnter(GameState::Space), enter)
             .add_systems(OnEnter(GameState::Elite), enter)
@@ -256,6 +257,9 @@ fn enter(
     commands.insert_resource(CurrentWave::new(state.get(), route.level));
 }
 
+#[derive(Event)]
+pub struct EliteKilled;
+
 fn update(
     mut commands: Commands,
     time: Res<Time>,
@@ -263,6 +267,7 @@ fn update(
     mut wave: ResMut<CurrentWave>,
     ships: Query<&Ship, Without<MainShip>>,
     mut cleared: EventWriter<WaveCleared>,
+    mut elite_killed: EventReader<EliteKilled>,
 ) {
     let mut next = false;
     let level = wave.2;
@@ -299,6 +304,8 @@ fn update(
     }
 
     if next { wave.0.remove(0); }
+
+    if !elite_killed.is_empty() { elite_killed.clear(); wave.1.clear(); }
 
     next = false;
     match wave.1.get_mut(0) {

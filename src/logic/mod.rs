@@ -4,6 +4,7 @@ use bevy::prelude::*;
 pub use item::Items;
 pub use item::ShipStatus;
 pub use loot::Loot;
+pub use wave::EliteKilled;
 pub use wave::ShipBundle;
 pub use wave::WaveCleared;
 

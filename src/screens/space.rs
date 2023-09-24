@@ -294,7 +294,7 @@ fn on_cleared(
     keys: Res<Input<KeyCode>>,
 ) {
     let mut force = false;
-    if keys.just_pressed(KeyCode::F12) {force = true; }
+    if keys.just_pressed(KeyCode::F12) { force = true; }
 
     if cleared.is_empty() && !force { return; }
     cleared.clear();

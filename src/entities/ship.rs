@@ -20,6 +20,13 @@ pub enum Ships {
 }
 
 impl Ships {
+    pub fn is_elite(&self) -> bool {
+        match self {
+            Ships::Elite(_) => true,
+            _ => false,
+        }
+    }
+
     pub fn random_enemy(level: usize) -> Self {
         let mut rng = thread_rng();
         let possible = [
@@ -136,26 +143,26 @@ impl Ship {
                 .with_health(base_stats::HEALTH * 1.5)
             ,
             Ships::Elite(0) => Ship::new(model, false)
-                .with_health(base_stats::HEALTH * 6.0)
+                .with_health(base_stats::HEALTH * 3.0)
             ,
             Ships::Player(1) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 2.5)
             ,
             Ships::Elite(1) => Ship::new(model, false)
-                .with_health(base_stats::HEALTH * 8.0)
+                .with_health(base_stats::HEALTH * 4.0)
             ,
             Ships::Player(2) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 1.5)
                 .with_speed(base_stats::SPEED * 1.5)
             ,
             Ships::Elite(2) => Ship::new(model, false)
-                .with_health(base_stats::HEALTH * 6.0)
+                .with_health(base_stats::HEALTH * 3.0)
             ,
             Ships::Player(_) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 0.75)
             ,
             Ships::Elite(_) => Ship::new(model, false)
-                .with_health(base_stats::HEALTH * 4.0)
+                .with_health(base_stats::HEALTH * 2.0)
             ,
             Ships::Invader(0) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH / 2.)
