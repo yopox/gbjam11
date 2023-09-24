@@ -97,6 +97,7 @@ pub mod upgrades {
     pub const HEALTH: f32 = 4.;
 
     pub const MAX_BOUNCES: u8 = 3;
+    pub const LEECH_COUNT: usize = 8;
 }
 
 impl Shots {

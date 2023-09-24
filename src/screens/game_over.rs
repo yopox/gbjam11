@@ -4,6 +4,7 @@ use bevy::sprite::Anchor;
 
 use crate::GameState;
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
+use crate::logic::damage::KillCount;
 use crate::logic::route::CurrentRoute;
 use crate::logic::ShipStatus;
 use crate::music::{PlaySFXEvent, SFX};
@@ -49,6 +50,8 @@ fn enter(
     fonts: Res<Fonts>,
 ) {
     stars_speed.set_by_level(0);
+
+    commands.remove_resource::<KillCount>();
 
     let mut texts = vec!(
         ScreenItem::Text(if route.win() { "Congratulations!" } else { "Game Over :(" }.to_string()),

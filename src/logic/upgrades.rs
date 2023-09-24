@@ -1,9 +1,10 @@
-use bevy::prelude::{Component, Query, Transform};
+use bevy::prelude::{Component, DetectChanges, Query, Res, ResMut, Transform, With};
 use rand::{Rng, RngCore, thread_rng};
 
-use crate::entities::Shot;
+use crate::entities::{MainShip, Ship, Shot};
 use crate::graphics::FakeTransform;
-use crate::logic::ShipStatus;
+use crate::logic::{Items, ShipStatus};
+use crate::logic::damage::KillCount;
 use crate::util::{HEIGHT, upgrades, WIDTH};
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
@@ -17,7 +18,7 @@ pub enum Upgrades {
     /// TODO: Update [logic::item::ShipStatus::shot_upgrades]
     BouncingShots,
     PiercingShots,
-    // LeechShots,
+    LeechShots,
     // HomingShots,
     // StunShots,
     // SlowingShots,
@@ -40,6 +41,7 @@ impl Upgrades {
             Upgrades::Hull => "Hull +",
             Upgrades::BouncingShots => "Bouncing Shots",
             Upgrades::PiercingShots => "Piercing Shots",
+            Upgrades::LeechShots => "Leech Shots",
             Upgrades::SideShots => "Side Shots",
             Upgrades::BetterShields => "Better Shields",
             Upgrades::BetterMissiles => "Better Missiles",
@@ -82,6 +84,11 @@ impl Upgrades {
             Upgrades::PiercingShots => {(
                 "Make shots go".to_string(),
                 "through multiple".to_string(),
+                "enemies.".to_string(),
+            )}
+            Upgrades::LeechShots => {(
+                "Repair hull by 1".to_string(),
+                "after killing 8".to_string(),
                 "enemies.".to_string(),
             )}
             Upgrades::BetterShields => {(
@@ -128,6 +135,7 @@ impl Upgrades {
         let options = [
             Upgrades::BouncingShots,
             Upgrades::PiercingShots,
+            Upgrades::LeechShots,
             Upgrades::SideShots,
             Upgrades::BetterShields,
             Upgrades::BetterMissiles,
@@ -186,5 +194,18 @@ pub fn bounce_shots(
             shot.bounce_count += 1;
             shot.collisions.clear();
         }
+    }
+}
+
+pub fn leech(
+    mut ship_status: ResMut<ShipStatus>,
+    mut ship: Query<&mut Ship, With<MainShip>>,
+    kill_count: Option<Res<KillCount>>,
+) {
+    let Some(kill_count) = kill_count else { return; };
+    let Ok(mut ship) = ship.get_single_mut() else { return; };
+    if kill_count.is_changed() && kill_count.0 > 0 && kill_count.0 % upgrades::LEECH_COUNT == 0 {
+        ship_status.add(&Items::Repair);
+        ship.health = ship_status.health().0;
     }
 }

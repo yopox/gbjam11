@@ -20,6 +20,7 @@ impl ShipStatus {
     pub fn add(&mut self, item: &Items) {
         if *item == Items::Repair {
             if self.health < self.max_health { self.health += 1.; }
+            if self.health > self.max_health { self.health = self.max_health; }
             return;
         }
 

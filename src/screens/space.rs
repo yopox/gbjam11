@@ -8,7 +8,7 @@ use crate::entities::{Blink, MainShip, MuteShots, Ship, Shot, Shots, Weapon};
 use crate::graphics::{FakeTransform, Palette, ScreenTransition, StarsSpeed, TextStyles};
 use crate::graphics::sizes::Hitbox;
 use crate::logic::{Items, ShipBundle, ShipStatus, WaveCleared};
-use crate::logic::damage::DamageEvent;
+use crate::logic::damage::{DamageEvent, KillCount};
 use crate::logic::route::{CurrentRoute, Level, Route, RouteElement};
 use crate::logic::upgrades::{ShotUpgrades, Upgrades};
 use crate::music::{PlaySFXEvent, SFX};
@@ -88,9 +88,12 @@ fn enter(
     mut stars_speed: ResMut<StarsSpeed>,
     mut time: ResMut<Time>,
     state: Res<State<GameState>>,
+    kill_count: Option<Res<KillCount>>,
 ) {
     stars_speed.set_by_level(route.level);
     time.set_relative_speed(space::time_ratio(route.level));
+
+    if kill_count.is_none() && ship_status.has_upgrade(Upgrades::LeechShots) { commands.insert_resource(KillCount(0)); }
 
     let mut main_ship_bundle = ShipBundle::from(
         textures.ship.clone(),
@@ -235,22 +238,27 @@ fn update_life(
     mut damaged: EventReader<DamageEvent>,
     enemies: Query<&Ship, Without<MainShip>>,
     mut elite_bar_transform: Query<&mut FakeTransform, (With<EliteLifeBar>, Without<LifeBar>)>,
+    ship_status: Res<ShipStatus>,
+    state: Res<State<GameState>>,
 ) {
-    for &DamageEvent { ship, fatal: _ } in damaged.iter() {
-        if let Ok(ship) = main_ship.get(ship) {
-            bar_transform.single_mut().scale = Some(vec2(
-                ship.health / ship.max_health * HEALTH_BAR_SIZE as f32,
-                1.,
-            ));
-        }
+    if damaged.is_empty() || !ship_status.is_changed() { return; }
+    damaged.clear();
 
-        if let Ok(enemy) = enemies.get(ship) {
-            if !enemy.model.is_elite() { continue; }
-            elite_bar_transform.single_mut().scale = Some(vec2(
-                enemy.health / enemy.max_health * (WIDTH as f32 - 16.),
-                1.,
-            ));
-        }
+    if let Ok(ship) = main_ship.get_single() {
+        bar_transform.single_mut().scale = Some(vec2(
+            ship.health / ship.max_health * HEALTH_BAR_SIZE as f32,
+            1.,
+        ));
+    }
+
+    if *state.get() == GameState::Space { return; }
+
+    for enemy in enemies.iter() {
+        if !enemy.model.is_elite() { continue; }
+        elite_bar_transform.single_mut().scale = Some(vec2(
+            enemy.health / enemy.max_health * (WIDTH as f32 - 16.),
+            1.,
+        ));
     }
 }
 

@@ -93,6 +93,9 @@ pub fn elite_cleared(
     shots.for_each(|e| commands.entity(e).despawn_recursive());
 }
 
+#[derive(Resource)]
+pub struct KillCount(pub usize);
+
 pub fn die_gracefully(
     mut commands: Commands,
     mut events: EventReader<DamageEvent>,
@@ -100,7 +103,9 @@ pub fn die_gracefully(
     mut elite_killed: EventWriter<EliteKilled>,
     ships: Query<(&Ship, Option<&MainShip>)>,
     mut sfx: EventWriter<PlaySFXEvent>,
+    mut kill_count: Option<ResMut<KillCount>>,
 ) {
+    let mut kills = 0;
     for &DamageEvent { ship, fatal } in events.iter() {
         if !fatal { continue; }
         let entity = commands.get_entity(ship);
@@ -112,10 +117,12 @@ pub fn die_gracefully(
                     .insert(MuteShots)
                 ;
                 if main.is_some() { sfx.send(PlaySFXEvent(SFX::Die)); transition.set_if_neq(ScreenTransition::to(GameState::GameOver)); }
+                else { kills += 1; }
                 if ship.model.is_elite() { elite_killed.send(EliteKilled); }
             }
         }
     }
+    if let Some(mut kill_count) = kill_count { kill_count.0 += kills; }
 }
 
 pub fn despawn_ships(
