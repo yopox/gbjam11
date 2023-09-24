@@ -34,6 +34,7 @@ impl Plugin for ShotsPlugin {
 pub struct Shot {
     pub weapon: Weapon,
     pub friendly: bool,
+    pub bounce_count: u8,
 }
 
 #[derive(Copy, Clone)]
@@ -86,7 +87,7 @@ fn shoot(
                         texture_atlas: textures.shots.clone(),
                         ..default()
                     })
-                    .insert(Shot { weapon: weapon.clone(), friendly: ship.friendly })
+                    .insert(Shot { weapon: weapon.clone(), friendly: ship.friendly, bounce_count: 0 })
                     .insert(weapon.shot.hitbox())
                     .insert(ShotUpgrades(match upgrades {
                         Some(u) => u.0,

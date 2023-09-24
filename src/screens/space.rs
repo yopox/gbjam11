@@ -317,7 +317,7 @@ fn update_missiles(
                     texture_atlas: textures.shots.clone(),
                     ..default()
                 })
-                .insert(Shot { weapon, friendly: true })
+                .insert(Shot { weapon, friendly: true, bounce_count: 0 })
                 .insert(Shots::Missile.hitbox())
                 .insert(ShotUpgrades(0))
                 .insert(FakeTransform::from_xyz(

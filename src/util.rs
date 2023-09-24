@@ -95,6 +95,8 @@ pub mod upgrades {
     pub const SHOT_SPEED: f32 = 0.2;
     pub const SHOT_FREQUENCY: f32 = 0.15;
     pub const HEALTH: f32 = 4.;
+
+    pub const MAX_BOUNCES: u8 = 3;
 }
 
 impl Shots {

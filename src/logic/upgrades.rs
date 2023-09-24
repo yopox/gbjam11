@@ -139,10 +139,11 @@ pub fn bounce_shots(
 ) {
     for (mut shot, pos, mut transform, upgrades) in shots.iter_mut() {
         if upgrades.0 & BOUNCING == 0 { continue; }
+        if shot.bounce_count + 1 > upgrades::MAX_BOUNCES { continue; }
 
-        if pos.translation.x >= WIDTH as f32 { shot.weapon.speed.x *= -1.; transform.scale.x *= -1.; }
-        if pos.translation.x <= 0. { shot.weapon.speed.x *= -1.; transform.scale.x *= -1.; }
-        if pos.translation.y >= HEIGHT as f32 { shot.weapon.speed.y *= -1.; transform.scale.y *= -1.; }
-        if pos.translation.y <= 0. { shot.weapon.speed.y *= -1.; transform.scale.y *= -1.; }
+        if pos.translation.x >= WIDTH as f32 { shot.weapon.speed.x *= -1.; transform.scale.x *= -1.; shot.bounce_count += 1; }
+        if pos.translation.x <= 0. { shot.weapon.speed.x *= -1.; transform.scale.x *= -1.; shot.bounce_count += 1; }
+        if pos.translation.y >= HEIGHT as f32 { shot.weapon.speed.y *= -1.; transform.scale.y *= -1.; shot.bounce_count += 1; }
+        if pos.translation.y <= 0. { shot.weapon.speed.y *= -1.; transform.scale.y *= -1.; shot.bounce_count += 1; }
     }
 }
