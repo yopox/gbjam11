@@ -10,7 +10,7 @@ use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::damage_ship;
 use crate::logic::hit;
 use crate::logic::hit::HitEvent;
-use crate::logic::upgrades::ShotUpgrades;
+use crate::logic::upgrades::{PIERCING, ShotUpgrades};
 use crate::screens::Textures;
 use crate::util::{HEIGHT, in_states, WIDTH, z_pos};
 
@@ -35,6 +35,13 @@ pub struct Shot {
     pub weapon: Weapon,
     pub friendly: bool,
     pub bounce_count: u8,
+    pub collisions: Vec<Entity>,
+}
+
+impl Shot {
+    pub fn new(weapon: Weapon, friendly: bool) -> Self { Self {
+        weapon, friendly, bounce_count: 0, collisions: vec![],
+    } }
 }
 
 #[derive(Copy, Clone)]
@@ -87,7 +94,7 @@ fn shoot(
                         texture_atlas: textures.shots.clone(),
                         ..default()
                     })
-                    .insert(Shot { weapon: weapon.clone(), friendly: ship.friendly, bounce_count: 0 })
+                    .insert(Shot::new(weapon.clone(), ship.friendly))
                     .insert(weapon.shot.hitbox())
                     .insert(ShotUpgrades(match upgrades {
                         Some(u) => u.0,
@@ -125,13 +132,14 @@ fn update_shots(
 }
 
 fn collide_shots(
-    shots: Query<(&Shot, &Hitbox, &ShotUpgrades, &FakeTransform, Entity)>,
+    mut shots: Query<(&mut Shot, &Hitbox, &ShotUpgrades, &FakeTransform, Entity)>,
     ships: Query<(&Ship, &Hitbox, &FakeTransform, Entity)>,
     mut event_writer: EventWriter<HitEvent>,
 ) {
-    for (shot, shot_hitbox, _, shot_pos, shot_entity) in &shots {
+    for (mut shot, shot_hitbox, upgrades, shot_pos, shot_entity) in shots.iter_mut() {
         for (ship, ship_hitbox, ship_pos, ship_entity) in &ships {
             if shot.friendly == ship.friendly { continue; }
+            if upgrades.0 & PIERCING != 0 && shot.collisions.contains(&ship_entity) { continue }
             let collision = collide(
                 shot_pos.translation,
                 shot_hitbox.0,
@@ -139,6 +147,7 @@ fn collide_shots(
                 ship_hitbox.0,
             );
             if collision.is_some() {
+                shot.collisions.push(ship_entity);
                 event_writer.send(HitEvent { shot: shot_entity, ship: ship_entity });
             }
         }

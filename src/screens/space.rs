@@ -317,9 +317,9 @@ fn update_missiles(
                     texture_atlas: textures.shots.clone(),
                     ..default()
                 })
-                .insert(Shot { weapon, friendly: true, bounce_count: 0 })
+                .insert(Shot::new(weapon, true))
                 .insert(Shots::Missile.hitbox())
-                .insert(ShotUpgrades(0))
+                .insert(ShotUpgrades(ship_status.shot_upgrades()))
                 .insert(FakeTransform::from_xyz(
                     ship_pos.translation.x + weapon.offset.x,
                     ship_pos.translation.y + weapon.offset.y,

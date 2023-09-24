@@ -3,7 +3,7 @@ use bevy::utils::HashMap;
 use rand::{RngCore, thread_rng};
 
 use crate::entities::Ship;
-use crate::logic::upgrades::{BOUNCING, Upgrades};
+use crate::logic::upgrades::{BOUNCING, PIERCING, Upgrades};
 use crate::screens;
 use crate::util::{items, upgrades};
 
@@ -86,6 +86,7 @@ impl ShipStatus {
     pub fn shot_upgrades(&self) -> usize {
         let mut modifier = 0;
         if self.upgrades.contains(&Upgrades::BouncingShots) { modifier |= BOUNCING; }
+        if self.upgrades.contains(&Upgrades::PiercingShots) { modifier |= PIERCING; }
         modifier
     }
 

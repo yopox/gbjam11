@@ -16,7 +16,7 @@ pub enum Upgrades {
 
     /// TODO: Update [logic::item::ShipStatus::shot_upgrades]
     BouncingShots,
-    // PiercingShots,
+    PiercingShots,
     // LeechShots,
     // HomingShots,
     // StunShots,
@@ -36,6 +36,7 @@ impl Upgrades {
             Upgrades::Damage => "Power +",
             Upgrades::Hull => "Hull +",
             Upgrades::BouncingShots => "Bouncing Shots",
+            Upgrades::PiercingShots => "Piercing Shots",
             Upgrades::BetterShields => "Better Shields",
         }
     }
@@ -72,6 +73,11 @@ impl Upgrades {
                 "against the edges".to_string(),
                 "of the screen.".to_string(),
             )}
+            Upgrades::PiercingShots => {(
+                "Make shots go".to_string(),
+                "through multiple".to_string(),
+                "enemies.".to_string(),
+            )}
             Upgrades::BetterShields => {(
                 "Make shields last".to_string(),
                 "twice as long.".to_string(),
@@ -96,9 +102,9 @@ impl Upgrades {
         options[rng.gen_range(0..options.len())]
     }
 
-    pub fn random_non_stat_upgrade() -> Self {
+    fn random_non_stat_upgrade() -> Self {
         let mut rng = thread_rng();
-        let options = [Upgrades::BouncingShots, Upgrades::BetterShields];
+        let options = [Upgrades::BouncingShots, Upgrades::PiercingShots, Upgrades::BetterShields];
         options[rng.gen_range(0..options.len())]
     }
 
@@ -141,9 +147,16 @@ pub fn bounce_shots(
         if upgrades.0 & BOUNCING == 0 { continue; }
         if shot.bounce_count + 1 > upgrades::MAX_BOUNCES { continue; }
 
-        if pos.translation.x >= WIDTH as f32 { shot.weapon.speed.x *= -1.; transform.scale.x *= -1.; shot.bounce_count += 1; }
-        if pos.translation.x <= 0. { shot.weapon.speed.x *= -1.; transform.scale.x *= -1.; shot.bounce_count += 1; }
-        if pos.translation.y >= HEIGHT as f32 { shot.weapon.speed.y *= -1.; transform.scale.y *= -1.; shot.bounce_count += 1; }
-        if pos.translation.y <= 0. { shot.weapon.speed.y *= -1.; transform.scale.y *= -1.; shot.bounce_count += 1; }
+        let mut bounce = false;
+
+        if pos.translation.x >= WIDTH as f32 { shot.weapon.speed.x *= -1.; transform.scale.x *= -1.; bounce = true; }
+        if pos.translation.x <= 0. { shot.weapon.speed.x *= -1.; transform.scale.x *= -1.; bounce = true; }
+        if pos.translation.y >= HEIGHT as f32 { shot.weapon.speed.y *= -1.; transform.scale.y *= -1.; bounce = true; }
+        if pos.translation.y <= 0. { shot.weapon.speed.y *= -1.; transform.scale.y *= -1.; bounce = true; }
+
+        if bounce {
+            shot.bounce_count += 1;
+            shot.collisions.clear();
+        }
     }
 }
