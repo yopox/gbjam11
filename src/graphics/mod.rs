@@ -24,11 +24,11 @@ pub struct GraphicsPlugin;
 
 impl Plugin for GraphicsPlugin {
     fn build(&self, app: &mut App) {
-        let palette = Palette::YellowPurple;
+        let palette = Palette::Yopox;
         app
             .add_plugins((GBShaderPlugin, StarFieldPlugin))
             .insert_resource(CurrentPalette(palette))
-            .insert_resource(ClearColor(palette.colors()[0]))
+            .insert_resource(ClearColor(Palette::Greyscale.colors()[0]))
             .insert_resource(ScreenTransition::default())
             .add_systems(Update, palette::update_palette)
             .add_systems(Update, transition::update)

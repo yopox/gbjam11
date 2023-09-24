@@ -85,6 +85,6 @@ fn init(mut commands: Commands) {
             },
             ..default()
         })
-        .insert(GBShaderSettings::from_palette(Palette::YellowPurple))
+        .insert(GBShaderSettings::from_palette(Palette::Yopox))
     ;
 }

@@ -1,33 +1,26 @@
-use bevy::prelude::{ClearColor, Color, Commands, DetectChanges, Input, KeyCode, Query, Res, ResMut, Resource};
+use bevy::prelude::{Color, DetectChanges, Query, ResMut, Resource};
+use bevy::utils::HashMap;
+use lazy_static::lazy_static;
 
 use crate::graphics::GBShaderSettings;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Palette {
     Greyscale,
-    YellowPurple,
-    GameBoy,
+    Yopox,
+    Cloudfrenzy,
+    LaserLab,
+    Foliage,
 }
 
 #[derive(Resource)]
 pub struct CurrentPalette(pub Palette);
 
 pub fn update_palette(
-    mut commands: Commands,
     mut palette: ResMut<CurrentPalette>,
     mut shader_options: Query<&mut GBShaderSettings>,
-    keys: Res<Input<KeyCode>>,
 ) {
-    if keys.just_pressed(KeyCode::P) {
-        if palette.0 == Palette::YellowPurple { palette.0 = Palette::GameBoy; }
-        else { palette.0 = Palette::YellowPurple; }
-    }
-
     if !palette.is_changed() { return; }
-
-    // Update clear color
-    let colors = palette.0.colors();
-    commands.insert_resource(ClearColor(colors[0]));
 
     // Update shader
     let new_options = GBShaderSettings::from_palette(palette.0);
@@ -39,27 +32,43 @@ pub fn update_palette(
     }
 }
 
+lazy_static! {
+    static ref COLORS: HashMap<Palette, [Color; 4]> = HashMap::from([
+        (Palette::Greyscale, [
+            Color::hex("000000").unwrap(),
+            Color::hex("666666").unwrap(),
+            Color::hex("aaaaaa").unwrap(),
+            Color::hex("ffffff").unwrap(),
+        ]),
+        (Palette::Yopox, [
+            Color::hex("201e33").unwrap(),
+            Color::hex("ab1a5d").unwrap(),
+            Color::hex("ffbc43").unwrap(),
+            Color::hex("808a94").unwrap(),
+        ]),
+        (Palette::Cloudfrenzy, [
+            Color::hex("61567d").unwrap(),
+            Color::hex("ea92ab").unwrap(),
+            Color::hex("9085d0").unwrap(),
+            Color::hex("f4c4d4").unwrap(),
+        ]),
+        (Palette::LaserLab, [
+            Color::hex("271d2c").unwrap(),
+            Color::hex("e01f3f").unwrap(),
+            Color::hex("cc9477").unwrap(),
+            Color::hex("fff8ed").unwrap(),
+        ]),
+        (Palette::Foliage, [
+            Color::hex("2e8344").unwrap(),
+            Color::hex("095d42").unwrap(),
+            Color::hex("77d38f").unwrap(),
+            Color::hex("2f4a36").unwrap(),
+        ]),
+    ]);
+}
+
 impl Palette {
     pub fn colors(&self) -> [Color; 4] {
-        match self {
-            Palette::Greyscale => [
-                Color::hex("000000").unwrap(),
-                Color::hex("666666").unwrap(),
-                Color::hex("aaaaaa").unwrap(),
-                Color::hex("ffffff").unwrap(),
-            ],
-            Palette::YellowPurple => [
-                Color::hex("201e33").unwrap(),
-                Color::hex("ab1a5d").unwrap(),
-                Color::hex("ffbc43").unwrap(),
-                Color::hex("808a94").unwrap(),
-            ],
-            Palette::GameBoy => [
-                Color::hex("0f380f").unwrap(),
-                Color::hex("8bac0f").unwrap(),
-                Color::hex("306230").unwrap(),
-                Color::hex("9bbc0f").unwrap(),
-            ],
-        }
+        COLORS[self]
     }
 }
