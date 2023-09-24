@@ -1516,6 +1516,7 @@ dependencies = [
  "bevy",
  "bevy_asset_loader",
  "bevy_common_assets",
+ "console_error_panic_hook",
  "embed-resource",
  "image",
  "lazy_static",

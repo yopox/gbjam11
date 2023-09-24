@@ -50,6 +50,8 @@ impl GameState {
 }
 
 fn main() {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+
     App::new()
         .insert_resource(Msaa::Off)
         .add_plugins(DefaultPlugins

@@ -30,6 +30,7 @@ rand = { version = "0.8", features = ["alloc"]}
 
 winit = { version = "0.28", default-features = false }
 image = { version = "0.24", default-features = false }
+console_error_panic_hook = "0.1.7"
 
 [build-dependencies]
 embed-resource = "1.4"
