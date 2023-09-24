@@ -32,8 +32,12 @@ pub enum Moves {
 impl Moves {
     pub fn random_crossing(y: f32) -> Self {
         let mut rng = thread_rng();
+        Self::random_crossing_dir(y, rng.next_u32() % 2 == 0)
+    }
 
-        let (pos, angle) = if rng.next_u32() % 2 == 0 {
+    pub fn random_crossing_dir(y: f32, right: bool) -> Self {
+        let mut rng = thread_rng();
+        let (pos, angle) = if right {
             // Left to right
             (vec2(-16., y), 0.)
         } else {

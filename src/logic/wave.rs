@@ -15,7 +15,7 @@ use crate::logic::Loot;
 use crate::logic::movement::{Movement, Moves};
 use crate::logic::route::CurrentRoute;
 use crate::screens::Textures;
-use crate::util::{HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, z_pos};
+use crate::util::{HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, WIDTH, z_pos};
 
 pub struct WavePlugin;
 
@@ -72,17 +72,14 @@ enum WaveEvent {
 #[derive(Clone)]
 enum SpecialEvent {
     Spawn(Ships, Moves),
-    /// Spawn enemies continuously (delay / y)
-    InfiniteWave(usize, f32),
-    /// Spawn enemies continuously with a pause on x_0 (delay / y / pause / x_0)
-    InfiniteWaveWithPause(usize, f32, usize, f32),
+    /// Spawn enemies continuously (delay / y / right / timer)
+    InfiniteWave(usize, f32, bool, f32),
 }
 
 enum WavePart {
     SimpleEnemy,
     ConsecutiveWithPause(u8, f32, usize),
     Parallel(usize, Vec<WavePart>),
-    InfiniteWave(usize, f32),
 }
 
 impl Default for WavePart {
@@ -107,10 +104,6 @@ impl WavePart {
                     .map(|p| p.debug_string())
                     .reduce(|p1, p2| format!("{} / {}", p1, p2))
                     .unwrap_or("None".to_string())
-            ),
-            WavePart::InfiniteWave(pause, y) => format!(
-                "Infinite wave with {}ms delay between enemies on y={}",
-                pause, y
             ),
         }
     }
@@ -150,13 +143,6 @@ impl WavePart {
                     events.clear();
                 }
                 events = merge_waves(parallel.as_slice());
-            }
-            WavePart::InfiniteWave(delay, y) => {
-                events.push(WaveEvent::Spawn(
-                    Ships::random_enemy(level),
-                    Moves::random_crossing(*y),
-                ));
-                events.push(WaveEvent::WaitMilliseconds(*delay));
             }
         }
         events
@@ -200,7 +186,7 @@ impl WavePart {
 }
 
 #[derive(Resource)]
-struct CurrentWave(Vec<WaveEvent>, Vec<SpecialEvent>);
+struct CurrentWave(Vec<WaveEvent>, Vec<SpecialEvent>, usize);
 
 impl CurrentWave {
     pub fn new(state: &GameState, level: usize) -> Self {
@@ -212,7 +198,7 @@ impl CurrentWave {
             _ => (Self::gen_space_wave(level), vec![]),
         };
 
-        CurrentWave(wave, special)
+        CurrentWave(wave, special, level)
     }
 
     fn gen_space_wave(level: usize) -> Vec<WaveEvent> {
@@ -246,6 +232,7 @@ impl CurrentWave {
                 Box::new(Moves::Lemniscate(vec2(HALF_WIDTH, HALF_HEIGHT * 7. / 5.), 1.2, 32.)))
             )
         );
+        wave.push(SpecialEvent::InfiniteWave(12000, HALF_HEIGHT - 4., true, 0.));
 
         wave
     }
@@ -278,6 +265,7 @@ fn update(
     mut cleared: EventWriter<WaveCleared>,
 ) {
     let mut next = false;
+    let level = wave.2;
 
     match wave.0.get_mut(0) {
         None => {}
@@ -328,8 +316,25 @@ fn update(
             ;
             next = true;
         }
-        Some(SpecialEvent::InfiniteWave(_, _)) => {}
-        Some(SpecialEvent::InfiniteWaveWithPause(_, _, _, _)) => {}
+        Some(SpecialEvent::InfiniteWave(delay, y, right, timer)) => {
+            let delay = *delay as f32 / 1000.;
+            let t = *timer;
+            let dt = time.delta_seconds();
+            if ((t / delay) as usize) < (((t + dt) / delay) as usize) {
+                commands
+                    .spawn(ShipBundle::from(
+                        textures.ship.clone(),
+                        Ships::random_enemy(level),
+                        if *right { vec2(-16., *y) } else { vec2(WIDTH as f32 + 16., *y) },
+                    ))
+                    .insert(Movement {
+                        moves: Moves::random_crossing_dir(*y, *right),
+                        t_0: time.elapsed_seconds(),
+                    })
+                ;
+            }
+            *timer += time.delta_seconds();
+        }
         None => {}
     }
 
