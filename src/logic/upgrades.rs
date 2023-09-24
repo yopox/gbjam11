@@ -26,6 +26,7 @@ pub enum Upgrades {
 
     SideShots,
     BetterShields,
+    BetterMissiles,
 }
 
 impl Upgrades {
@@ -40,6 +41,7 @@ impl Upgrades {
             Upgrades::PiercingShots => "Piercing Shots",
             Upgrades::SideShots => "Side Shots",
             Upgrades::BetterShields => "Better Shields",
+            Upgrades::BetterMissiles => "Better Missiles",
         }
     }
 
@@ -85,6 +87,11 @@ impl Upgrades {
                 "twice as long.".to_string(),
                 "".to_string(),
             )}
+            Upgrades::BetterMissiles => {(
+                "Shoot two missiles".to_string(),
+                "for the price of one.".to_string(),
+                "".to_string(),
+            )}
             Upgrades::SideShots => {(
                 "Equip your ship".to_string(),
                 "with diagonal shots.".to_string(),
@@ -111,7 +118,13 @@ impl Upgrades {
 
     fn random_non_stat_upgrade() -> Self {
         let mut rng = thread_rng();
-        let options = [Upgrades::BouncingShots, Upgrades::PiercingShots, Upgrades::SideShots, Upgrades::BetterShields];
+        let options = [
+            Upgrades::BouncingShots,
+            Upgrades::PiercingShots,
+            Upgrades::SideShots,
+            Upgrades::BetterShields,
+            Upgrades::BetterMissiles,
+        ];
         options[rng.gen_range(0..options.len())]
     }
 

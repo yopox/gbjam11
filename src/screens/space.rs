@@ -315,7 +315,12 @@ fn update_missiles(
     // Spawn missiles
     if keys.just_pressed(KeyCode::Up) && ship_status.remove(&Items::Missile) {
         sfx.send(PlaySFXEvent(SFX::Missile));
-        for offset in [vec2(0., 4.)] {
+        let offsets = if ship_status.has_upgrade(Upgrades::BetterMissiles) {
+            vec![vec2(-4., 4.), vec2(4., 4.)]
+        } else {
+            vec![vec2(0., 4.)]
+        };
+        for offset in offsets {
             let weapon = Weapon::new(Shots::Missile, &ship, offset, Angle(90.));
             commands
                 .spawn(SpriteSheetBundle {
