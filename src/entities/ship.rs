@@ -58,9 +58,9 @@ impl Ships {
                 (Weapons::Wave, vec2(4., 6.), Angle(90.)),
             ],
             Ships::Player(2) => vec![
-                (Weapons::Ball, vec2(-4., 6.), Angle(115.)),
-                (Weapons::Ball, vec2(0., 6.), Angle(90.)),
-                (Weapons::Ball, vec2(4., 6.), Angle(65.)),
+                (Weapons::Standard, vec2(-4., 6.), Angle(115.)),
+                (Weapons::Standard, vec2(0., 6.), Angle(90.)),
+                (Weapons::Standard, vec2(4., 6.), Angle(65.)),
             ],
             Ships::Player(_) => vec![
                 (Weapons::Energy, vec2(0., 6.), Angle(90.)),
@@ -68,7 +68,7 @@ impl Ships {
             Ships::Elite(n) => Ships::Player(*n)
                 .weapons()
                 .iter()
-                .map(|&(w, pos, Angle(a))| (w, vec2(pos.x, -pos.y), Angle(180. + a)))
+                .map(|&(w, pos, Angle(a))| (w, vec2(pos.x, -pos.y), Angle(360. - a)))
                 .collect()
             ,
             Ships::Invader(0) | Ships::Invader(2) => vec![
@@ -142,26 +142,26 @@ impl Ship {
                 .with_health(base_stats::HEALTH * 1.5)
             ,
             Ships::Elite(0) => Ship::new(model, false)
-                .with_health(base_stats::HEALTH * 1.75)
+                .with_health(base_stats::HEALTH * 2.25)
             ,
             Ships::Player(1) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 2.5)
             ,
             Ships::Elite(1) => Ship::new(model, false)
-                .with_health(base_stats::HEALTH * 2.5)
+                .with_health(base_stats::HEALTH * 3.0)
             ,
             Ships::Player(2) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 1.5)
                 .with_speed(base_stats::SPEED * 1.5)
             ,
             Ships::Elite(2) => Ship::new(model, false)
-                .with_health(base_stats::HEALTH * 1.75)
+                .with_health(base_stats::HEALTH * 2.25)
             ,
             Ships::Player(_) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 0.75)
             ,
             Ships::Elite(_) => Ship::new(model, false)
-                .with_health(base_stats::HEALTH * 1.25)
+                .with_health(base_stats::HEALTH * 1.50)
             ,
             Ships::Invader(0) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH / 2.)

@@ -25,6 +25,8 @@ pub enum Moves {
     Ellipsis(Vec2, f32, f32, f32),
     /// starting (center), frequency, half foci distance
     Lemniscate(Vec2, f32, f32),
+    /// starting (top), frequency, half_x, half_y
+    Astroid(Vec2, f32, f32, f32),
     /// starting, final y, t_y, original move
     DownUntil(Vec2, f32, f32, Box<Moves>),
 }
@@ -62,6 +64,7 @@ impl Moves {
             | Moves::Triangular(pos, _, _, _)
             | Moves::Ellipsis(pos, _, _, _)
             | Moves::Lemniscate(pos, _, _)
+            | Moves::Astroid(pos, _, _, _)
             | Moves::DownUntil(pos, _, _, _) => pos,
             Moves::WithPause(_, _, _, moves)
             | Moves::StationaryAt(_, _, moves) =>
@@ -112,6 +115,11 @@ impl Moves {
                 let center = *starting - vec2(0., *half_y);
                 let angle = PI / 2. + *frequency * time;
                 vec2(center.x + angle.cos() * *half_x, center.y + angle.sin() * *half_y)
+            }
+            Moves::Astroid(starting, frequency, half_x, half_y) => {
+                let center = *starting - vec2(0., *half_y);
+                let angle = PI / 2. + *frequency * time;
+                vec2(center.x + angle.cos().powi(3) * *half_x, center.y + angle.sin().powi(3) * *half_y)
             }
             Moves::Lemniscate(starting, frequency, half_foci) => {
                 let param = *half_foci * 2f32.sqrt();

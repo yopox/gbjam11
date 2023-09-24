@@ -22,6 +22,7 @@ mod wave;
 mod movement;
 mod loot;
 mod item;
+mod elite;
 
 pub struct LogicPlugin;
 

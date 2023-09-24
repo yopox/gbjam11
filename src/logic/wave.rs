@@ -11,7 +11,7 @@ use crate::entities::{MainShip, Ship, Ships, ShipWeapons};
 use crate::GameState;
 use crate::graphics::FakeTransform;
 use crate::graphics::sizes::Hitbox;
-use crate::logic::Loot;
+use crate::logic::{elite, Loot};
 use crate::logic::movement::{Movement, Moves};
 use crate::logic::route::CurrentRoute;
 use crate::screens::Textures;
@@ -71,7 +71,7 @@ enum WaveEvent {
 }
 
 #[derive(Clone)]
-enum SpecialEvent {
+pub enum SpecialEvent {
     Spawn(Ships, Moves),
     /// Spawn enemies continuously (delay / y / right / timer)
     InfiniteWave(usize, f32, bool, f32),
@@ -194,8 +194,8 @@ impl CurrentWave {
         info!("{:?} – Generating events for level {}:", state, level);
 
         let (wave, special) = match state {
-            GameState::Elite => (vec![], Self::gen_elite_wave(level)),
-            GameState::Boss => (vec![], Self::gen_boss_wave(level)),
+            GameState::Elite => (vec![], elite::gen_elite_wave(level)),
+            GameState::Boss => (vec![], elite::gen_boss_wave(level)),
             _ => (Self::gen_space_wave(level), vec![]),
         };
 
@@ -213,35 +213,6 @@ impl CurrentWave {
             // Always end wave with [WaveEvent::WaitForClear]
             wave.push(WaveEvent::WaitForClear);
         }
-        wave
-    }
-
-    fn gen_elite_wave(level: usize) -> Vec<SpecialEvent> {
-        let mut rng = thread_rng();
-        let mut wave = vec![];
-
-        // wave.push(SpecialEvent::Spawn(
-        //     Ships::Elite(1),
-        //     Moves::Ellipsis(vec2(HALF_WIDTH, HALF_HEIGHT + 32.), 1.2, 32., 16.))
-        // );
-        wave.push(SpecialEvent::Spawn(
-            Ships::Elite(1),
-            Moves::DownUntil(
-                vec2(HALF_WIDTH, HEIGHT as f32 + 16.),
-                HALF_HEIGHT * 7. / 5.,
-                0.,
-                Box::new(Moves::Lemniscate(vec2(HALF_WIDTH, HALF_HEIGHT * 7. / 5.), 1.2, 32.)))
-            )
-        );
-        wave.push(SpecialEvent::InfiniteWave(12000, HALF_HEIGHT - 4., true, 0.));
-
-        wave
-    }
-
-    fn gen_boss_wave(level: usize) -> Vec<SpecialEvent> {
-        let mut rng = thread_rng();
-        let mut wave = vec![];
-
         wave
     }
 }
