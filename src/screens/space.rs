@@ -103,6 +103,11 @@ fn enter(
     main_ship_bundle.ship.shot_speed *= ship_status.shot_speed_multiplier();
     main_ship_bundle.ship.shot_frequency *= ship_status.shot_frequency_multiplier();
 
+    if ship_status.has_upgrade(Upgrades::SideShots) {
+        main_ship_bundle.weapons.weapons.push(Weapon::new(Shots::Bullet, &main_ship_bundle.ship, vec2(-6., 4.), Angle(180. - 45.)));
+        main_ship_bundle.weapons.weapons.push(Weapon::new(Shots::Bullet, &main_ship_bundle.ship, vec2(6., 4.), Angle(45.)));
+    }
+
     commands
         .spawn(SpriteBundle {
             sprite: Sprite {

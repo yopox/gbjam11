@@ -36,7 +36,7 @@ impl Plugin for WavePlugin {
 pub struct ShipBundle {
     sprite: SpriteSheetBundle,
     pos: FakeTransform,
-    weapons: ShipWeapons,
+    pub weapons: ShipWeapons,
     hitbox: Hitbox,
     loot: Loot,
     pub ship: Ship,
