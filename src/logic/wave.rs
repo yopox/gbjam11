@@ -37,6 +37,7 @@ pub struct ShipBundle {
     pos: FakeTransform,
     weapons: ShipWeapons,
     hitbox: Hitbox,
+    loot: Loot,
     pub ship: Ship,
 }
 
@@ -55,6 +56,7 @@ impl ShipBundle {
             pos: FakeTransform::from_xyz(pos.x, pos.y, z_pos::SHIPS),
             weapons: ShipWeapons::new(&ship, model.weapons()),
             hitbox: model.hitbox(),
+            loot: Loot { credits: space::credits(model) },
             ship,
         }
     }
@@ -231,8 +233,6 @@ fn update(
                     moves: moves.clone(),
                     t_0: time.elapsed_seconds(),
                 })
-                // TODO customize credit count
-                .insert(Loot { credits: 2 })
             ;
             next = true;
         }

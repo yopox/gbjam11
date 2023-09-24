@@ -1,10 +1,12 @@
 use bevy::app::App;
 use bevy::math::vec2;
 use bevy::prelude::*;
+use rand::{Rng, thread_rng};
 
 use crate::entities::Weapons;
 use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
+use crate::logic::route::Route;
 use crate::util::{Angle, base_stats};
 use crate::util::space::{BLINK_DURATION, BLINK_DURATION_ENEMY, BLINK_INTERVAL};
 
@@ -12,49 +14,79 @@ pub struct ShipPlugin;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Ships {
-    Player,
-    Player2,
-    Player3,
-    Player4,
-    Enemy,
+    Player(u8),
+    Invader(u8),
 }
 
 impl Ships {
     pub fn random_enemy(level: usize) -> Self {
-        // TODO: Design enemies
-        return Ships::Enemy;
+        let mut rng = thread_rng();
+        let possible = [
+            vec![0, 1, 2, 3],
+            vec![0, 1, 2, 3, 4, 4, 5, 5, 6, 6],
+            vec![0, 1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8],
+        ];
+        let act = level / Route::act_len();
+        let possible = possible[act].to_owned();
+        return Ships::Invader(possible[rng.gen_range(0..possible.len())]);
     }
 
     pub fn hitbox(&self) -> Hitbox {
         match self {
-            Ships::Player | Ships::Player2 | Ships::Player3 | Ships::Player4 =>
+            Ships::Player(_) =>
                 Hitbox(vec2(6., 4.)),
-            Ships::Enemy =>
+            Ships::Invader(_) =>
                 Hitbox(vec2(12., 6.)),
         }
     }
 
     pub fn weapons(&self) -> Vec<(Weapons, Vec2, Angle)> {
         match self {
-            Ships::Player => vec![
+            Ships::Player(0) => vec![
                 (Weapons::Standard, vec2(-4., 6.), Angle(90.)),
                 (Weapons::Standard, vec2(4., 6.), Angle(90.)),
             ],
-            Ships::Player2 => vec![
+            Ships::Player(1) => vec![
                 (Weapons::Wave, vec2(-4., 6.), Angle(90.)),
                 (Weapons::Wave, vec2(4., 6.), Angle(90.)),
             ],
-            Ships::Player3 => vec![
+            Ships::Player(2) => vec![
                 (Weapons::Ball, vec2(-4., 6.), Angle(115.)),
                 (Weapons::Ball, vec2(0., 6.), Angle(90.)),
                 (Weapons::Ball, vec2(4., 6.), Angle(65.)),
             ],
-            Ships::Player4 => vec![
+            Ships::Player(_) => vec![
                 (Weapons::Energy, vec2(0., 6.), Angle(90.)),
             ],
-            Ships::Enemy => vec![
-                (Weapons::Standard, vec2(0., -4.), Angle(270.)),
-            ]
+            Ships::Invader(0) | Ships::Invader(2) => vec![
+                (Weapons::Standard, vec2(0., -3.), Angle(270.)),
+            ],
+            Ships::Invader(1) => vec![
+                (Weapons::Standard, vec2(-2., -3.), Angle(270.)),
+                (Weapons::Standard, vec2(2., -3.), Angle(270.)),
+            ],
+            Ships::Invader(3) => vec![
+                (Weapons::Standard, vec2(-5., -3.), Angle(225.)),
+                (Weapons::Standard, vec2(5., -3.), Angle(315.)),
+            ],
+            Ships::Invader(4) | Ships::Invader(7) => vec![
+                (Weapons::Dual, vec2(0., -3.), Angle(270.)),
+            ],
+            Ships::Invader(5) => vec![
+                (Weapons::Dual, vec2(0., -3.), Angle(270.)),
+                (Weapons::Standard, vec2(-5., -3.), Angle(225.)),
+                (Weapons::Standard, vec2(5., -3.), Angle(315.)),
+            ],
+            Ships::Invader(6) => vec![
+                (Weapons::Standard, vec2(0., -3.), Angle(270.)),
+                (Weapons::Standard, vec2(-5., -3.), Angle(225.)),
+                (Weapons::Standard, vec2(5., -3.), Angle(315.)),
+            ],
+            Ships::Invader(8) => vec![
+                (Weapons::Standard, vec2(-5., -3.), Angle(270.)),
+                (Weapons::Standard, vec2(5., -3.), Angle(270.)),
+            ],
+            _ => vec![],
         }
     }
 }
@@ -93,26 +125,69 @@ impl Ship {
 
     pub fn from(model: Ships) -> Self {
         match model {
-            Ships::Player => Ship::new(model, true)
-                .with_health(base_stats::HEALTH * 1.5),
-            Ships::Player2 => Ship::new(model, true)
-                .with_health(base_stats::HEALTH * 1.5),
-            Ships::Player3 => Ship::new(model, true)
-                .with_health(base_stats::HEALTH * 1.5),
-            Ships::Player4 => Ship::new(model, true)
-                .with_health(base_stats::HEALTH * 1.5),
-            Ships::Enemy => Ship::new(model, false)
-                .with_speed(base_stats::SPEED / 2.),
+            Ships::Player(0) => Ship::new(model, true)
+                .with_health(base_stats::HEALTH * 1.5)
+            ,
+            Ships::Player(1) => Ship::new(model, true)
+                .with_health(base_stats::HEALTH * 1.5)
+            ,
+            Ships::Player(2) => Ship::new(model, true)
+                .with_health(base_stats::HEALTH * 1.5)
+            ,
+            Ships::Player(_) => Ship::new(model, true)
+                .with_health(base_stats::HEALTH * 1.5)
+            ,
+            Ships::Invader(0) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH / 2.)
+                .with_speed(base_stats::SPEED / 2.)
+            ,
+            Ships::Invader(1) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH / 1.5)
+                .with_speed(base_stats::SPEED / 3.)
+            ,
+            Ships::Invader(2) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH / 2.)
+                .with_speed(base_stats::SPEED)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.5)
+            ,
+            Ships::Invader(3) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH / 1.5)
+                .with_speed(base_stats::SPEED / 2.)
+            ,
+            Ships::Invader(4) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH)
+                .with_speed(base_stats::SPEED / 1.5)
+            ,
+            Ships::Invader(5) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH / 2.0)
+                .with_speed(base_stats::SPEED * 1.25)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 2.0)
+            ,
+            Ships::Invader(6) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 2.)
+                .with_speed(base_stats::SPEED / 2.)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY / 1.5)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.5)
+            ,
+            Ships::Invader(7) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 1.5)
+                .with_speed(base_stats::SPEED * 1.25)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.5)
+            ,
+            Ships::Invader(8) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 1.5)
+                .with_speed(base_stats::SPEED / 1.5)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 2.0)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.5)
+            ,
+            Ships::Invader(_) => Ship::new(model, false),
         }
     }
 
     pub fn sprite_index(&self) -> usize {
         match self.model {
-            Ships::Player => 0,
-            Ships::Player2 => 1,
-            Ships::Player3 => 2,
-            Ships::Player4 => 3,
-            Ships::Enemy => 4,
+            Ships::Player(n) => n as usize,
+            Ships::Invader(n) => 4 + n as usize,
         }
     }
 }

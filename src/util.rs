@@ -16,6 +16,7 @@ pub const SCALE: f32 = 4.;
 pub const BORDER: f32 = 2.;
 
 pub mod space {
+    use crate::entities::Ships;
     use crate::util::{base_stats, HALF_HEIGHT};
 
     pub const BLINK_INTERVAL: usize = 10;
@@ -33,6 +34,15 @@ pub mod space {
             0..=8 => 2,
             9..=17 => 4,
             _ => 6,
+        }
+    }
+
+    pub fn credits(model: Ships) -> i16 {
+        match model {
+            Ships::Player(_) => 0,
+            Ships::Invader(n) if n <= 3 => 2,
+            Ships::Invader(n) if n <= 6 => 5,
+            Ships::Invader(_) => 10,
         }
     }
 }
@@ -87,7 +97,7 @@ impl Shots {
             Shots::Wave => 0.5,
             Shots::Ball => 1.5,
             Shots::Energy => 4.0,
-            Shots::DualBeam => 1.5,
+            Shots::DualBeam => 1.25,
         }
     }
 

@@ -74,10 +74,10 @@ impl PlayableShips {
 
     pub(crate) fn model(&self) -> Ships {
         match self {
-            PlayableShips::Ship1 => Ships::Player,
-            PlayableShips::Ship2 => Ships::Player2,
-            PlayableShips::Ship3 => Ships::Player3,
-            PlayableShips::Ship4 => Ships::Player4,
+            PlayableShips::Ship1 => Ships::Player(0),
+            PlayableShips::Ship2 => Ships::Player(1),
+            PlayableShips::Ship3 => Ships::Player(2),
+            PlayableShips::Ship4 => Ships::Player(3),
         }
     }
 

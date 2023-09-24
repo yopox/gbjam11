@@ -126,6 +126,8 @@ impl RouteElement {
 pub struct Route(pub [RouteElement; 28]);
 
 impl Route {
+    pub fn act_len() -> usize { 9 }
+
     fn new() -> Self {
         let mut route = vec![];
         for i in 0..27 {

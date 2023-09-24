@@ -11,6 +11,7 @@ pub enum Weapons {
     Wave,
     Ball,
     Energy,
+    Dual,
 }
 
 impl Weapons {
@@ -20,6 +21,7 @@ impl Weapons {
             Weapons::Wave => Shots::Wave,
             Weapons::Ball => Shots::Ball,
             Weapons::Energy => Shots::Energy,
+            Weapons::Dual => Shots::DualBeam,
         }
     }
 }
