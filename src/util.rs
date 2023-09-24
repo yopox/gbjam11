@@ -103,10 +103,10 @@ impl Shots {
     pub fn attack(&self) -> f32 {
         match self {
             Shots::Bullet => 1.0,
-            Shots::Wave => 0.5,
-            Shots::Energy => 4.0,
+            Shots::Wave => 0.9,
+            Shots::Energy => 8.0,
             Shots::DualBeam => 1.25,
-            Shots::Missile => 8.0,
+            Shots::Missile => 10.0,
         }
     }
 

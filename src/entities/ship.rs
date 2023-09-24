@@ -60,8 +60,8 @@ impl Ships {
                 (Weapons::Standard, vec2(4., 6.), Angle(90.)),
             ],
             Ships::Player(1) => vec![
-                (Weapons::Wave, vec2(-4., 6.), Angle(90.)),
-                (Weapons::Wave, vec2(4., 6.), Angle(90.)),
+                (Weapons::Wave, vec2(-5., 6.), Angle(90.)),
+                (Weapons::Wave, vec2(5., 6.), Angle(90.)),
             ],
             Ships::Player(2) => vec![
                 (Weapons::Standard, vec2(-4., 6.), Angle(115.)),
@@ -182,6 +182,7 @@ impl Ship {
             Ships::Player(2) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 1.5)
                 .with_speed(base_stats::SPEED * 1.5)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.2)
             ,
             Ships::Elite(2) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH * 2.25)
