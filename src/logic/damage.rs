@@ -62,6 +62,7 @@ pub fn elite_cleared(
     mut commands: Commands,
     mut ships: Query<(Entity, &Ship), Without<Dead>>,
     mut elite_killed: EventReader<EliteKilled>,
+    shots: Query<Entity, With<Shot>>,
 ) {
     if elite_killed.is_empty() { return; }
     elite_killed.clear();
@@ -75,6 +76,8 @@ pub fn elite_cleared(
             .insert(MuteShots)
         ;
     }
+
+    shots.for_each(|e| commands.entity(e).despawn_recursive());
 }
 
 pub fn die_gracefully(
