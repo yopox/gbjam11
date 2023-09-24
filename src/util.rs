@@ -4,6 +4,7 @@ use bevy::math::{Vec2, vec2};
 use bevy::prelude::{Res, State, States};
 
 use crate::entities::Shots;
+use crate::logic::{Items, ShipStatus};
 
 pub const WIDTH: usize = 160;
 pub const HALF_WIDTH: f32 = WIDTH as f32 / 2.;
@@ -170,3 +171,5 @@ pub fn in_states<S: States>(states: Vec<S>) -> impl FnMut(Res<State<S>>) -> bool
 }
 
 pub fn format_credits(credits: i16) -> String { format!("Credits: {:03}", credits) }
+
+pub fn format_items(status: &ShipStatus) -> String { format!("M{} S{}", status.get(&Items::Missile), status.get(&Items::Shield)) }

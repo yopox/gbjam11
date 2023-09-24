@@ -1,5 +1,5 @@
 use bevy::app::App;
-use bevy::math::{vec2, vec3, Vec3Swizzles};
+use bevy::math::{vec2, Vec3Swizzles};
 use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
@@ -9,7 +9,7 @@ use crate::graphics::{FakeTransform, Palette, ScreenTransition, StarsSpeed, Text
 use crate::graphics::sizes::Hitbox;
 use crate::logic::{Items, ShipBundle, ShipStatus, WaveCleared};
 use crate::logic::damage::DamageEvent;
-use crate::logic::route::{CurrentRoute, Level, RouteElement};
+use crate::logic::route::{CurrentRoute, Level, Route, RouteElement};
 use crate::logic::upgrades::{ShotUpgrades, Upgrades};
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
@@ -33,6 +33,9 @@ struct CreditsText;
 
 #[derive(Component)]
 struct PauseText;
+
+#[derive(Component)]
+struct ItemsText;
 
 impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
@@ -169,27 +172,10 @@ fn enter(
         .spawn(Text2dBundle {
             text: Text::from_section(util::format_credits(ship_status.get_credits()), TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::BottomRight,
-            transform: Transform::from_xyz(WIDTH as f32 - 7., 4., z_pos::GUI),
+            transform: Transform::from_xyz(WIDTH as f32 - 7., 2., z_pos::GUI),
             ..default()
         })
         .insert(CreditsText)
-        .insert(SpaceUI)
-    ;
-
-    commands
-        .spawn(SpriteBundle {
-            sprite: Sprite {
-                anchor: Anchor::BottomRight,
-                ..default()
-            },
-            texture: textures.bar.clone(),
-            transform: Transform {
-                translation: vec3(WIDTH as f32 - 8., 4., z_pos::GUI),
-                scale: vec3(55., 1., 1.),
-                ..default()
-            },
-            ..default()
-        })
         .insert(SpaceUI)
     ;
 
@@ -203,14 +189,37 @@ fn enter(
         .insert(PauseText)
         .insert(SpaceUI)
     ;
+
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section(util::format_items(&ship_status), TextStyles::Basic.style(&fonts)),
+            text_anchor: Anchor::BottomRight,
+            transform: Transform::from_xyz(WIDTH as f32 - 7., 10., z_pos::GUI),
+            ..default()
+        })
+        .insert(ItemsText)
+        .insert(SpaceUI)
+    ;
+
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section(format!("{}-{}", route.act(), (route.level + 1 - (route.act() - 1) * Route::act_len())), TextStyles::Basic.style(&fonts)),
+            text_anchor: Anchor::BottomCenter,
+            transform: Transform::from_xyz(HALF_WIDTH, 2., z_pos::GUI),
+            ..default()
+        })
+        .insert(SpaceUI)
+    ;
 }
 
 fn update_gui(
     ship_status: Res<ShipStatus>,
     mut text: Query<&mut Text, With<CreditsText>>,
+    mut items: Query<&mut Text, (With<ItemsText>, Without<CreditsText>)>,
 ) {
     if ship_status.is_changed() {
         text.single_mut().sections[0].value = util::format_credits(ship_status.get_credits());
+        items.single_mut().sections[0].value = util::format_items(&ship_status);
     }
 }
 
