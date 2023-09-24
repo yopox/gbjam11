@@ -25,6 +25,9 @@ struct SpaceUI;
 struct LifeBar;
 
 #[derive(Component)]
+struct EliteLifeBar;
+
+#[derive(Component)]
 struct CreditsText;
 
 #[derive(Component)]
@@ -79,6 +82,7 @@ fn enter(
     route: Res<CurrentRoute>,
     mut stars_speed: ResMut<StarsSpeed>,
     mut time: ResMut<Time>,
+    state: Res<State<GameState>>,
 ) {
     stars_speed.set_by_level(route.level);
     time.set_relative_speed(space::time_ratio(route.level));
@@ -111,6 +115,36 @@ fn enter(
         ))
         .insert(SpaceUI)
     ;
+
+    let state = *state.get();
+    if state == GameState::Elite || state == GameState::Boss {
+        commands
+            .spawn(Text2dBundle {
+                text: Text::from_section(if state == GameState::Elite { "Elite" } else { "Boss" }, TextStyles::Basic.style(&fonts)),
+                text_anchor: Anchor::BottomLeft,
+                transform: Transform::from_xyz(8., HEIGHT as f32 - 16., z_pos::GUI),
+                ..default()
+            })
+            .insert(SpaceUI)
+        ;
+
+        commands
+            .spawn(SpriteBundle {
+                sprite: Sprite {
+                    anchor: Anchor::BottomLeft,
+                    ..default()
+                },
+                texture: textures.bar.clone(),
+                ..default()
+            })
+            .insert(FakeTransform::from_xyz_and_scale(
+                8., HEIGHT as f32 - 16., z_pos::GUI,
+                WIDTH as f32 - 16., 1.,
+            ))
+            .insert(EliteLifeBar)
+            .insert(SpaceUI)
+        ;
+    }
 
     commands
         .spawn(main_ship_bundle)
@@ -180,16 +214,26 @@ fn update_gui(
 }
 
 fn update_life(
-    ships: Query<&Ship, With<MainShip>>,
+    main_ship: Query<&Ship, With<MainShip>>,
     mut bar_transform: Query<&mut FakeTransform, With<LifeBar>>,
     mut damaged: EventReader<DamageEvent>,
+    enemies: Query<&Ship, Without<MainShip>>,
+    mut elite_bar_transform: Query<&mut FakeTransform, (With<EliteLifeBar>, Without<LifeBar>)>,
 ) {
     for &DamageEvent { ship, fatal: _ } in damaged.iter() {
-        if let Ok(ship) = ships.get(ship) {
-            bar_transform.single_mut().scale = Some(Vec2::new(
+        if let Ok(ship) = main_ship.get(ship) {
+            bar_transform.single_mut().scale = Some(vec2(
                 ship.health / ship.max_health * HEALTH_BAR_SIZE as f32,
                 1.,
-            ))
+            ));
+        }
+
+        if let Ok(enemy) = enemies.get(ship) {
+            if !enemy.model.is_elite() { continue; }
+            elite_bar_transform.single_mut().scale = Some(vec2(
+                enemy.health / enemy.max_health * (WIDTH as f32 - 16.),
+                1.,
+            ));
         }
     }
 }
