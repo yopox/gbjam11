@@ -20,6 +20,10 @@ pub enum Ships {
     Boss(u8),
 }
 
+impl Default for Ships {
+    fn default() -> Self { Ships::Player(99) }
+}
+
 impl Ships {
     pub fn is_elite(&self) -> bool {
         match self {
@@ -120,7 +124,7 @@ impl Ships {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Ship {
     pub(crate) model: Ships,
     pub friendly: bool,
@@ -143,6 +147,15 @@ impl Ship {
             damage_factor: base_stats::DAMAGE_FACTOR,
             shot_speed: base_stats::SHOT_SPEED,
             shot_frequency: base_stats::SHOT_FREQUENCY,
+        }
+    }
+
+    pub(crate) fn shield() -> Self {
+        Self {
+            friendly: true,
+            health: 9999.,
+            max_health: 9999.,
+            ..default()
         }
     }
 
@@ -271,7 +284,7 @@ impl Plugin for ShipPlugin {
 pub struct MainShip;
 
 #[derive(Component)]
-pub struct Blink(pub usize);
+pub struct Blink(pub f32);
 
 fn add_blinking(
     mut commands: Commands,
@@ -282,19 +295,21 @@ fn add_blinking(
         let Ok(ship) = ships.get(ship_entity) else { continue };
         let friendly = ship.friendly;
         let Some(mut ship_commands) = commands.get_entity(ship_entity) else { continue; };
+        if let Ships::Player(99) = ship.model { continue }
         ship_commands.insert(Blink(if friendly { BLINK_DURATION } else { BLINK_DURATION_ENEMY }));
     }
 }
 
 fn blink(
     mut commands: Commands,
+    time: Res<Time>,
     mut sprites: Query<(Entity, &mut Blink, &mut Visibility)>,
 ) {
     for (e, mut blink, mut vis) in sprites.iter_mut() {
-        blink.0 -= 1;
-        let new_vis = if (blink.0 / BLINK_INTERVAL) % 2 == 0 { Visibility::Inherited } else { Visibility::Hidden };
+        blink.0 -= time.delta_seconds();
+        let new_vis = if (blink.0 / BLINK_INTERVAL) as usize % 2 == 0 { Visibility::Inherited } else { Visibility::Hidden };
         vis.set_if_neq(new_vis);
 
-        if blink.0 == 0 { commands.entity(e).remove::<Blink>(); }
+        if blink.0 <= 0. { commands.entity(e).remove::<Blink>(); }
     }
 }

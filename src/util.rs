@@ -19,9 +19,11 @@ pub mod space {
     use crate::entities::Ships;
     use crate::util::{base_stats, HALF_HEIGHT};
 
-    pub const BLINK_INTERVAL: usize = 10;
-    pub const BLINK_DURATION: usize = BLINK_INTERVAL * 8;
-    pub const BLINK_DURATION_ENEMY: usize = BLINK_INTERVAL * 4;
+    pub const BLINK_INTERVAL: f32 = 10. / 60.;
+    pub const BLINK_DURATION: f32 = BLINK_INTERVAL * 8.;
+    pub const BLINK_DURATION_ENEMY: f32 = BLINK_INTERVAL * 4.;
+
+    pub const SHIELD_DURATION: f32 = 6.;
 
     pub const NEXT_LEVEL_SPEED_Y: f32 = -18.;
     pub const NEXT_LEVEL_CHOICE_Y: f32 = HALF_HEIGHT;
@@ -125,7 +127,7 @@ pub mod items {
     lazy_static! {
         pub static ref STARTING_ITEMS: HashMap<Items, usize> = HashMap::from([
             (Items::Missile, 3),
-            (Items::Shield, 1),
+            (Items::Shield, 2),
         ]);
     }
 }

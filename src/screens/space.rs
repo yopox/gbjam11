@@ -4,10 +4,10 @@ use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
 use crate::{GameState, util};
-use crate::entities::{MainShip, MuteShots, Ship, Shot};
+use crate::entities::{Blink, MainShip, MuteShots, Ship, Shot};
 use crate::graphics::{FakeTransform, ScreenTransition, StarsSpeed, TextStyles};
 use crate::graphics::sizes::Hitbox;
-use crate::logic::{ShipBundle, ShipStatus, WaveCleared};
+use crate::logic::{Items, ShipBundle, ShipStatus, WaveCleared};
 use crate::logic::damage::DamageEvent;
 use crate::logic::route::{CurrentRoute, Level, RouteElement};
 use crate::logic::upgrades::ShotUpgrades;
@@ -37,7 +37,7 @@ struct PauseText;
 impl Plugin for SpacePlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_systems(Update, (update, update_gui, update_life, on_cleared, update_next)
+            .add_systems(Update, (update, update_gui, update_life, on_cleared, update_next, update_shield)
                 .run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss])),
             )
             .add_systems(PostUpdate, pause
@@ -235,6 +235,45 @@ fn update_life(
                 enemy.health / enemy.max_health * (WIDTH as f32 - 16.),
                 1.,
             ));
+        }
+    }
+}
+
+#[derive(Component)]
+struct Shield(f32);
+
+fn update_shield(
+    mut commands: Commands,
+    keys: Res<Input<KeyCode>>,
+    mut shield: Query<(Entity, &mut FakeTransform, &mut Shield), Without<MainShip>>,
+    player: Query<&FakeTransform, With<MainShip>>,
+    mut ship_status: ResMut<ShipStatus>,
+    time: Res<Time>,
+    textures: Res<Textures>,
+) {
+    let Ok(player_pos) = player.get_single() else { return; };
+
+    // Update existing shield
+    if let Ok((e, mut pos, mut shield)) = shield.get_single_mut() {
+        pos.translation.x = player_pos.translation.x;
+        if shield.0 > space::BLINK_DURATION && shield.0 - time.delta_seconds() <= space::BLINK_DURATION {
+            commands.entity(e).insert(Blink(space::BLINK_DURATION));
+        }
+        shield.0 -= time.delta_seconds();
+        if shield.0 <= 0. { commands.entity(e).despawn_recursive(); }
+    } else if keys.just_pressed(KeyCode::Down) {
+        if ship_status.remove(&Items::Shield) {
+            // Spawn new shield
+            commands
+                .spawn(SpriteBundle {
+                    texture: textures.shield.clone(),
+                    ..default()
+                })
+                .insert(FakeTransform::from_xyz(player_pos.translation.x, player_pos.translation.y + 8., player_pos.translation.y))
+                .insert(Hitbox(vec2(16., 2.)))
+                .insert(Shield(space::SHIELD_DURATION))
+                .insert(Ship::shield())
+            ;
         }
     }
 }
