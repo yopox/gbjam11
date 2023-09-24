@@ -16,6 +16,7 @@ pub struct ShipPlugin;
 pub enum Ships {
     Player(u8),
     Invader(u8),
+    Elite(u8),
 }
 
 impl Ships {
@@ -33,7 +34,7 @@ impl Ships {
 
     pub fn hitbox(&self) -> Hitbox {
         match self {
-            Ships::Player(_) =>
+            Ships::Player(_) | Ships::Elite(_) =>
                 Hitbox(vec2(6., 4.)),
             Ships::Invader(_) =>
                 Hitbox(vec2(12., 6.)),
@@ -58,6 +59,12 @@ impl Ships {
             Ships::Player(_) => vec![
                 (Weapons::Energy, vec2(0., 6.), Angle(90.)),
             ],
+            Ships::Elite(n) => Ships::Player(*n)
+                .weapons()
+                .iter()
+                .map(|&(w, pos, Angle(a))| (w, vec2(pos.x, -pos.y), Angle(180. - a)))
+                .collect()
+            ,
             Ships::Invader(0) | Ships::Invader(2) => vec![
                 (Weapons::Standard, vec2(0., -3.), Angle(270.)),
             ],
@@ -128,14 +135,26 @@ impl Ship {
             Ships::Player(0) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 1.5)
             ,
+            Ships::Elite(0) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 6.0)
+            ,
             Ships::Player(1) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 1.5)
+            ,
+            Ships::Elite(1) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 6.0)
             ,
             Ships::Player(2) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 1.5)
             ,
+            Ships::Elite(2) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 6.0)
+            ,
             Ships::Player(_) => Ship::new(model, true)
                 .with_health(base_stats::HEALTH * 1.5)
+            ,
+            Ships::Elite(_) => Ship::new(model, false)
+                .with_health(base_stats::HEALTH * 6.0)
             ,
             Ships::Invader(0) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH / 2.)
@@ -188,6 +207,7 @@ impl Ship {
         match self.model {
             Ships::Player(n) => n as usize,
             Ships::Invader(n) => 4 + n as usize,
+            Ships::Elite(n) => 13 + n as usize,
         }
     }
 }

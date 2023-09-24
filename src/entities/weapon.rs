@@ -6,6 +6,7 @@ use crate::entities::shot::Shots;
 use crate::graphics::Palette;
 use crate::util::Angle;
 
+#[derive(Copy, Clone)]
 pub enum Weapons {
     Standard,
     Wave,
