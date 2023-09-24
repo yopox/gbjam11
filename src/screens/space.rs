@@ -13,6 +13,7 @@ use crate::logic::route::{CurrentRoute, Level, RouteElement};
 use crate::logic::upgrades::ShotUpgrades;
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
+use crate::screens::text::SimpleText;
 use crate::util::{BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, star_field, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
 
@@ -331,11 +332,14 @@ fn on_cleared(
     mut commands: Commands,
     mut cleared: EventReader<WaveCleared>,
     mut stars_speed: ResMut<StarsSpeed>,
+    state: Res<State<GameState>>,
     ship: Query<Entity, With<MainShip>>,
     route: Res<CurrentRoute>,
     fonts: Res<Fonts>,
     textures: Res<Textures>,
     keys: Res<Input<KeyCode>>,
+    mut text: ResMut<SimpleText>,
+    mut transition: ResMut<ScreenTransition>,
 ) {
     let mut force = false;
     if keys.just_pressed(KeyCode::F12) { force = true; }
@@ -344,6 +348,23 @@ fn on_cleared(
     cleared.clear();
 
     info!("Wave cleared.");
+
+    match state.get() {
+        GameState::Elite => {
+            text.0 = "Elite defeated!".to_string();
+            transition.set_if_neq(ScreenTransition::to(GameState::SimpleText));
+            return;
+        }
+        GameState::Boss => {
+            let act = route.act();
+            if act < 3 {
+                text.0 = format!("Act {} cleared!", act);
+                transition.set_if_neq(ScreenTransition::to(GameState::SimpleText));
+                return;
+            }
+        }
+        _ => {}
+    }
 
     stars_speed.0.x /= 4.;
     stars_speed.0.y /= 4.;

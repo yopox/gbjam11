@@ -51,12 +51,17 @@ fn on_enter_repair(
     next_state.set(GameState::SimpleText);
 }
 
+#[derive(Resource)]
+struct Wait(f32);
+
 fn update(
-    keys: Res<Input<KeyCode>>,
+    time: Res<Time>,
+    mut wait: ResMut<Wait>,
     mut route: ResMut<CurrentRoute>,
     mut transition: ResMut<ScreenTransition>,
 ) {
-    if keys.just_pressed(KeyCode::Space) && transition.is_none() {
+    wait.0 -= time.delta_seconds();
+    if wait.0 < 0. && transition.is_none() {
         route.advance();
         transition.set_if_neq(ScreenTransition::to(route.state()));
     }
@@ -67,6 +72,8 @@ fn enter(
     text: Res<SimpleText>,
     fonts: Res<Fonts>,
 ) {
+    commands.insert_resource(Wait(4.));
+
     commands
         .spawn(Text2dBundle {
             text: Text::from_section(&text.0, TextStyles::Basic.style(&fonts))

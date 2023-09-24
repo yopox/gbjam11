@@ -166,6 +166,8 @@ impl CurrentRoute {
         if self.angry_shopkeepers && s == GameState::Shop { GameState::Elite } else { s }
     }
 
+    pub fn act(&self) -> usize { self.level / Route::act_len() + 1 }
+
     pub fn win(&self) -> bool { self.level == self.route.0.len() - 1 }
 
     pub fn set_angry_shopkeepers(&mut self, angry: bool) { self.angry_shopkeepers = angry; }
