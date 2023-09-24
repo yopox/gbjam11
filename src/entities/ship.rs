@@ -41,10 +41,9 @@ impl Ships {
 
     pub fn hitbox(&self) -> Hitbox {
         match self {
-            Ships::Player(_) | Ships::Elite(_) =>
-                Hitbox(vec2(6., 4.)),
-            Ships::Invader(_) =>
-                Hitbox(vec2(12., 6.)),
+            Ships::Player(_) => Hitbox(vec2(6., 4.)),
+            Ships::Invader(_) => Hitbox(vec2(12., 6.)),
+            Ships::Elite(_) => Hitbox(vec2(8., 4.)),
         }
     }
 
