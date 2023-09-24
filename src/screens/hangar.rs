@@ -56,19 +56,19 @@ pub enum PlayableShips {
 impl PlayableShips {
     fn name(&self) -> &str {
         match self {
-            PlayableShips::Ship1 => "Ship #1",
-            PlayableShips::Ship2 => "Ship #2",
-            PlayableShips::Ship3 => "Ship #3",
-            PlayableShips::Ship4 => "Ship #4",
+            PlayableShips::Ship1 => "Starfight",
+            PlayableShips::Ship2 => "ShuttleNight",
+            PlayableShips::Ship3 => "ArmyNation",
+            PlayableShips::Ship4 => "Ranger-3B",
         }
     }
 
     fn description(&self) -> (&str, &str) {
         match self {
-            PlayableShips::Ship1 => ("Carac +", "Carac -"),
-            PlayableShips::Ship2 => ("Carac +", "Carac -"),
-            PlayableShips::Ship3 => ("Carac +", "Carac -"),
-            PlayableShips::Ship4 => ("Carac +", "Carac -"),
+            PlayableShips::Ship1 => ("Dual shots", "Balanced"),
+            PlayableShips::Ship2 => ("Large shots", "Health +"),
+            PlayableShips::Ship3 => ("Triple shots", "Speed +"),
+            PlayableShips::Ship4 => ("Laser", "Health -"),
         }
     }
 
