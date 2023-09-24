@@ -58,11 +58,18 @@ fn update(
     time: Res<Time>,
     mut wait: ResMut<Wait>,
     mut route: ResMut<CurrentRoute>,
+    mut ship_status: ResMut<ShipStatus>,
     mut transition: ResMut<ScreenTransition>,
 ) {
     wait.0 -= time.delta_seconds();
     if wait.0 < 0. && transition.is_none() {
+        let act = route.act();
         route.advance();
+        if route.act() != act && !route.win() {
+            // Heal between acts
+            let max_health = ship_status.health().1;
+            ship_status.set_health(max_health);
+        }
         transition.set_if_neq(ScreenTransition::to(route.state()));
     }
 }
