@@ -85,8 +85,8 @@ impl PlayableShips {
     fn palette(&self) -> Palette {
         match self {
             PlayableShips::Ship1 => Palette::Yopox,
-            PlayableShips::Ship2 => Palette::Cloudfrenzy,
-            PlayableShips::Ship3 => Palette::LaserLab,
+            PlayableShips::Ship2 => Palette::LaserLab,
+            PlayableShips::Ship3 => Palette::Nexus2060,
             PlayableShips::Ship4 => Palette::Foliage,
         }
     }

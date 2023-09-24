@@ -8,7 +8,7 @@ use crate::graphics::GBShaderSettings;
 pub enum Palette {
     Greyscale,
     Yopox,
-    Cloudfrenzy,
+    Nexus2060,
     LaserLab,
     Foliage,
 }
@@ -46,11 +46,11 @@ lazy_static! {
             Color::hex("ffbc43").unwrap(),
             Color::hex("808a94").unwrap(),
         ]),
-        (Palette::Cloudfrenzy, [
-            Color::hex("61567d").unwrap(),
-            Color::hex("ea92ab").unwrap(),
-            Color::hex("9085d0").unwrap(),
-            Color::hex("f4c4d4").unwrap(),
+        (Palette::Nexus2060, [
+            Color::hex("2a110c").unwrap(),
+            Color::hex("f1461b").unwrap(),
+            Color::hex("faad1f").unwrap(),
+            Color::hex("fdfdfd").unwrap(),
         ]),
         (Palette::LaserLab, [
             Color::hex("271d2c").unwrap(),
