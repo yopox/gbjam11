@@ -25,6 +25,7 @@ pub enum Upgrades {
     // CurlyShots,
 
     SideShots,
+    Berserk,
     BetterShields,
     BetterMissiles,
 }
@@ -42,6 +43,7 @@ impl Upgrades {
             Upgrades::SideShots => "Side Shots",
             Upgrades::BetterShields => "Better Shields",
             Upgrades::BetterMissiles => "Better Missiles",
+            Upgrades::Berserk => "Berserk",
         }
     }
 
@@ -97,6 +99,11 @@ impl Upgrades {
                 "with diagonal shots.".to_string(),
                 "".to_string(),
             )}
+            Upgrades::Berserk => {(
+                "Double damage dealt".to_string(),
+                "when hull resistance".to_string(),
+                "is <25%.".to_string(),
+            )}
         }
     }
     pub fn is_stat_upgrade(&self) -> bool {
@@ -124,6 +131,7 @@ impl Upgrades {
             Upgrades::SideShots,
             Upgrades::BetterShields,
             Upgrades::BetterMissiles,
+            Upgrades::Berserk,
         ];
         options[rng.gen_range(0..options.len())]
     }
