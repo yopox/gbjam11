@@ -241,7 +241,7 @@ fn update_life(
     ship_status: Res<ShipStatus>,
     state: Res<State<GameState>>,
 ) {
-    if damaged.is_empty() || !ship_status.is_changed() { return; }
+    if damaged.is_empty() && !ship_status.is_changed() { return; }
     damaged.clear();
 
     if let Ok(ship) = main_ship.get_single() {
