@@ -73,10 +73,13 @@ pub fn elite_cleared(
     mut commands: Commands,
     mut ships: Query<(Entity, &Ship), Without<Dead>>,
     mut elite_killed: EventReader<EliteKilled>,
+    mut time: ResMut<Time>,
     shots: Query<Entity, With<Shot>>,
 ) {
     if elite_killed.is_empty() { return; }
     elite_killed.clear();
+
+    time.set_relative_speed(0.4);
 
     for (e, ship) in ships.iter() {
         if ship.friendly { continue; }

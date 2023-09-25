@@ -8,7 +8,7 @@ use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::DamageEvent;
 use crate::logic::route::Route;
 use crate::util::{Angle, base_stats};
-use crate::util::space::{BLINK_DURATION, BLINK_DURATION_ENEMY, BLINK_INTERVAL};
+use crate::util::space::{BLINK_DURATION, BLINK_DURATION_ELITE, BLINK_DURATION_ENEMY, BLINK_INTERVAL};
 
 pub struct ShipPlugin;
 
@@ -305,7 +305,11 @@ fn add_blinking(
         let friendly = ship.friendly;
         let Some(mut ship_commands) = commands.get_entity(ship_entity) else { continue; };
         if let Ships::Player(99) = ship.model { continue }
-        ship_commands.insert(Blink(if friendly { BLINK_DURATION } else { BLINK_DURATION_ENEMY }));
+        ship_commands.insert(Blink(
+            if friendly { BLINK_DURATION }
+            else if ship.model.is_elite() { BLINK_DURATION_ELITE }
+            else { BLINK_DURATION_ENEMY }
+        ));
     }
 }
 

@@ -22,6 +22,7 @@ pub mod space {
 
     pub const BLINK_INTERVAL: f32 = 10. / 60.;
     pub const BLINK_DURATION: f32 = BLINK_INTERVAL * 8.;
+    pub const BLINK_DURATION_ELITE: f32 = BLINK_INTERVAL * 6.;
     pub const BLINK_DURATION_ENEMY: f32 = BLINK_INTERVAL * 4.;
 
     pub const SHIELD_DURATION: f32 = 6.;

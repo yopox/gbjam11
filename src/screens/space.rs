@@ -91,7 +91,6 @@ fn enter(
     kill_count: Option<Res<KillCount>>,
 ) {
     stars_speed.set_by_level(route.level);
-    time.set_relative_speed(space::time_ratio(route.level));
 
     if kill_count.is_none() && ship_status.has_upgrade(Upgrades::LeechShots) { commands.insert_resource(KillCount(0)); }
 
