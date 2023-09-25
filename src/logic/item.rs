@@ -99,7 +99,7 @@ impl ShipStatus {
     pub fn has_upgrade(&self, upgrade: Upgrades) -> bool { self.upgrades.contains(&upgrade) }
 
     pub fn is_berserk(&self) -> bool {
-        self.has_upgrade(Upgrades::Berserk) && self.health / self.max_health <= 0.25
+        self.has_upgrade(Upgrades::Berserk) && self.health / self.max_health <= upgrades::BERSERK
     }
 
     pub fn non_stat_upgrades(&self) -> Vec<&Upgrades> {

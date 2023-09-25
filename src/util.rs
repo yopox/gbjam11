@@ -101,8 +101,9 @@ pub mod upgrades {
 
     pub const MAX_BOUNCES: u8 = 3;
     pub const LEECH_COUNT: usize = 8;
-    pub const STUN_CHANCE: f32 = 0.1;
-    pub const STUN_DURATION: f32 = 6.0;
+    pub const STUN_CHANCE: f32 = 0.05;
+    pub const STUN_DURATION: f32 = 5.0;
+    pub const BERSERK: f32 = 0.25;
 }
 
 impl Shots {

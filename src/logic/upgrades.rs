@@ -83,13 +83,13 @@ impl Upgrades {
                 "enemies.".to_string(),
             )}
             Upgrades::StunShots => {(
-                "Shots have a 10%".to_string(),
+                format!("Shots have a {:.0}%", upgrades::STUN_CHANCE * 100.),
                 "chance to mute an".to_string(),
-                "enemy for 6s on hit.".to_string(),
+                format!("enemy for {:.0}s on hit.", upgrades::STUN_DURATION),
             )}
             Upgrades::LeechShots => {(
                 "Repair hull by 1".to_string(),
-                "after killing 8".to_string(),
+                format!("after killing {}", upgrades::LEECH_COUNT),
                 "enemies.".to_string(),
             )}
             Upgrades::BetterShields => {(
@@ -110,7 +110,7 @@ impl Upgrades {
             Upgrades::Berserk => {(
                 "Double damage dealt".to_string(),
                 "when hull resistance".to_string(),
-                "is <25%.".to_string(),
+                format!("is <{:.0}%.", upgrades::BERSERK * 100.),
             )}
         }
     }
