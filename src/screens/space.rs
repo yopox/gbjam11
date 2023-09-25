@@ -465,14 +465,10 @@ fn on_cleared(
     route: Res<CurrentRoute>,
     fonts: Res<Fonts>,
     textures: Res<Textures>,
-    keys: Res<Input<KeyCode>>,
     mut text: ResMut<SimpleText>,
     mut transition: ResMut<ScreenTransition>,
 ) {
-    let mut force = false;
-    if keys.just_pressed(KeyCode::F12) { force = true; }
-
-    if cleared.is_empty() && !force { return; }
+    if cleared.is_empty() { return; }
     cleared.clear();
 
     match state.get() {
