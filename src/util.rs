@@ -40,8 +40,8 @@ pub mod space {
     pub fn patterns_nb(level: usize) -> usize {
         match level {
             0..=8 => 2,
-            9..=17 => 4,
-            _ => 6,
+            9..=17 => 3,
+            _ => 4,
         }
     }
 
