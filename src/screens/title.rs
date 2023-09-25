@@ -75,7 +75,7 @@ fn enter(
 
     commands
         .spawn(Text2dBundle {
-            text: Text::from_section("Press start", TextStyles::Basic.style(&fonts)),
+            text: Text::from_section("Press A", TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::Center,
             ..default()
         })
