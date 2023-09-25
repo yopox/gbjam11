@@ -62,7 +62,7 @@ fn main() {
                         WIDTH as f32 * SCALE,
                         HEIGHT as f32 * SCALE,
                     ).into(),
-                    title: "gbjam11".to_string(),
+                    title: "space station No. 34".to_string(),
                     canvas: Some("#bevy".to_owned()),
                     ..default()
                 }),

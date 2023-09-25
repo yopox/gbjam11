@@ -56,6 +56,9 @@ pub struct Textures {
 
     #[asset(path = "shield.png")]
     pub shield: Handle<Image>,
+
+    #[asset(path = "logo.png")]
+    pub logo: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource)]

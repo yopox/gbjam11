@@ -3,10 +3,10 @@ use bevy::prelude::*;
 use bevy::sprite::Anchor;
 
 use crate::GameState;
-use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
+use crate::graphics::{FakeTransform, ScreenTransition, StarsSpeed, TextStyles};
 use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::{Fonts, Textures};
-use crate::util::{HALF_WIDTH, star_field, z_pos};
+use crate::util::{HALF_HEIGHT, HALF_WIDTH, star_field, z_pos};
 
 pub struct TitlePlugin;
 
@@ -27,7 +27,20 @@ fn update(
     keys: Res<Input<KeyCode>>,
     mut transition: ResMut<ScreenTransition>,
     mut sfx: EventWriter<PlaySFXEvent>,
+    mut logo: Query<&mut FakeTransform, With<Logo>>,
+    mut start: Query<&mut Visibility, With<PressStart>>,
+    time: Res<Time>,
 ) {
+    if let Ok(mut pos) = logo.get_single_mut() {
+        pos.translation.y = HALF_HEIGHT + 20. + time.elapsed_seconds().sin() * 2.;
+    }
+    if let Ok(mut vis) = start.get_single_mut() {
+        vis.set_if_neq(
+            if (time.elapsed_seconds() as usize) % 2 == 1 { Visibility::Hidden }
+            else { Visibility::Inherited }
+        );
+    }
+
     if !transition.is_none() { return; }
 
     if keys.just_pressed(KeyCode::Space) {
@@ -36,6 +49,12 @@ fn update(
     }
 }
 
+#[derive(Component)]
+struct Logo;
+
+#[derive(Component)]
+struct PressStart;
+
 fn enter(
     mut commands: Commands,
     textures: Res<Textures>,
@@ -43,13 +62,25 @@ fn enter(
     fonts: Res<Fonts>,
 ) {
     star_speed.0 = star_field::INITIAL_SPEED;
+
+    commands
+        .spawn(SpriteBundle {
+            texture: textures.logo.clone(),
+            ..default()
+        })
+        .insert(FakeTransform::from_xyz(HALF_WIDTH, HALF_HEIGHT + 20., z_pos::GUI))
+        .insert(Logo)
+        .insert(TitleUI)
+    ;
+
     commands
         .spawn(Text2dBundle {
             text: Text::from_section("Press start", TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::Center,
-            transform: Transform::from_xyz(HALF_WIDTH, 44., z_pos::GUI),
             ..default()
         })
+        .insert(FakeTransform::from_xyz(HALF_WIDTH, 32., z_pos::GUI))
+        .insert(PressStart)
         .insert(TitleUI)
     ;
 }
