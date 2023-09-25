@@ -1,7 +1,7 @@
 use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
-use rand::{Rng, thread_rng};
+use rand::{Rng, RngCore, thread_rng};
 
 use crate::entities::Ship;
 use crate::entities::weapon::{ShipWeapons, Weapon};
@@ -147,6 +147,7 @@ fn collide_shots(
     mut shots: Query<(&mut Shot, &Hitbox, &ShotUpgrades, &FakeTransform, Entity)>,
     ships: Query<(&Ship, &Hitbox, &FakeTransform, Entity)>,
     mut event_writer: EventWriter<HitEvent>,
+    mut sfx: EventWriter<PlaySFXEvent>,
 ) {
     let mut rng = thread_rng();
 
@@ -162,8 +163,11 @@ fn collide_shots(
             );
             if collision.is_some() {
                 if upgrades.0 & STUN != 0 && rng.gen_range(0.0..1.0) < upgrades::STUN_CHANCE {
-                    if let Some(mut e) = commands.get_entity(ship_entity) {
-                        e.insert(MuteShotsFor(upgrades::STUN_DURATION));
+                    if !ship.model.is_elite() || rng.next_u32() % 2 == 0 {
+                        if let Some(mut e) = commands.get_entity(ship_entity) {
+                            e.insert(MuteShotsFor(upgrades::STUN_DURATION));
+                            sfx.send(PlaySFXEvent(SFX::Error));
+                        }
                     }
                 }
                 shot.collisions.push(ship_entity);

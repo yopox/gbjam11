@@ -199,11 +199,12 @@ pub fn leech(
     mut ship_status: ResMut<ShipStatus>,
     mut ship: Query<&mut Ship, With<MainShip>>,
     mut sfx: EventWriter<PlaySFXEvent>,
-    kill_count: Option<Res<KillCount>>,
+    mut kill_count: Option<ResMut<KillCount>>,
 ) {
-    let Some(kill_count) = kill_count else { return; };
+    let Some(mut kill_count) = kill_count else { return; };
     let Ok(mut ship) = ship.get_single_mut() else { return; };
     if kill_count.is_changed() && kill_count.0 > 0 && kill_count.0 % upgrades::LEECH_COUNT == 0 {
+        kill_count.0 = 0;
         ship_status.add(&Items::Repair);
         ship.health = ship_status.health().0;
         sfx.send(PlaySFXEvent(SFX::Leech));
