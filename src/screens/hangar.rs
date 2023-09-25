@@ -6,11 +6,11 @@ use bevy::sprite::Anchor;
 use crate::entities::{MuteShots, Ship, Ships, Shot};
 use crate::GameState;
 use crate::graphics::{CurrentPalette, Palette, ScreenTransition, StarsSpeed, TextStyles};
-use crate::logic::route::CurrentRoute;
+use crate::logic::route::{CurrentRoute, GameMode};
 use crate::logic::ShipBundle;
 use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::{Fonts, Textures};
-use crate::util::{star_field, z_pos};
+use crate::util::{HALF_WIDTH, star_field, z_pos};
 
 pub struct HangarPlugin;
 
@@ -42,6 +42,9 @@ struct ShipName;
 
 #[derive(Component)]
 struct ShipDescription(u8);
+
+#[derive(Component)]
+struct GameModeText(GameMode);
 
 #[derive(Event)]
 struct UpdateGUI;
@@ -117,8 +120,16 @@ fn update(
     mut update_gui: EventWriter<UpdateGUI>,
     keys: Res<Input<KeyCode>>,
     mut sfx: EventWriter<PlaySFXEvent>,
+    mut mode: Query<(&mut Text, &mut GameModeText)>,
 ) {
     if !transition.is_none() { return; }
+    let Ok((mut text, mut mode)) = mode.get_single_mut() else { return; };
+
+    if keys.just_pressed(KeyCode::S) {
+        sfx.send(PlaySFXEvent(SFX::Right));
+        mode.0 = mode.0.next();
+        text.sections[0].value = mode.0.text().to_string();
+    }
 
     if keys.just_pressed(KeyCode::Left) {
         sfx.send(PlaySFXEvent(SFX::Left));
@@ -134,7 +145,7 @@ fn update(
 
     if keys.just_pressed(KeyCode::Space) {
         sfx.send(PlaySFXEvent(SFX::Select));
-        let route = CurrentRoute::new();
+        let route = CurrentRoute::new(mode.0);
         transition.set_if_neq(ScreenTransition::to(route.state()));
         commands.insert_resource(route);
     }
@@ -219,6 +230,17 @@ fn enter(
             ..default()
         })
         .insert(ShipDescription(2))
+        .insert(HangarUI)
+    ;
+
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section(GameMode::Standard.text(), TextStyles::Basic.style(&fonts)),
+            text_anchor: Anchor::BottomCenter,
+            transform: Transform::from_xyz(HALF_WIDTH, 114. - 4., z_pos::HANGAR_TEXT),
+            ..default()
+        })
+        .insert(GameModeText(GameMode::Standard))
         .insert(HangarUI)
     ;
 }

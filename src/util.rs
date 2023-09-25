@@ -25,6 +25,8 @@ pub mod space {
     pub const BLINK_DURATION_ELITE: f32 = BLINK_INTERVAL * 6.;
     pub const BLINK_DURATION_ENEMY: f32 = BLINK_INTERVAL * 4.;
 
+    pub const TIME_RATIO_DEAD: f32 = 0.6;
+
     pub const SHIELD_DURATION: f32 = 6.;
     pub const MISSILE_RANGE: usize = WIDTH / 3;
     pub const MISSILE_SPEED: f32 = base_stats::SPEED / 3.;

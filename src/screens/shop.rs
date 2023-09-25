@@ -93,7 +93,7 @@ fn update(
             ShopOption::Exit => {
                 sfx.send(PlaySFXEvent(SFX::Select));
                 route.advance();
-                transition.set_if_neq(ScreenTransition::to(route.state()));
+                transition.set_if_neq(ScreenTransition::to(GameState::Dummy));
             }
         }
     }

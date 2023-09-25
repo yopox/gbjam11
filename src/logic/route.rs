@@ -90,7 +90,7 @@ impl Level {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum RouteElement {
     Level(Level),
     Choice(Level, Level),
@@ -145,22 +145,72 @@ impl Route {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum GameMode {
+    Standard,
+    Act2,
+    Act3,
+    LastBoss,
+    BossRush,
+}
+
+impl GameMode {
+    pub fn text(&self) -> &str {
+        match self {
+            GameMode::Standard => "Normal",
+            GameMode::Act2 => "Act 2",
+            GameMode::Act3 => "Act 3",
+            GameMode::LastBoss => "Last Boss",
+            GameMode::BossRush => "Boss Rush",
+        }
+    }
+
+    pub fn next(&self) -> Self {
+        match self {
+            GameMode::Standard => GameMode::Act2,
+            GameMode::Act2 => GameMode::Act3,
+            GameMode::Act3 => GameMode::LastBoss,
+            GameMode::LastBoss => GameMode::BossRush,
+            GameMode::BossRush => GameMode::Standard,
+        }
+    }
+
+    fn accepts(&self, level: (RouteElement, usize)) -> bool {
+        if level.0 == RouteElement::Level(Level::Win) { return true; }
+        match self {
+            GameMode::Standard => true,
+            GameMode::Act2 => level.0 == RouteElement::Level(Level::Upgrade) || level.1 >= Route::act_len(),
+            GameMode::Act3 => level.0 == RouteElement::Level(Level::Upgrade) || level.1 >= Route::act_len() * 2,
+            GameMode::LastBoss => level.0 == RouteElement::Level(Level::Upgrade) || level.1 >= Route::act_len() * 2 + Route::act_len() - 1,
+            GameMode::BossRush => level.0 == RouteElement::Level(Level::Upgrade) || level.0 == RouteElement::Level(Level::Boss),
+        }
+    }
+}
+
 #[derive(Resource, Debug)]
 pub struct CurrentRoute {
     pub route: Route,
     pub level: usize,
+    pub lost: bool,
+    mode: GameMode,
     angry_shopkeepers: bool,
 }
 
 impl CurrentRoute {
-    pub fn new() -> Self {
-        CurrentRoute { route: Route::new(), level: 0, angry_shopkeepers: false }
+    pub fn new(mode: GameMode) -> Self {
+        let mut cr = CurrentRoute { route: Route::new(), level: 0, lost: false, mode, angry_shopkeepers: false };
+        if !cr.mode.accepts((cr.route.0[cr.level], cr.level)) { cr.advance(); }
+        cr
     }
 
-    pub fn advance(&mut self) { self.level += 1; }
+    pub fn advance(&mut self) {
+        self.level += 1;
+        if !self.mode.accepts((self.route.0[self.level], self.level)) { self.advance(); }
+    }
 
     pub fn state(&self) -> GameState {
         if self.level >= self.route.0.len() { return GameState::Hangar; }
+        if self.lost { return GameState::GameOver; }
 
         let s = self.route.0[self.level].state();
         if self.angry_shopkeepers && s == GameState::Shop { GameState::Elite } else { s }
@@ -176,7 +226,7 @@ impl CurrentRoute {
 
 #[test]
 fn show_route() {
-    let route = CurrentRoute::new();
+    let route = CurrentRoute::new(GameMode::Standard);
     for (i, element) in route.route.0.iter().enumerate() {
         if i % 9 == 0 { println!(); }
         println!("{} – {:?}", i, element);

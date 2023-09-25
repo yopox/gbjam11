@@ -7,6 +7,7 @@ use crate::GameState;
 use crate::graphics::ScreenTransition;
 use crate::logic::{EliteKilled, ShipStatus, WaveCleared};
 use crate::logic::hit::HitEvent;
+use crate::logic::route::CurrentRoute;
 use crate::music::{PlaySFXEvent, SFX};
 use crate::util::{in_states, space};
 
@@ -79,7 +80,7 @@ pub fn elite_cleared(
     if elite_killed.is_empty() { return; }
     elite_killed.clear();
 
-    time.set_relative_speed(0.4);
+    time.set_relative_speed(space::TIME_RATIO_DEAD);
 
     for (e, ship) in ships.iter() {
         if ship.friendly { continue; }
@@ -100,7 +101,7 @@ pub struct KillCount(pub usize);
 pub fn die_gracefully(
     mut commands: Commands,
     mut events: EventReader<DamageEvent>,
-    mut transition: ResMut<ScreenTransition>,
+    mut time: ResMut<Time>,
     mut elite_killed: EventWriter<EliteKilled>,
     ships: Query<(&Ship, Option<&MainShip>)>,
     mut sfx: EventWriter<PlaySFXEvent>,
@@ -117,7 +118,10 @@ pub fn die_gracefully(
                     .insert(Dead)
                     .insert(MuteShots)
                 ;
-                if main.is_some() { sfx.send(PlaySFXEvent(SFX::Die)); transition.set_if_neq(ScreenTransition::to(GameState::GameOver)); }
+                if main.is_some() {
+                    time.set_relative_speed(space::TIME_RATIO_DEAD);
+                    sfx.send(PlaySFXEvent(SFX::Die));
+                }
                 else { kills += 1; }
                 if ship.model.is_elite() { elite_killed.send(EliteKilled); }
             }
@@ -129,10 +133,16 @@ pub fn die_gracefully(
 pub fn despawn_ships(
     mut commands: Commands,
     mut wave_cleared: EventWriter<WaveCleared>,
-    dead: Query<(Entity, &Ship), (With<Dead>, Without<Blink>)>,
+    mut route: ResMut<CurrentRoute>,
+    mut transition: ResMut<ScreenTransition>,
+    dead: Query<(Entity, &Ship, Option<&MainShip>), (With<Dead>, Without<Blink>)>,
 ) {
-    for (e, ship) in dead.iter() {
+    for (e, ship, main) in dead.iter() {
         commands.entity(e).despawn_recursive();
         if ship.model.is_elite() { wave_cleared.send(WaveCleared); }
+        if main.is_some() {
+            route.lost = true;
+            transition.set_if_neq(ScreenTransition::to(GameState::GameOver));
+        }
     }
 }

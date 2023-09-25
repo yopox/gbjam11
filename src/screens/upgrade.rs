@@ -54,7 +54,7 @@ fn update(
         sfx.send(PlaySFXEvent(SFX::Buy));
         status.add(&Items::Upgrade(upgrade));
         route.advance();
-        transition.set_if_neq(ScreenTransition::to(route.state()));
+        transition.set_if_neq(ScreenTransition::to(GameState::Dummy));
     }
 }
 

@@ -52,7 +52,10 @@ pub fn update(
     match transition.transition {
         Transition::Out(state) => {
             match transition.clock {
-                1 => { if let Some(bgm) = state.bgm() { play_bgm.send(PlayBGMEvent(bgm)); } }
+                1 => {
+                    let state = if let Some(r) = route { r.state() } else { state };
+                    if let Some(bgm) = state.bgm() { play_bgm.send(PlayBGMEvent(bgm)); }
+                }
                 5 => { shader.color_1 = shader.color_0; },
                 11 => { shader.color_2 = shader.color_0; },
                 17 => { shader.color_3 = shader.color_0; },

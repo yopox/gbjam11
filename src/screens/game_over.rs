@@ -99,15 +99,19 @@ fn enter(
         }
     }
 
-    commands
-        .spawn(Text2dBundle {
-            text: Text::from_section(format!("{}-{}", route.act(), (route.level + 1 - (route.act() - 1) * Route::act_len())), TextStyles::Basic.style(&fonts)),
-            text_anchor: Anchor::BottomCenter,
-            transform: Transform::from_xyz(HALF_WIDTH, 2., z_pos::GUI),
-            ..default()
-        })
-        .insert(GameOverUI)
-    ;
+    if !route.win() {
+        commands
+            .spawn(Text2dBundle {
+                text: Text::from_section(format!("{}-{}", route.act(), (route.level + 1 - (route.act() - 1) * Route::act_len())), TextStyles::Basic.style(&fonts)),
+                text_anchor: Anchor::BottomCenter,
+                transform: Transform::from_xyz(HALF_WIDTH, 2., z_pos::GUI),
+                ..default()
+            })
+            .insert(GameOverUI)
+        ;
+    }
+
+    commands.remove_resource::<CurrentRoute>();
 }
 
 fn exit(

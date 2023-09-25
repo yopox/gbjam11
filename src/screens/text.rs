@@ -70,7 +70,7 @@ fn update(
             let max_health = ship_status.health().1;
             ship_status.set_health(max_health);
         }
-        transition.set_if_neq(ScreenTransition::to(route.state()));
+        transition.set_if_neq(ScreenTransition::to(GameState::Dummy));
     }
 }
 

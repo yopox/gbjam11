@@ -451,8 +451,9 @@ fn update_next(
 
 fn on_enter_dummy(
     mut next_state: ResMut<NextState<GameState>>,
+    route: Res<CurrentRoute>,
 ) {
-    next_state.set(GameState::Space);
+    next_state.set(route.state());
 }
 
 fn on_cleared(

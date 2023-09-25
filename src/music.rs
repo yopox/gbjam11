@@ -90,13 +90,15 @@ impl SFX {
 
             SFX::EnemyHit
             | SFX::ShipHit
-            | SFX::Die
             | SFX::Buy
                 => 0.5,
 
-            SFX::Dash
+            SFX::Die
             | SFX::Error
                 => 1.0,
+
+            SFX::Dash
+                => 1.2,
 
             _ => 0.35,
         }
@@ -159,6 +161,7 @@ fn update(
         if let Some(ref mut s) = sink {
             if !s.is_paused() { commands.insert_resource(FadeOut::to(*bgm)); }
         } else {
+            commands.entity(e).despawn_recursive();
             commands
                 .spawn(AudioBundle {
                     source: bgm.source(&sounds).clone(),
