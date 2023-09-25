@@ -1,4 +1,3 @@
-use bevy::log::error;
 use bevy::prelude::Resource;
 use rand::{Rng, RngCore, thread_rng};
 
@@ -142,7 +141,7 @@ impl Route {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum GameMode {
     Standard,
     Act2,
@@ -190,7 +189,7 @@ pub struct CurrentRoute {
     pub level: usize,
     pub lost: bool,
     pub chosen: GameState,
-    mode: GameMode,
+    pub mode: GameMode,
     angry_shopkeepers: bool,
 }
 
