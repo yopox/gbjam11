@@ -1,6 +1,7 @@
 use bevy::math::vec2;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
+use rand::{Rng, thread_rng};
 
 use crate::entities::Ship;
 use crate::entities::weapon::{ShipWeapons, Weapon};
@@ -10,10 +11,10 @@ use crate::graphics::sizes::Hitbox;
 use crate::logic::damage::damage_ship;
 use crate::logic::hit;
 use crate::logic::hit::HitEvent;
-use crate::logic::upgrades::{PIERCING, ShotUpgrades};
+use crate::logic::upgrades::{PIERCING, ShotUpgrades, STUN};
 use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::Textures;
-use crate::util::{HEIGHT, in_states, WIDTH, z_pos};
+use crate::util::{HEIGHT, in_states, upgrades, WIDTH, z_pos};
 
 pub struct ShotsPlugin;
 
@@ -79,10 +80,13 @@ impl Shots {
 #[derive(Component)]
 pub struct MuteShots;
 
+#[derive(Component)]
+pub struct MuteShotsFor(pub f32);
+
 fn shoot(
     mut commands: Commands,
     time: Res<Time>,
-    mut ships: Query<(&Ship, &FakeTransform, &mut ShipWeapons, Option<&ShotUpgrades>), Without<MuteShots>>,
+    mut ships: Query<(&Ship, &FakeTransform, &mut ShipWeapons, Option<&ShotUpgrades>), (Without<MuteShots>, Without<MuteShotsFor>)>,
     textures: Res<Textures>,
     mut sfx: EventWriter<PlaySFXEvent>,
 ) {
@@ -139,10 +143,13 @@ fn update_shots(
 }
 
 fn collide_shots(
+    mut commands: Commands,
     mut shots: Query<(&mut Shot, &Hitbox, &ShotUpgrades, &FakeTransform, Entity)>,
     ships: Query<(&Ship, &Hitbox, &FakeTransform, Entity)>,
     mut event_writer: EventWriter<HitEvent>,
 ) {
+    let mut rng = thread_rng();
+
     for (mut shot, shot_hitbox, upgrades, shot_pos, shot_entity) in shots.iter_mut() {
         for (ship, ship_hitbox, ship_pos, ship_entity) in &ships {
             if shot.friendly == ship.friendly { continue; }
@@ -154,6 +161,12 @@ fn collide_shots(
                 ship_hitbox.0,
             );
             if collision.is_some() {
+                if upgrades.0 & STUN != 0 && rng.gen_range(0.0..1.0) < upgrades::STUN_CHANCE {
+                    if let Some(mut e) = commands.get_entity(ship_entity) {
+                        info!("Muted");
+                        e.insert(MuteShotsFor(upgrades::STUN_DURATION));
+                    }
+                }
                 shot.collisions.push(ship_entity);
                 event_writer.send(HitEvent { shot: shot_entity, ship: ship_entity });
             }

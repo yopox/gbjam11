@@ -31,7 +31,7 @@ impl Plugin for LogicPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnExit(GameState::Hangar), item::reset_inventory)
-            .add_systems(Update, (upgrades::bounce_shots, upgrades::leech)
+            .add_systems(Update, (upgrades::bounce_shots, upgrades::leech, upgrades::unmute)
                 .run_if(in_states(vec![GameState::Space, GameState::Elite, GameState::Boss]))
             )
             .add_systems(Update, movement::apply_movement)

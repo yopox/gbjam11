@@ -1,7 +1,7 @@
-use bevy::prelude::{Component, DetectChanges, Query, Res, ResMut, Transform, With};
+use bevy::prelude::{Commands, Component, DetectChanges, Entity, Query, Res, ResMut, Time, Transform, With};
 use rand::{Rng, RngCore, thread_rng};
 
-use crate::entities::{MainShip, Ship, Shot};
+use crate::entities::{MainShip, MuteShotsFor, Ship, Shot};
 use crate::graphics::FakeTransform;
 use crate::logic::{Items, ShipStatus};
 use crate::logic::damage::KillCount;
@@ -15,15 +15,10 @@ pub enum Upgrades {
     ShotFrequency,
     Hull,
 
-    /// TODO: Update [logic::item::ShipStatus::shot_upgrades]
     BouncingShots,
     PiercingShots,
     LeechShots,
-    // HomingShots,
-    // StunShots,
-    // SlowingShots,
-    // SplitShots,
-    // CurlyShots,
+    StunShots,
 
     SideShots,
     Berserk,
@@ -41,6 +36,7 @@ impl Upgrades {
             Upgrades::Hull => "Hull +",
             Upgrades::BouncingShots => "Bouncing Shots",
             Upgrades::PiercingShots => "Piercing Shots",
+            Upgrades::StunShots => "Stun Shots",
             Upgrades::LeechShots => "Leech Shots",
             Upgrades::SideShots => "Side Shots",
             Upgrades::BetterShields => "Better Shields",
@@ -85,6 +81,11 @@ impl Upgrades {
                 "Make shots go".to_string(),
                 "through multiple".to_string(),
                 "enemies.".to_string(),
+            )}
+            Upgrades::StunShots => {(
+                "Shots have a 10%".to_string(),
+                "chance to mute an".to_string(),
+                "enemy for 6s on hit.".to_string(),
             )}
             Upgrades::LeechShots => {(
                 "Repair hull by 1".to_string(),
@@ -135,6 +136,7 @@ impl Upgrades {
         let options = [
             Upgrades::BouncingShots,
             Upgrades::PiercingShots,
+            Upgrades::StunShots,
             Upgrades::LeechShots,
             Upgrades::SideShots,
             Upgrades::BetterShields,
@@ -166,12 +168,7 @@ impl Upgrades {
 
 pub const BOUNCING: usize = 1 << 1;
 pub const PIERCING: usize = 1 << 2;
-pub const LEECH: usize = 1 << 3;
-pub const HOMING: usize = 1 << 4;
-pub const STUN: usize = 1 << 5;
-pub const SLOWING: usize = 1 << 6;
-pub const SPLIT: usize = 1 << 7;
-pub const CURLY: usize = 1 << 8;
+pub const STUN: usize = 1 << 3;
 
 #[derive(Component, Copy, Clone, Default)]
 pub struct ShotUpgrades(pub usize);
@@ -207,5 +204,16 @@ pub fn leech(
     if kill_count.is_changed() && kill_count.0 > 0 && kill_count.0 % upgrades::LEECH_COUNT == 0 {
         ship_status.add(&Items::Repair);
         ship.health = ship_status.health().0;
+    }
+}
+
+pub fn unmute(
+    mut commands: Commands,
+    mut muted: Query<(Entity, &mut MuteShotsFor)>,
+    time: Res<Time>,
+) {
+    for (e, mut mute) in muted.iter_mut() {
+        mute.0 -= time.delta_seconds();
+        if mute.0 <= 0. { commands.entity(e).remove::<MuteShotsFor>(); }
     }
 }

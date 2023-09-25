@@ -6,6 +6,7 @@ pub use ship::MainShip;
 pub use ship::Ship;
 pub use ship::Ships;
 pub use shot::MuteShots;
+pub use shot::MuteShotsFor;
 pub use shot::Shot;
 pub use shot::Shots;
 pub use weapon::ShipWeapons;
