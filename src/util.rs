@@ -111,7 +111,7 @@ impl Shots {
         match self {
             Shots::Bullet => 1.0,
             Shots::Wave => 0.9,
-            Shots::Energy => 8.0,
+            Shots::Energy => 6.0,
             Shots::DualBeam => 1.25,
             Shots::Missile => 10.0,
         }
