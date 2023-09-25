@@ -1,10 +1,11 @@
-use bevy::prelude::{Commands, Component, DetectChanges, Entity, Query, Res, ResMut, Time, Transform, With};
+use bevy::prelude::{Commands, Component, DetectChanges, Entity, EventWriter, Query, Res, ResMut, Time, Transform, With};
 use rand::{Rng, RngCore, thread_rng};
 
 use crate::entities::{MainShip, MuteShotsFor, Ship, Shot};
 use crate::graphics::FakeTransform;
 use crate::logic::{Items, ShipStatus};
 use crate::logic::damage::KillCount;
+use crate::music::{PlaySFXEvent, SFX};
 use crate::util::{HEIGHT, upgrades, WIDTH};
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
@@ -197,6 +198,7 @@ pub fn bounce_shots(
 pub fn leech(
     mut ship_status: ResMut<ShipStatus>,
     mut ship: Query<&mut Ship, With<MainShip>>,
+    mut sfx: EventWriter<PlaySFXEvent>,
     kill_count: Option<Res<KillCount>>,
 ) {
     let Some(kill_count) = kill_count else { return; };
@@ -204,6 +206,7 @@ pub fn leech(
     if kill_count.is_changed() && kill_count.0 > 0 && kill_count.0 % upgrades::LEECH_COUNT == 0 {
         ship_status.add(&Items::Repair);
         ship.health = ship_status.health().0;
+        sfx.send(PlaySFXEvent(SFX::Leech));
     }
 }
 

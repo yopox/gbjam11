@@ -134,4 +134,7 @@ pub struct Sounds {
 
     #[asset(path = "sfx/OS_Error.ogg")]
     pub error: Handle<AudioSource>,
+
+    #[asset(path = "sfx/OS_Leech.ogg")]
+    pub leech: Handle<AudioSource>,
 }

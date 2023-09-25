@@ -59,6 +59,7 @@ pub enum SFX {
     Buy,
     Sell,
     Error,
+    Leech,
     Dash,
     Left,
     Right,
@@ -79,6 +80,7 @@ impl SFX {
             SFX::Buy => sounds.buy.clone(),
             SFX::Sell => sounds.sell.clone(),
             SFX::Error => sounds.error.clone(),
+            SFX::Leech => sounds.leech.clone(),
             SFX::Dash => sounds.dash.clone(),
             SFX::Left => sounds.left.clone(),
             SFX::Right => sounds.right.clone(),
@@ -96,7 +98,8 @@ impl SFX {
             | SFX::Buy
                 => 0.5,
 
-            | SFX::Error
+            SFX::Error
+            | SFX::Leech
                 => 1.0,
 
             SFX::Die
