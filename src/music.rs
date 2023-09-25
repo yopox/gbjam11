@@ -159,7 +159,13 @@ fn update(
         if let Some(ref mut s) = sink {
             if !s.is_paused() { commands.insert_resource(FadeOut::to(*bgm)); }
         } else {
-            *source = bgm.source(&sounds);
+            commands
+                .spawn(AudioBundle {
+                    source: bgm.source(&sounds).clone(),
+                    settings: PlaybackSettings::LOOP,
+                })
+                .insert(BGMSource)
+            ;
         }
     }
 
