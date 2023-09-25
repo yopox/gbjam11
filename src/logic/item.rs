@@ -3,6 +3,7 @@ use bevy::utils::HashMap;
 use rand::{RngCore, thread_rng};
 
 use crate::entities::Ship;
+use crate::logic::route::CurrentRoute;
 use crate::logic::upgrades::{BOUNCING, PIERCING, STUN, Upgrades};
 use crate::screens;
 use crate::util::{items, upgrades};
@@ -115,11 +116,12 @@ impl ShipStatus {
 
 pub fn reset_inventory(
     mut commands: Commands,
+    route: Res<CurrentRoute>,
     selected_ship: Res<screens::SelectedShip>,
 ) {
     let ship = Ship::from(selected_ship.0.model());
     commands.insert_resource(ShipStatus {
-        inventory: items::STARTING_ITEMS.clone(),
+        inventory: items::STARTING_ITEMS[&route.mode].clone().into_iter().collect(),
         upgrades: vec![],
         health: ship.max_health,
         max_health: ship.max_health,

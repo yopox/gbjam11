@@ -133,13 +133,17 @@ pub mod items {
     use lazy_static::lazy_static;
 
     use crate::logic::Items;
+    use crate::logic::route::GameMode;
 
     pub const STARTING_CREDITS: i16 = 0;
 
     lazy_static! {
-        pub static ref STARTING_ITEMS: HashMap<Items, usize> = HashMap::from([
-            (Items::Missile, 3),
-            (Items::Shield, 2),
+        pub static ref STARTING_ITEMS: HashMap<GameMode, Vec<(Items, usize)>> = HashMap::from([
+            (GameMode::Standard, vec![(Items::Missile, 2), (Items::Shield, 2),]),
+            (GameMode::Act2, vec![(Items::Missile, 4), (Items::Shield, 4),]),
+            (GameMode::Act3, vec![(Items::Missile, 4), (Items::Shield, 4),]),
+            (GameMode::LastBoss, vec![(Items::Missile, 1), (Items::Shield, 2),]),
+            (GameMode::BossRush, vec![(Items::Missile, 3), (Items::Shield, 3),]),
         ]);
     }
 }
