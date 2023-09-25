@@ -96,8 +96,10 @@ impl SFX {
             SFX::EnemyHit
             | SFX::ShipHit
             | SFX::Buy
-            | SFX::Leech
                 => 0.5,
+
+            SFX::Leech
+                => 0.75,
 
             SFX::Error
             | SFX::Die
