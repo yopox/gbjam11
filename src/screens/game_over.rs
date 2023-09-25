@@ -5,7 +5,7 @@ use bevy::sprite::Anchor;
 use crate::GameState;
 use crate::graphics::{ScreenTransition, StarsSpeed, TextStyles};
 use crate::logic::damage::KillCount;
-use crate::logic::route::CurrentRoute;
+use crate::logic::route::{CurrentRoute, Route};
 use crate::logic::ShipStatus;
 use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::Fonts;
@@ -98,6 +98,16 @@ fn enter(
             }
         }
     }
+
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section(format!("{}-{}", route.act(), (route.level + 1 - (route.act() - 1) * Route::act_len())), TextStyles::Basic.style(&fonts)),
+            text_anchor: Anchor::BottomCenter,
+            transform: Transform::from_xyz(HALF_WIDTH, 2., z_pos::GUI),
+            ..default()
+        })
+        .insert(GameOverUI)
+    ;
 }
 
 fn exit(
