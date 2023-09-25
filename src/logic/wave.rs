@@ -81,6 +81,7 @@ pub enum SpecialEvent {
 enum WavePart {
     SimpleEnemy,
     ConsecutiveWithPause(u8, f32, usize),
+    Same(u8, usize, Ships, Moves),
     Parallel(usize, Vec<WavePart>),
 }
 
@@ -91,25 +92,6 @@ impl Default for WavePart {
 fn random_y(rng: &mut ThreadRng) -> f32 { HEIGHT as f32 / 5. * 2. + rng.gen_range(0.0..1.0) * HALF_HEIGHT }
 
 impl WavePart {
-    fn debug_string(&self) -> String {
-        match self {
-            WavePart::SimpleEnemy =>
-                "Single Enemy".to_string(),
-            WavePart::ConsecutiveWithPause(n, x, pause) => format!(
-                "{} Enemies with {}ms pause on x={}",
-                n, pause, x
-            ),
-            WavePart::Parallel(pause, parts) => format!(
-                "Parallel with {}ms delay: {}",
-                pause,
-                parts.iter()
-                    .map(|p| p.debug_string())
-                    .reduce(|p1, p2| format!("{} / {}", p1, p2))
-                    .unwrap_or("None".to_string())
-            ),
-        }
-    }
-
     fn events(&self, level: usize, base_y: f32) -> Vec<WaveEvent> {
         let mut events = vec![];
         match self {
@@ -127,6 +109,12 @@ impl WavePart {
                         Moves::WithPause(*x, *pause as f32 / 1000., 0., Box::new(base_move.clone())),
                     ));
                     events.push(WaveEvent::WaitMilliseconds(*pause + 2000));
+                }
+            }
+            WavePart::Same(n, pause, model, moves) => {
+                for _ in 0..*n {
+                    events.push(WaveEvent::Spawn(*model, moves.clone(), ));
+                    events.push(WaveEvent::WaitMilliseconds(*pause));
                 }
             }
             WavePart::Parallel(pause, parts) => {
@@ -156,6 +144,10 @@ impl WavePart {
             0..=8 => vec![
                 WavePart::SimpleEnemy,
                 WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
+                WavePart::Same(
+                    2, 4000,
+                    Ships::random_enemy(level), Moves::random_crossing(rng.gen_range((HALF_HEIGHT - 8.)..(HALF_HEIGHT + 24.)))
+                ),
                 WavePart::Parallel(8000, vec![
                     WavePart::SimpleEnemy,
                     WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
@@ -173,12 +165,56 @@ impl WavePart {
             9..=17 => vec![
                 WavePart::ConsecutiveWithPause(3, HALF_WIDTH, 4000),
                 WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3500),
+                WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 0),
+                WavePart::ConsecutiveWithPause(3, HALF_WIDTH, 0),
+                WavePart::Same(
+                    2, 3000,
+                    Ships::random_enemy(level), Moves::random_crossing(rng.gen_range((HALF_HEIGHT - 8.)..(HALF_HEIGHT + 24.)))
+                ),
+                WavePart::Same(
+                    3, 4500,
+                    Ships::random_enemy(level), Moves::random_crossing(rng.gen_range((HALF_HEIGHT - 8.)..(HALF_HEIGHT + 24.)))
+                ),
+                WavePart::Parallel(8000, vec![
+                    WavePart::Same(
+                        2, 3000,
+                        Ships::random_enemy(level), Moves::random_crossing(rng.gen_range((HALF_HEIGHT - 8.)..(HALF_HEIGHT + 8.)))
+                    ),
+                    WavePart::Same(
+                        2, 3000,
+                        Ships::random_enemy(level), Moves::random_crossing(rng.gen_range((HALF_HEIGHT + 16.)..(HALF_HEIGHT + 32.)))
+                    ),
+                ]),
                 WavePart::Parallel(8000, vec![
                     WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
                     WavePart::ConsecutiveWithPause(2, HALF_WIDTH, 4000),
                 ]),
+                WavePart::Parallel(8000, vec![
+                    WavePart::ConsecutiveWithPause(3, HALF_WIDTH / 3., 4000),
+                    WavePart::ConsecutiveWithPause(3, HALF_WIDTH / 3. * 2., 4000),
+                ]),
             ],
             _ => vec![
+                WavePart::ConsecutiveWithPause(3, HALF_WIDTH, 0),
+                WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 0),
+                WavePart::Same(
+                    4, 5000,
+                    Ships::random_enemy(level), Moves::random_crossing(rng.gen_range((HALF_HEIGHT - 8.)..(HALF_HEIGHT + 24.)))
+                ),
+                WavePart::Parallel(8000, vec![
+                    WavePart::Same(
+                        3, 3500,
+                        Ships::random_enemy(level), Moves::random_crossing(rng.gen_range((HALF_HEIGHT - 8.)..(HALF_HEIGHT + 8.)))
+                    ),
+                    WavePart::Same(
+                        3, 3500,
+                        Ships::random_enemy(level), Moves::random_crossing(rng.gen_range((HALF_HEIGHT + 16.)..(HALF_HEIGHT + 32.)))
+                    ),
+                ]),
+                WavePart::Parallel(8000, vec![
+                    WavePart::ConsecutiveWithPause(4, HALF_WIDTH / 3., 3500),
+                    WavePart::ConsecutiveWithPause(4, HALF_WIDTH / 3. * 2., 3500),
+                ]),
                 WavePart::ConsecutiveWithPause(4, HALF_WIDTH, 3500),
                 WavePart::ConsecutiveWithPause(5, HALF_WIDTH, 3500),
             ],
@@ -209,7 +245,6 @@ impl CurrentWave {
 
         for _ in 0..space::patterns_nb(level) {
             let wave_part = WavePart::random(level);
-            info!("- {}", wave_part.debug_string());
             wave.append(&mut wave_part.events(level, random_y(&mut rng)));
             // Always end wave with [WaveEvent::WaitForClear]
             wave.push(WaveEvent::WaitForClear);
