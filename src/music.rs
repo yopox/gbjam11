@@ -1,4 +1,5 @@
 use bevy::app::App;
+use bevy::asset::HandleId;
 use bevy::audio::{PlaybackMode, Volume, VolumeLevel};
 use bevy::prelude::*;
 
@@ -26,6 +27,7 @@ pub enum BGM {
     Boss,
     Shop,
     Repair,
+    None,
 }
 
 impl BGM {
@@ -38,6 +40,7 @@ impl BGM {
             BGM::Boss => sounds.boss.clone(),
             BGM::Shop => sounds.shop.clone(),
             BGM::Repair => sounds.repair.clone(),
+            BGM::None => Handle::weak(HandleId::default::<AudioSource>()),
         }
     }
 }

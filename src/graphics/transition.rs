@@ -4,7 +4,7 @@ use bevy::prelude::{DetectChangesMut, EventWriter, NextState, Query, Res, ResMut
 use crate::GameState;
 use crate::graphics::{CurrentPalette, GBShaderSettings};
 use crate::logic::route::CurrentRoute;
-use crate::music::PlayBGMEvent;
+use crate::music::{BGM, PlayBGMEvent};
 use crate::util::space;
 
 #[derive(Eq, PartialEq)]
@@ -53,8 +53,11 @@ pub fn update(
         Transition::Out(state) => {
             match transition.clock {
                 1 => {
-                    let state = if let Some(r) = route { r.state() } else { state };
-                    if let Some(bgm) = state.bgm() { play_bgm.send(PlayBGMEvent(bgm)); }
+                    if state == GameState::SimpleText { play_bgm.send(PlayBGMEvent(BGM::None)); }
+                    else {
+                        let non_dummy = if let Some(r) = route { r.state() } else { state };
+                        if let Some(bgm) = non_dummy.bgm() { play_bgm.send(PlayBGMEvent(bgm)); }
+                    }
                 }
                 5 => { shader.color_1 = shader.color_0; },
                 11 => { shader.color_2 = shader.color_0; },
