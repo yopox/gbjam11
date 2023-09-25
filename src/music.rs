@@ -96,11 +96,11 @@ impl SFX {
             | SFX::Buy
                 => 0.5,
 
-            SFX::Die
             | SFX::Error
                 => 1.0,
 
-            SFX::Dash
+            SFX::Die
+            | SFX::Dash
                 => 1.2,
 
             _ => 0.35,
