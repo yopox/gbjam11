@@ -445,6 +445,7 @@ fn update_next(
         let mut state = next_state.unwrap().state();
         if state == GameState::Shop && route.are_shopkeepers_angry() { state = GameState::Elite; }
         if state == GameState::Space { state = GameState::Dummy; }
+        route.chosen = state;
         transition.set_if_neq(ScreenTransition::to(state));
     }
 }

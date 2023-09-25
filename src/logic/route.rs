@@ -97,13 +97,10 @@ pub enum RouteElement {
 }
 
 impl RouteElement {
-    pub fn state(&self) -> GameState {
+    pub fn state(&self) -> Option<GameState> {
         match self {
-            RouteElement::Level(l) => l.state(),
-            RouteElement::Choice(_, _) => {
-                error!("Next RouteElement shouldn't be a choice.");
-                GameState::Space
-            },
+            RouteElement::Level(l) => Some(l.state()),
+            RouteElement::Choice(_, _) => None,
         }
     }
 
@@ -192,13 +189,14 @@ pub struct CurrentRoute {
     pub route: Route,
     pub level: usize,
     pub lost: bool,
+    pub chosen: GameState,
     mode: GameMode,
     angry_shopkeepers: bool,
 }
 
 impl CurrentRoute {
     pub fn new(mode: GameMode) -> Self {
-        let mut cr = CurrentRoute { route: Route::new(), level: 0, lost: false, mode, angry_shopkeepers: false };
+        let mut cr = CurrentRoute { route: Route::new(), level: 0, lost: false, chosen: GameState::Dummy, mode, angry_shopkeepers: false };
         if !cr.mode.accepts((cr.route.0[cr.level], cr.level)) { cr.advance(); }
         cr
     }
@@ -212,7 +210,10 @@ impl CurrentRoute {
         if self.level >= self.route.0.len() { return GameState::Hangar; }
         if self.lost { return GameState::GameOver; }
 
-        let s = self.route.0[self.level].state();
+        let s = match self.route.0[self.level].state() {
+            Some(state) => state,
+            None => self.chosen,
+        };
         if self.angry_shopkeepers && s == GameState::Shop { GameState::Elite } else { s }
     }
 
