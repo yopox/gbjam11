@@ -45,12 +45,11 @@ pub fn damage_ship(
             let (mut data, is_main_ship, is_blinking) = ships.get_mut(*ship).unwrap();
 
             // Main ship invulnerable if blinking
-            // TODO all friendly ships?
             if is_main_ship.and(is_blinking).is_none() {
                 let mut damage = shots.get(*shot).unwrap().weapon.attack;
                 if is_main_ship.is_none() && ship_status.is_berserk() { damage *= 2.; }
                 if data.health > 0.001 {
-                    hit = Some(data.friendly);
+                    if !data.model.is_shield() { hit = Some(data.friendly); }
                     if data.health < damage { data.health = 0.; }
                     else { data.health -= damage; }
                     if is_main_ship.is_some() { ship_status.set_health(data.health); }

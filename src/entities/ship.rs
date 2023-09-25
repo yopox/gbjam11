@@ -32,6 +32,13 @@ impl Ships {
         }
     }
 
+    pub fn is_shield(&self) -> bool {
+        match self {
+            Ships::Player(99) => true,
+            _ => false,
+        }
+    }
+
     pub fn random_enemy(level: usize) -> Self {
         let mut rng = thread_rng();
         let possible = [
@@ -203,7 +210,7 @@ impl Ship {
             ,
             Ships::Invader(2) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH / 2.)
-                .with_speed(base_stats::SPEED)
+                .with_speed(base_stats::SPEED / 1.5)
                 .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.5)
             ,
             Ships::Invader(3) => Ship::new(model, false)
@@ -216,25 +223,25 @@ impl Ship {
             ,
             Ships::Invader(5) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH / 2.0)
-                .with_speed(base_stats::SPEED * 1.25)
-                .with_damage_factor(base_stats::DAMAGE_FACTOR * 2.0)
+                .with_speed(base_stats::SPEED / 1.25)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.5)
             ,
             Ships::Invader(6) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH * 2.)
                 .with_speed(base_stats::SPEED / 2.)
                 .with_shot_frequency(base_stats::SHOT_FREQUENCY / 1.5)
-                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.5)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.25)
             ,
             Ships::Invader(7) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH * 1.5)
-                .with_speed(base_stats::SPEED * 1.25)
-                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.5)
+                .with_speed(base_stats::SPEED / 1.25)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.25)
             ,
             Ships::Invader(8) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH * 1.5)
                 .with_speed(base_stats::SPEED / 1.5)
-                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 2.0)
-                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.5)
+                .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.5)
+                .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.25)
             ,
             Ships::Boss(0) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH * 14.)
@@ -247,6 +254,7 @@ impl Ship {
             ,
             Ships::Boss(2) => Ship::new(model, false)
                 .with_health(base_stats::HEALTH * 14.)
+                .with_speed(base_stats::SPEED / 1.1)
                 .with_shot_frequency(base_stats::SHOT_FREQUENCY * 1.15)
                 .with_damage_factor(base_stats::DAMAGE_FACTOR * 1.35)
             ,
