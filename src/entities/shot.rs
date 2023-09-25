@@ -93,6 +93,7 @@ fn shoot(
     for (ship, ship_pos, mut weapons, upgrades) in ships.iter_mut() {
         weapons.timer += time.delta_seconds();
         let mut fired = false;
+        if !((-8.)..(WIDTH as f32 + 8.)).contains(&ship_pos.translation.x) { continue; }
         for weapon in &weapons.weapons {
             if weapon.fires(weapons.timer, time.delta_seconds()) {
                 fired = true;
