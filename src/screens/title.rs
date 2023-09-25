@@ -79,8 +79,18 @@ fn enter(
             text_anchor: Anchor::Center,
             ..default()
         })
-        .insert(FakeTransform::from_xyz(HALF_WIDTH, 32., z_pos::GUI))
+        .insert(FakeTransform::from_xyz(HALF_WIDTH, 40., z_pos::GUI))
         .insert(PressStart)
+        .insert(TitleUI)
+    ;
+
+    commands
+        .spawn(Text2dBundle {
+            text: Text::from_section("by cdelabou, VicoPepin & yopox", TextStyles::Basic.style(&fonts)),
+            text_anchor: Anchor::BottomCenter,
+            ..default()
+        })
+        .insert(FakeTransform::from_xyz(HALF_WIDTH, 4., z_pos::GUI))
         .insert(TitleUI)
     ;
 }
