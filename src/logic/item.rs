@@ -26,6 +26,10 @@ impl ShipStatus {
 
         if let Items::Upgrade(u) = *item {
             self.upgrades.push(u);
+            if u == Upgrades::Hull {
+                self.max_health += 4.;
+                self.health += 4.;
+            }
             return;
         }
 

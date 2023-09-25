@@ -69,7 +69,7 @@ pub mod star_field {
 }
 
 pub mod hud {
-    pub const HEALTH_BAR_SIZE: usize = 32;
+    pub const HEALTH_BAR_SIZE: usize = 24;
 }
 
 pub mod z_pos {

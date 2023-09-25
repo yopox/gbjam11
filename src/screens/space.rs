@@ -15,7 +15,7 @@ use crate::music::{PlaySFXEvent, SFX};
 use crate::screens::{Fonts, Textures};
 use crate::screens::hangar::SelectedShip;
 use crate::screens::text::SimpleText;
-use crate::util::{Angle, BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, star_field, WIDTH, z_pos};
+use crate::util::{Angle, base_stats, BORDER, HALF_HEIGHT, HALF_WIDTH, HEIGHT, in_states, space, star_field, WIDTH, z_pos};
 use crate::util::hud::HEALTH_BAR_SIZE;
 
 pub struct SpacePlugin;
@@ -123,7 +123,7 @@ fn enter(
         .insert(LifeBar)
         .insert(FakeTransform::from_xyz_and_scale(
             8., 4., z_pos::GUI,
-            main_ship_bundle.ship.health / main_ship_bundle.ship.max_health * HEALTH_BAR_SIZE as f32, 1.,
+            main_ship_bundle.ship.health / base_stats::HEALTH * HEALTH_BAR_SIZE as f32, 1.,
         ))
         .insert(SpaceUI)
     ;
@@ -168,7 +168,7 @@ fn enter(
     // GUI
     commands
         .spawn(Text2dBundle {
-            text: Text::from_section("Life", TextStyles::Basic.style(&fonts)),
+            text: Text::from_section("Hull", TextStyles::Basic.style(&fonts)),
             text_anchor: Anchor::BottomLeft,
             transform: Transform::from_xyz(8., 4., z_pos::GUI),
             ..default()
@@ -245,7 +245,7 @@ fn update_life(
 
     if let Ok(ship) = main_ship.get_single() {
         bar_transform.single_mut().scale = Some(vec2(
-            ship.health / ship.max_health * HEALTH_BAR_SIZE as f32,
+            ship.health / base_stats::HEALTH * HEALTH_BAR_SIZE as f32,
             1.,
         ));
     }
