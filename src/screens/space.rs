@@ -475,8 +475,6 @@ fn on_cleared(
     if cleared.is_empty() && !force { return; }
     cleared.clear();
 
-    info!("Wave cleared.");
-
     match state.get() {
         GameState::Elite => {
             text.0 = "Elite defeated!".to_string();

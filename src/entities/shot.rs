@@ -163,7 +163,6 @@ fn collide_shots(
             if collision.is_some() {
                 if upgrades.0 & STUN != 0 && rng.gen_range(0.0..1.0) < upgrades::STUN_CHANCE {
                     if let Some(mut e) = commands.get_entity(ship_entity) {
-                        info!("Muted");
                         e.insert(MuteShotsFor(upgrades::STUN_DURATION));
                     }
                 }
