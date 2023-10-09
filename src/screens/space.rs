@@ -279,6 +279,7 @@ fn update_shield(
     // Update existing shield
     if let Ok((e, mut pos, mut shield)) = shield.get_single_mut() {
         pos.translation.x = player_pos.translation.x;
+        pos.translation.y = player_pos.translation.y + space::SHIELD_OFFSET;
         if shield.0 > space::BLINK_DURATION && shield.0 - time.delta_seconds() <= space::BLINK_DURATION {
             commands.entity(e).insert(Blink(space::BLINK_DURATION));
         }
@@ -293,7 +294,7 @@ fn update_shield(
                     texture: textures.shield.clone(),
                     ..default()
                 })
-                .insert(FakeTransform::from_xyz(player_pos.translation.x, player_pos.translation.y + 8., player_pos.translation.y))
+                .insert(FakeTransform::from_xyz(player_pos.translation.x, player_pos.translation.y + space::SHIELD_OFFSET, player_pos.translation.y))
                 .insert(Hitbox(vec2(16., 2.)))
                 .insert(Shield(space::SHIELD_DURATION * if ship_status.has_upgrade(Upgrades::BetterShields) { 2. } else { 1. }))
                 .insert(Ship::shield())

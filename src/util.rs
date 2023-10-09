@@ -27,6 +27,7 @@ pub mod space {
 
     pub const TIME_RATIO_DEAD: f32 = 0.6;
 
+    pub const SHIELD_OFFSET: f32 = 8.;
     pub const SHIELD_DURATION: f32 = 6.;
     pub const MISSILE_RANGE: usize = WIDTH / 3;
     pub const MISSILE_SPEED: f32 = base_stats::SPEED / 3.;
